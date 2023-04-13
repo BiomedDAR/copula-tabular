@@ -9,6 +9,8 @@ Generate tabular synthetic data using Gaussian copulas
 ## Overview
 
 ## Documentation
+For installation instructions, getting started guides and tutorials, background information, and API reference summaries, please see the 
+[website](https://biomeddar.github.io/copula-tabular/).
 
 ## How to cite
 
