@@ -1,11 +1,15 @@
 ---
-title: Tabular Synthetic Generation using Gaussian Copula
+title: Getting Started
 layout: default
 nav_order: 1
 ---
 
-# Getting Started
+## Overview
 
-# Background
+## Features
 
-# Help & Reference
+## Installation
+
+## Quickstart
+
+## Examples
