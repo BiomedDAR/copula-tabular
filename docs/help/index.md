@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Background
-nav_order: 2
+title: Help and Reference
+nav_order: 1
 has_children: true
 ---
