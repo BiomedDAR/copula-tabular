@@ -1,7 +1,7 @@
 title: <your web page title> # EDIT: Fill this in
 description: <description of your web page> # EDIT: Fill this in
 
-remote_theme: Slate
+remote_theme: slate
 github_repo_url: "https://biomeddar.github.io/copula-tabular/" # EDIT: REPLACE WITH THE URL TO YOUR WEBPAGE
 
 # Heading anchor links appear on hover over h1-h6 tags in page content

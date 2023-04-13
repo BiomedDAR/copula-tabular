@@ -1,5 +1,5 @@
 ---
-title: <enter your title here>
+title: Tabular Synthetic Generation using Gaussian Copula
 layout: default
 nav_order: 1
 ---
