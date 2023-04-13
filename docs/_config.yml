@@ -1,30 +1,8 @@
-title: Tabular Copula # EDIT: Fill this in
-description: Tabular Synthetic Generation using Gaussian Copula # EDIT: Fill this in
+title: Just the Docs Template
+description: A starter template for a Jeykll site using the Just the Docs theme!
+theme: just-the-docs
 
-remote_theme: pmarsceill/just-the-docs # Borrowing the theme from https://github.com/pmarsceill/just-the-docs
-github_repo_url: "https://biomeddar.github.io/copula-tabular/" # EDIT: REPLACE WITH THE URL TO YOUR WEBPAGE
+url: https://biomeddar.github.io/copula-tabular/
 
-# Heading anchor links appear on hover over h1-h6 tags in page content
-# allowing users to deep link to a particular heading on a page. (true or false)
-heading_anchors: true
-
-# Activate a "Back to top" link
-back_to_top: true
-back_to_top_text: "Back to top"
-
-# Footer last edited timestamp
-last_edit_timestamp: true # show or hide edit time - page must have `last_modified_date` defined in the frontmatter
-last_edit_time_format: "%b %e %Y at %I:%M %p" # uses ruby's time format: https://ruby-doc.org/stdlib-2.7.0/libdoc/time/rdoc/Time.html
-
-# A footer with "Edit this page on GitHub" link text
-gh_edit_link: true # show or hide edit this page link
-gh_edit_link_text: "View this content on GitHub"
-gh_edit_repository: "https://github.com/BiomedDAR/copula-tabular" # EDIT: ADD THE URL TO YOUR GITHUB REPO
-gh_edit_branch: "master" # the branch that your docs is served from
-# gh_edit_source: docs # the source that your files originate from
-gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
-
-# Include plugins for relative links and a remote theme
-plugins:
-  - jekyll-relative-links
-  - jekyll-remote-theme
+aux_links:
+  Template Repository: https://github.com/BiomedDAR/copula-tabular
