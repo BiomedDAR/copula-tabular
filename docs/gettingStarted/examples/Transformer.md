@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Examples
-parent: Getting Started
-nav_order: 5
+title: Example for Transformer class
+parent: Examples
+nav_order: 1
 ---
 
 ## Example of Transformer Class
