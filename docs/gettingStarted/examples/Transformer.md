@@ -24,8 +24,8 @@ sys.path.insert(0, par_dir)
 We're using the `gen_randomData` function to simulate common encountered datatypes, including booleans, floats, integers, date-times, and strings. For greater authenticity, the data contains randomised missing values.
 ```
 # GENERATE RANDOM DATA
-dtypes = ['bool', 'float', 'int', 'datetime', 'str', 'str', 'str'] # dtypes
-nans = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4] #percentage of nans
+dtypes = ['bool', 'float', 'int', 'datetime', 'str', 'str', 'str', 'str'] # dtypes
+nans = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4] #percentage of nans
 size = 12 #number of sample points
 
 rawData_df = gen_randomData(dtypes=dtypes, nans=nans, size=size)
@@ -35,19 +35,19 @@ print(f"RAW DATA\n:{rawData_df}")
 #### Sample output
 ```
 RAW DATA
-:   1_bool    2_float  3_int          4_datetime 5_str 6_str 7_str
-0    True  64.965030   65.0                 NaT     B     A     D 
-1    True  43.137312   63.0                 NaT   NaN     A     C 
-2    True  77.959531    NaN 2021-04-30 06:02:00     B   NaN     A 
-3     NaN        NaN   22.0 2020-06-05 02:56:00   NaN     C     D 
-4   False  74.010448    NaN                 NaT     B   NaN     C 
-5   False  43.232770   30.0 2021-07-22 03:09:00   NaN   NaN   NaN 
-6    True  78.903848    1.0 2021-08-26 05:19:00     A     C   NaN 
-7     NaN  64.350496    NaN                 NaT     B     D   NaN 
-8   False        NaN   93.0 2020-09-21 14:34:00     C     A   NaN 
-9     NaN        NaN   90.0 2020-03-25 16:31:00     C     B     A 
-10    NaN   8.232522    NaN 2021-01-13 19:56:00   NaN   NaN     B 
-11  False        NaN   89.0 2021-06-26 17:25:00     D     C     A 
+:   1_bool    2_float  3_int          4_datetime 5_str 6_str 7_str 8_str
+0   False   7.058297   42.0 2019-12-26 06:39:00     D   NaN     D   NaN 
+1   False  13.122099   71.0                 NaT     A     A     D   NaN 
+2     NaN        NaN   26.0                 NaT     C     C     D     B 
+3     NaN  89.938102    NaN 2020-06-09 07:08:00     C     B     A   NaN 
+4    True  85.527006    NaN 2020-02-22 12:54:00     C     B     D     A 
+5     NaN  72.566412   39.0 2020-06-04 08:36:00   NaN   NaN     A     B 
+6   False  30.504605    NaN                 NaT   NaN     C     D     D 
+7     NaN  63.675184    NaN                 NaT     D     A     C     C 
+8    True        NaN   11.0 2021-07-05 12:22:00     A     A   NaN     B 
+9    True        NaN   95.0 2021-05-15 06:56:00     C   NaN   NaN     C 
+10  False  75.161072   36.0 2020-02-17 00:23:00   NaN     C   NaN     C 
+11  False        NaN   60.0 2021-08-10 22:58:00   NaN   NaN   NaN   NaN
 ```
 
 ### Define metadata settings for Transformer
@@ -72,6 +72,9 @@ metaData = {
     },
     '7_str': {
         'transformer_type': 'One-Hot'
+    },
+    '8_str': {
+        'transformer_type': 'Cat1Fuzzy'
     }
 }
 ```
@@ -87,19 +90,19 @@ print(f"TRANSFORMED DATA\n:{numeric_df}")
 #### Sample output
 ```
 TRANSFORMED DATA
-:    1_bool.value  1_bool.is_null  2_float.value  2_float.is_null  3_int.value  3_int.is_null  4_datetime.value  4_datetime.is_null  5_str.value  6_str.value  7_str.A  7_str.B  7_str.C  7_str.D  7_str.is_null
-0            1.0             0.0      64.965030              0.0         65.0            0.0        26852324.0                 1.0          2.0     0.291667      0.0      0.0      0.0      1.0            0.0
-1            1.0             0.0      43.137312              0.0         63.0            0.0        26852324.0                 1.0          3.0     0.291667      0.0      0.0      1.0      0.0            0.0
-2            1.0             0.0      77.959531              0.0         57.0            1.0        26996042.0                 0.0          2.0     0.833333      1.0      0.0      0.0      0.0            0.0
-3           -1.0             1.0      33.000000              1.0         22.0            0.0        26522096.0                 0.0          3.0     0.541667      0.0      0.0      0.0      1.0            0.0
-4            0.0             0.0      74.010448              0.0         57.0            1.0        26852324.0                 1.0          2.0     0.833333      0.0      0.0      1.0      0.0            0.0
-5            0.0             0.0      43.232770              0.0         30.0            0.0        27115389.0                 0.0          3.0     0.833333      0.0      0.0      0.0      0.0            1.0
-6            1.0             0.0      78.903848              0.0          1.0            0.0        27165919.0                 0.0          1.0     0.541667      0.0      0.0      0.0      0.0            1.0
-7           -1.0             1.0      64.350496              0.0         57.0            1.0        26852324.0                 1.0          2.0     0.041667      0.0      0.0      0.0      0.0            1.0
-8            0.0             0.0      33.000000              1.0         93.0            0.0        26678314.0                 0.0          4.0     0.291667      0.0      0.0      0.0      0.0            1.0
-9           -1.0             1.0      33.000000              1.0         90.0            0.0        26419231.0                 0.0          4.0     0.125000      1.0      0.0      0.0      0.0            0.0
-10          -1.0             1.0       8.232522              0.0         57.0            1.0        26842796.0                 0.0          3.0     0.833333      0.0      1.0      0.0      0.0            0.0
-11           0.0             0.0      33.000000              1.0         89.0            0.0        27078805.0                 0.0          0.0     0.541667      1.0      0.0      0.0      0.0            0.0
+:    1_bool.value  1_bool.is_null  2_float.value  2_float.is_null  3_int.value  3_int.is_null  4_datetime.value  4_datetime.is_null  5_str.value  6_str.value  7_str.A  7_str.C  7_str.D  7_str.is_null  8_str.value
+0            0.0             0.0       7.058297              0.0         42.0            0.0        26289039.0                 0.0          1.0     0.166667      0.0      0.0      1.0            0.0     0.081037 
+1            0.0             0.0      13.122099              0.0         71.0            0.0        26666144.0                 1.0          2.0     0.458333      0.0      0.0      1.0            0.0     0.119631 
+2           -1.0             1.0      33.000000              1.0         26.0            0.0        26666144.0                 1.0          0.0     0.708333      0.0      0.0      1.0            0.0     0.450521 
+3           -1.0             1.0      89.938102              0.0         48.0            1.0        26528108.0                 0.0          0.0     0.916667      1.0      0.0      0.0            0.0     0.156109 
+4            1.0             0.0      85.527006              0.0         48.0            1.0        26372934.0                 0.0          0.0     0.916667      0.0      0.0      1.0            0.0     0.876966 
+5           -1.0             1.0      72.566412              0.0         39.0            0.0        26520996.0                 0.0          3.0     0.166667      1.0      0.0      0.0            0.0     0.417472 
+6            0.0             0.0      30.504605              0.0         48.0            1.0        26666144.0                 1.0          3.0     0.708333      0.0      0.0      1.0            0.0     0.964542 
+7           -1.0             1.0      63.675184              0.0         48.0            1.0        26666144.0                 1.0          1.0     0.458333      0.0      1.0      0.0            0.0     0.674243
+8            1.0             0.0      33.000000              1.0         11.0            0.0        27091462.0                 0.0          2.0     0.458333      0.0      0.0      0.0            1.0     0.452573
+9            1.0             0.0      33.000000              1.0         95.0            0.0        27017696.0                 0.0          0.0     0.166667      0.0      0.0      0.0            1.0     0.632900
+10           0.0             0.0      75.161072              0.0         36.0            0.0        26364983.0                 0.0          3.0     0.708333      0.0      0.0      0.0            1.0     0.657557
+11           0.0             0.0      33.000000              1.0         60.0            0.0        27143938.0                 0.0          3.0     0.166667      0.0      0.0      0.0            1.0     0.100591
 ```
 
 ### Reverse numerical data back to its original form
@@ -112,17 +115,17 @@ print(f"REVERSED DATA\n:{reversed_df}")
 #### Sample output
 ```
 REVERSED DATA
-:    1_bool    2_float  3_int           4_datetime 5_str 6_str 7_str
-0     True   64.96503     65                 <NA>     B     A     D
-1     True  43.137312     63                 <NA>  <NA>     A     C
-2     True  77.959531   <NA>  2021-04-30 06:02:00     B  <NA>     A
-3     <NA>       <NA>     22  2020-06-05 02:56:00  <NA>     C     D
-4    False  74.010448   <NA>                 <NA>     B  <NA>     C
-5    False   43.23277     30  2021-07-22 03:09:00  <NA>  <NA>  <NA>
-6     True  78.903848      1  2021-08-26 05:19:00     A     C  <NA>
-7     <NA>  64.350496   <NA>                 <NA>     B     D  <NA>
-8    False       <NA>     93  2020-09-21 14:34:00     C     A  <NA>
-9     <NA>       <NA>     90  2020-03-25 16:31:00     C     B     A
-10    <NA>   8.232522   <NA>  2021-01-13 19:56:00  <NA>  <NA>     B
-11   False       <NA>     89  2021-06-26 17:25:00     D     C     A
+:    1_bool    2_float  3_int           4_datetime 5_str 6_str 7_str 8_str
+0    False   7.058297     42  2019-12-26 06:39:00     D  <NA>     D  <NA>
+1    False  13.122099     71                 <NA>     A     A     D  <NA>
+2     <NA>       <NA>     26                 <NA>     C     C     D     B
+3     <NA>  89.938102   <NA>  2020-06-09 07:08:00     C     B     A  <NA>
+4     True  85.527006   <NA>  2020-02-22 12:54:00     C     B     D     A
+5     <NA>  72.566412     39  2020-06-04 08:36:00  <NA>  <NA>     A     B
+6    False  30.504605   <NA>                 <NA>  <NA>     C     D     D
+7     <NA>  63.675184   <NA>                 <NA>     D     A     C     C
+8     True       <NA>     11  2021-07-05 12:22:00     A     A  <NA>     B
+9     True       <NA>     95  2021-05-15 06:56:00     C  <NA>  <NA>     C
+10   False  75.161072     36  2020-02-17 00:23:00  <NA>     C  <NA>     C
+11   False       <NA>     60  2021-08-10 22:58:00  <NA>  <NA>  <NA>  <NA>
 ```

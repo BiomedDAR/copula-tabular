@@ -11,21 +11,41 @@ class Transformer:
         metaData (dict): 
             E.g. '<name of field>: {
                 'null': use this field to specify the fill value for <na> entries. non-numerical options include 'mean', 'mode', 'median'. Numerical values will be used directly. Default for 'boolean' is -1. Default for 'float' and 'int' is 'mean'. (rounded to int for 'int')
-                'transformer_type': use this field to specify transformer type, esp. for 'string' inputs. Options include 'One-Hot', 'LabelEncoding', 'Cat1'
+
+                'transformer_type': use this field to specify transformer type to use, especially for dtype inputs with multiple options. 
+                    - For 'string' inputs, options include 'One-Hot', 'LabelEncoding', 'Cat1', 'Cat1Fuzzy'
+
+                        - One-Hot: This option takes in a single column with N unique categories and returns N vectors, each with a length equal to the length of the original vector. The returned vectors have `1`s in the rows where the corresponding category is found in the original vector and `0`s on the rest.
+
+                        - LabelEncoding: This option takes in a column of categories and returns a list of the same length with each category replaced by a unique integer representation. The integer value assigned to each category is determined by the order that the categories appear in the input list.
+
+                        - Cat1: This option computes a representative float for each of the categories found in the fit data. The representatives are computed by sorting the categorical values by their relative frequency, then dividing the ``[0, 1]`` interval into sub-intervals of lengths corresponding to the relative frequencies and assigning the midpoint of each sub-interval to the corresponding category. When the transformation is reverted, each value is assigned the category that corresponds to the interval it falls in.
+
+                        - Cat1Fuzzy: This option is the same as Cat1, except for the additional Gaussian noise around the class representative of each interval. (ref. Synthetic Data Vault package)
+
                 'datetime_format': use this field to specify the datetime format, for 'datetime' inputs
             }
+        default_transformer_type_4_string (str): specify the default transformer_type for dtype='string'. Default is 'One-Hot'. Options include 'One-Hot', 'LabelEncoding', 'Cat1'.
+
+        default_datetime_format (str): Default datetime format to use. Default is f"%Y-%m-%d %H:%M:%S".
+
+        debug (bool): Flag to print debugging lines. Default is `False`.
     """
     def __init__(self,
         metaData=None,
         definitions=None,
-        debug=True
+        default_transformer_type_4_string='One-Hot',
+        default_datetime_format=f"%Y-%m-%d %H:%M:%S",
+        debug=False
     ):
         self.metaData = metaData
         self.definitions = definitions
         self.debug = debug
+
         self.transformer_meta_dict = None
 
-        self.default_transformer_type_4_string = 'One-Hot'
+        self.default_transformer_type_4_string = default_transformer_type_4_string
+        self.default_datetime_format = default_datetime_format
 
     def convert_2_dtypes(self, data):
         """Convert data (df) into best possible dtypes"""
@@ -53,7 +73,7 @@ class Transformer:
     
     def _get_datetime_format_from_metaData(self, column):
 
-        datetime_format = None
+        datetime_format = self.default_datetime_format
         if self.metaData is not None:
             if column in self.metaData:
                 if 'datetime_format' in self.metaData[column]:
@@ -76,7 +96,11 @@ class Transformer:
 
         return transformer_type
     
-    def _categorical_transformer(self, df_col):
+    def _categorical_transformer(self, df_col, type='Fixed'):
+        """
+        Change log:
+            - MZ 18-04-2023: add "fuzzy" option, ref. SDV
+        """
 
         # Create a dictionary to store the relative frequences of each category
         rel_freq = {}
@@ -89,18 +113,23 @@ class Transformer:
 
         # Sort the categories by their relative frequencies
         sorted_categories = {}
-        for k,v in sorted(rel_freq.items(), key=lambda x:x[1]):
+        for k,v in sorted(rel_freq.items(), key=lambda x:x[1], reverse=True): #sorting in descending order
             sorted_categories[k] = v
 
         # Divide the [0,1] interval by the relative frequencies
         cat_intervals = {}
         intervals = []
+        cat_std = {} #Add fuzzy implementation as in SDV
+
         lower_bound = 0
         for cat in sorted_categories:
             upper_bound = lower_bound + rel_freq[cat]
             intervals.append([lower_bound, upper_bound])
             cat_intervals[cat] = [lower_bound, upper_bound]
             lower_bound = upper_bound
+
+            if type=='Gaussian': #Add fuzzy implementation as in SDV
+                cat_std[cat] = rel_freq[cat]/6
             
 
         # Assign the middle point of each interval to the corresponding category
@@ -111,11 +140,16 @@ class Transformer:
         # Replace the instances of the categories with the corresponding representative
         transformed_column = deepcopy(df_col)
         for cat in df_col.unique():
-            transformed_column[df_col==cat] = rep[cat]
+            if type=='Fixed':
+                transformed_column[df_col==cat] = rep[cat]
+            elif type=='Gaussian':
+                mean = rep[cat]
+                std = cat_std[cat]
+                transformed_column = transformed_column.apply(lambda x: np.random.normal(mean, std) if x == cat else x)
 
         transformed_column = transformed_column.astype('float') #convert column from uint8 to float dtype
 
-        return transformed_column, rep, cat_intervals
+        return transformed_column, rep, cat_intervals, cat_std
     
     def _reverse_categorical_transformer(self, df_col, intervals):
         
@@ -240,13 +274,31 @@ class Transformer:
                     # Categorical transformation: assigning representative float by frequency of occurence
                     data_df[col] = data_df[col].fillna('IS_NULL')
                     output_field_name = f"{col}.value"
-                    transformed_col, rep, intervals = self._categorical_transformer(data_df[col])
+                    transformed_col, rep, intervals, stds = self._categorical_transformer(data_df[col])
                     numeric_df[output_field_name] = transformed_col
 
                     # Update meta_dict
                     transformer_meta_dict[col]['transformer_type'] = 'Cat1'
                     transformer_meta_dict[col]['params_dict'] = rep
                     transformer_meta_dict[col]['intervals'] = intervals
+                    transformer_meta_dict[col]['output_fields'] = {
+                        output_field_name: {
+                            'dtype': numeric_df[output_field_name].dtype  # update transformer_meta_dict with output pd dtype of field
+                        }
+                    }
+
+                elif transformer_type=='Cat1Fuzzy':
+                    # Categorical transformation: assigning representative float by frequency of occurence
+                    data_df[col] = data_df[col].fillna('IS_NULL')
+                    output_field_name = f"{col}.value"
+                    transformed_col, rep, intervals, stds = self._categorical_transformer(data_df[col], type='Gaussian')
+                    numeric_df[output_field_name] = transformed_col
+
+                    # Update meta_dict
+                    transformer_meta_dict[col]['transformer_type'] = 'Cat1Fuzzy'
+                    transformer_meta_dict[col]['params_dict'] = rep
+                    transformer_meta_dict[col]['intervals'] = intervals
+                    transformer_meta_dict[col]['stds'] = stds
                     transformer_meta_dict[col]['output_fields'] = {
                         output_field_name: {
                             'dtype': numeric_df[output_field_name].dtype  # update transformer_meta_dict with output pd dtype of field
@@ -360,7 +412,7 @@ class Transformer:
                     revert_df[field] = revert_col.round().map(dic)
                     revert_df[field].replace('IS_NULL', np.nan, inplace=True)
 
-                elif (field_meta['transformer_type']=='Cat1'):
+                elif (field_meta['transformer_type']=='Cat1' or field_meta['transformer_type']=='Cat1Fuzzy'):
 
                     # Get interval dict from field_meta
                     intervals = field_meta['intervals']

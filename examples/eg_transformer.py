@@ -1,4 +1,4 @@
-# This examples demonstrates the use of the Transformer class.
+# This example demonstrates the use of the Transformer class.
 
 # LOAD DEPENDENCIES
 import pprint, sys, os
@@ -12,8 +12,8 @@ from mz.Transformer import Transformer #import Transformer class
 from mz.utils_ import gen_randomData #import random data generator
 
 # GENERATE RANDOM DATA
-dtypes = ['bool', 'float', 'int', 'datetime', 'str', 'str', 'str'] # dtypes
-nans = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4] #percentage of nans
+dtypes = ['bool', 'float', 'int', 'datetime', 'str', 'str', 'str', 'str'] # dtypes
+nans = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4] #percentage of nans
 size = 12 #number of sample points
 
 rawData_df = gen_randomData(dtypes=dtypes, nans=nans, size=size)
@@ -39,6 +39,9 @@ metaData = {
     },
     '7_str': {
         'transformer_type': 'One-Hot'
+    },
+    '8_str': {
+        'transformer_type': 'Cat1Fuzzy'
     }
 }
 
