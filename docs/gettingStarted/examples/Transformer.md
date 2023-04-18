@@ -2,6 +2,7 @@
 layout: default
 title: Example for Transformer class
 parent: Examples
+grand_parent: Getting Started
 nav_order: 1
 ---
 
