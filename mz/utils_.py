@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 
 def gen_randomData(
     dtypes = ['bool','bool','float', 'int', 'str'],
@@ -51,7 +52,69 @@ def gen_randomData(
     return data_df
 
 
-# GENERAL
+# GENERAL FUNCTIONS FOR FILES
+def get_extension(filename):
+  return filename.split(".")[-1]
+
+def change_extension(filename, ext):
+    file_split = filename.split(".")
+    file_split[-1] = ext
+    return ".".join(file_split)
+
+def check_filename(file_name):
+    """Check if file_name exists"""
+    if os.path.exists(file_name):
+        return True
+    else:
+        return False
+    
+def update_filename_with_suffix(filename, suffix):
+
+    ext = "." + get_extension(filename)
+    new_filename = filename.replace(ext, '-' + suffix + ext)
+
+    return new_filename
+
+# GENERAL FUNCTIONS FOR EXCELS
+def get_worksheet_names(file_name):
+    '''
+    This function takes an Excel workbook filename and returns a list of sheet names
+    '''
+    # Import pandas
+    import pandas as pd
+    
+    # Read the Excel file
+    xl_file = pd.ExcelFile(file_name)
+    
+    # Return the sheet names
+    return xl_file.sheet_names
+
+
+# GENERAL FUNCTIONS FOR DATAFRAME
+def save_df_as_csv(df, filename, index=True):
+    df.to_csv(filename, index=index, header=True)
+
+def save_df_as_excel(df, excel_file_name, sheet_name='Sheet1', index=True):
+    writer = pd.ExcelWriter(excel_file_name, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name=sheet_name, index=index)
+    writer.save()
+
+def strip_empty_spaces(dataframe):
+    dataframe.columns = dataframe.columns.str.strip()
+    return dataframe
+
+def strip_string_spaces(dataframe, col=None):
+
+    if col is None:
+        for i in range(0, len(dataframe)):
+            dataframe[i] = dataframe[i].strip()
+    else:
+        dataframe[col] = dataframe[col].str.strip()
+
+    return dataframe
+
+
+# GENERAL ALGORITHMS
 def gcd(x):
     """Find the Greatest Common Divisor of a dataframe column"""
     x = x.dropna().reset_index(drop=True)
@@ -63,3 +126,10 @@ def gcd(x):
             b = a % b 
             a = c 
     return a 
+
+def remove_items(listA, listB):
+  """Removes the items in list A from list B."""
+  for item in listA:
+    if item in listB:
+      listB.remove(item)
+  return listB
