@@ -44,6 +44,7 @@ When the CleanData class is initialised, it automatically reads the input data a
 
 Upon initialisation, the CleanData class automatically 
 
+*   strips all leading/trailing empty spaces from variable names (optional), (default is False)
 *   checks if the variables given in the input data matches the meta information stored in the data dictionary.
 *   extracts a list of longitudinal markers (ignore if there are no longitudinal markers specified)
 *   save the new input data and data dictionary files in the new folder
@@ -52,13 +53,26 @@ Upon initialisation, the CleanData class automatically
 cd = CleanData(definitions=defi)
 ```
 
+#### Variable Mismatch Output
+Suppose the input variable `TESTID` has been misspelt as `TESTid` in the data dictionary. The initialisation will throw an error, along with a list of mismatched variables:
+```
+There is a mismatch in the variable names extracted from the input data and the data dictionary. Use cleanData.var_diff_list to extract list of mismatched variable names.
+Mismatched Variables:
+ {'TESTid', 'TESTID'}
+```
+
+If there is no mismatches, the initialisation continues, with the following message:
+```
+No variable name mismatches found. Proceeding with next step of initialisation...
+```
+
 ### CLEAN THE DATA BY DROPPING DUPLICATE ROWS
 In this example, we perform an additional adhoc operation to drop any duplicate rows found in the input data.
 
 To do this, we specify the following global variables in the definitions.py:
 
 *   OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME = 'rowsRemoved.xlsx' # output file name to store the duplicated rows which have been dropped
-*   SUFFIX_DROPPED_DUPLICATED_ROWS = "DD" # suffix to append to the end of the output filename of the input data.
+*   SUFFIX_DROPPED_DUPLICATED_ROWS = "DD" # suffix to append to the end of the latest output filename of the input data.
 
 If there are unique 'index' variables in the input data, we may wish to tell the function to ignore these variables when checking duplication. 'Index' variables are unique for every row (not subject), and will confound the duplication checking process. We denote these variables using the 'CATEGORY' column of the data dictionary, and by setting its corresponding value to 'Index'. In this example (see nhanes_dict_2-1.xlsx), the variable 'ID' has the value 'Index' for its column 'CATEGORY'.
 
@@ -66,4 +80,12 @@ The cleaned input data is stored under a filename *-<SUFFIX_DROPPED_DUPLICATED_R
 
 ```
 cd.drop_duplicate_rows()
+```
+
+#### Dropped duplicate rows output
+```
+Dropping duplicate rows in input data...
+No. of dropped rows: 2168
+Replacing the input data...
+Replacing the input data complete. new filename: *\copula-tabular\examples\trainData\nhanes_raw-DD.csv
 ```

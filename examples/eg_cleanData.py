@@ -24,6 +24,7 @@ import definitions as defi
 # INITIALISE THE CLEANDATA CLASS WITH LOADED DEFINITIONS
 # When the CleanData class is initialised, it automatically reads the input data and data dictionary files as defined in the definitions.py. It then generates a new folder in the root directory--the name of this folder can be specified in definitions.py--and stores all the outputs of its assigned cleaning tasks in this folder.
 # Upon initialisation, the CleanData class automatically 
+# -- strips all leading/trailing empty spaces from variable names (optional), (default is False)
 # -- checks if the variables given in the input data matches the meta information stored in the data dictionary.
 # -- extracts a list of longitudinal markers (ignore if there are no longitudinal markers specified)
 # -- save the new input data and data dictionary files in the new folder
