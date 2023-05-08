@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Example for CleanData class
+title: Example for CleanData class with Constraints
 parent: Examples
 grand_parent: Getting Started
 nav_order: 3
@@ -27,7 +27,7 @@ df = cd.clean_df
 con = Constraints(debug=True)
 ```
 
-The following are examples of constraints used on the variables of the NHANES dataset. The dataset undergoes a series of constraints, as stipulated by the metadata.
+The following are examples of constraints used on the variables of the NHANES dataset. The dataset undergoes a series of constraints, as stipulated by the metadata. Please refer to the [Constraints example](Constraints) for further details on their usage/construction.
 ```
 df, con = n_con.con_ageDecade(df, con)
 df, con = n_con.con_ageMonths(df, con)
