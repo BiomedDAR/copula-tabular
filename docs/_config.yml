@@ -16,5 +16,4 @@ last_edit_time_format: "%b %e %Y at %I:%M %p" # uses ruby's time format: https:/
 compress_html:
   blanklines: true
 
-# LaTeX rendering via "katex" (KaTeX, default) or "mathjax" (MathJax) or "none" / "off" (NO rendering)
-latex: katex
+math: katex
