@@ -8,6 +8,8 @@ math: katex
 
 # Overview
 
+Type Maths TEST
+
 $$x$$ math at the start of a line
 
 Nested: $$M = \text{while $e^2$ do $c^2$ end}$$
