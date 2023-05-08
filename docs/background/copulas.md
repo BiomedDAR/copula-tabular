@@ -24,12 +24,24 @@ According to the Sklar's Theorem, there exists a *conditional copula function* $
 
 $$
 \begin{equation}
-H_x(y_1, y_2) := C_x(F_{1x}(y_1), F_{2x}(y_2)),
+H_x(y_1, y_2) = C_x(F_{1x}(y_1), F_{2x}(y_2)),
 \htmlId{eq:conditional_copula_function}{\tag{2}}
 \end{equation}
 $$
 
 where $$F_{1x}$$ and $$F_{1x}$$ are the corresponding conditional marginals of $$Y_1$$ and $$Y_2$$ respectively.
+
+## Partial Copula
+Let $$U_1:= F_{1x}(Y_1)$$, $$U_1:= F_{2x}(Y_2)$$. The *partial copula function* is defined as
+
+$$
+\begin{align*}
+\bar{C}(u_1, u_2) &:= \mathbb{P} (U_1 \leq u_1, U_2 \leq u_2) \\
+&= \int \mathbb{P} (U_1 \leq u_1, U_2 \leq u_2 \vert X=x) f_X(x) dx \\
+&= \int C_x(u_1, u_2) f_X(x) dx
+\htmlId{eq:partial_copula_function}{\tag{3}}
+\end{align*}
+$$
 
 
 <!-- Link to equation $$\href{#eq:test}{(1)}$$ --> -->
