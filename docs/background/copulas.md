@@ -3,12 +3,11 @@ layout: default
 title: Copulas
 parent: Background
 nav_order: 1
-math: katex
 ---
 
 # Overview
 
-Type Maths TEST 3
+Type Maths TEST 5
 
 $$x$$ math at the start of a line
 
