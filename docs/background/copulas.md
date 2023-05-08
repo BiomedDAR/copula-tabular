@@ -8,7 +8,20 @@ math: katex
 
 # Overview
 
-Type Maths TEST 9
+## Conditional Copula
+Given a three dimensional vector $$(Y_1, Y_2, X)$$, we study the *dependence structure* of $$(Y_1, Y_2)$$ for a given value of $$(X=x)$$.
+
+Let
+
+$$
+\begin{equation}
+H_x(y_1, y_2) = \mathbb{P} (Y_1 \leq y_1, Y_2 \leq y_2 \vert X=x)
+\htmlId{eq:test}{\tag{1}}
+\end{equation}
+$$
+
+
+<!-- Type Maths TEST 9
 
 $$x$$ math at the start of a line
 
@@ -34,4 +47,4 @@ $$
 \end{equation}
 $$
 
-Link to equation $$\href{#eq:test}{(1)}$$
+Link to equation $$\href{#eq:test}{(1)}$$ -->
