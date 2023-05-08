@@ -8,7 +8,7 @@ math: katex
 
 # Overview
 
-Type Maths TEST
+Type Maths TEST 1
 
 $$x$$ math at the start of a line
 
