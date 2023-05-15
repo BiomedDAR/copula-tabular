@@ -104,3 +104,34 @@ def con_Race3(df, con=con):
 ```
 
 Please refer to the previous [example](CleanDataWithConstraints) for details on how to use this function with the CleanData class.
+
+
+### Example 3 (Generate new variables)
+In this example, we demonstrate the use of the `evaluate_df_column` function of the Constraints class, to generate new variables for use. We will be creating the variable `BMI` using the data (`Height` and `Weight`) reported for participants aged 2 years or older.
+
+We first write a function `compute_bmi` which computes the BMI for every subject (dataframe row).
+```
+def compute_bmi(df_row):
+    w = df_row['Weight']
+    h = df_row['Height']
+    if any(pd.isnull(value) for value in df_row):
+        BMI = np.nan
+    else:
+        h2 = h / 100
+        BMI = w / (h2 * h2)
+        BMI = round(BMI, 2)
+
+    return BMI
+```
+
+Next, we can use this function as an input to `evaluate_df_column` to generate a new column (`BMI`) in the dataframe.
+```
+df = con.evaluate_df_column(df, ['Height', 'Weight'], func=compute_bmi, output_column_name="BMI")
+```
+
+### Example 4 (Modify A to B if A>B)
+In this example, we demonstrate the use of the `compare_columns_A_B` function of the Constraints class. This function compares two columns A and B of a dataframe and modifies column A to B's value if A is greater than B. We will be constraining the variable `nBabies` to be less than or equal to `nPregnancies`.
+
+```
+df = con.compare_columns_A_B(df, 'nBabies', 'nPregnancies')
+```
