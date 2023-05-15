@@ -65,3 +65,42 @@ def con_ageMonths(df, con=con):
 
     return df, con
 ```
+Please refer to the previous [example](CleanDataWithConstraints) for details on how to use this function with the CleanData class.
+
+### Example 2 (Convert missing values in a dataframe column to specified value)
+In this example, we demonstrate the use of the `convertBlankstoValue` function of the Constraints class. We are constraining the variable `Race3` with the following:
+*   If SurveyYr=='2009_10', Race3 = 'N.A.'
+At the same time, we need to convert all empty (missing values) cells into `UNK`, so as to differentiate it from `N.A.`.
+
+To do so, we use the `convertBlankstoValue` function, which is able to convert missing values in a dataframe column to a specified value, together with the `multiparent_conditions` function.
+
+```
+# Convert categorical blanks to UNK
+vArray = ['Race1', 'Race3'] # set the variables to convert
+df = con.convertBlankstoValue(df, var_array=vArray, value='UNK')
+```
+
+We incorporate the above in a function as seen below:
+
+```
+# FIX Race3 variable (categorical)
+def con_Race3(df, con=con):
+
+    # Convert categorical blanks to UNK
+    vArray = ['Race1', 'Race3']
+    df = con.convertBlankstoValue(df, var_array=vArray, value='UNK')
+
+    # If SurveyYr=='2009_10', Race3 = '(blanks)'
+    surveyYr_2009_10 = {'parent': 'SurveyYr', 'condition': '=="2009_10"'}
+    dict_conditions_values = {
+        1: {
+            'conditions': {1: surveyYr_2009_10},
+            'value': 'N.A.'
+        }
+    }
+    df = con.multiparent_conditions(df, ['Race3'], dict_conditions_values)
+
+    return df, con
+```
+
+Please refer to the previous [example](CleanDataWithConstraints) for details on how to use this function with the CleanData class.
