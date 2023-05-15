@@ -6,7 +6,7 @@ grand_parent: Getting Started
 nav_order: 4
 ---
 
-### Example 1
+### Example 1 (Constrain a value using multiple parent conditions)
 In this example, we demonstrate the use of the `multiparent_conditions` function of the Constraints class. We are constraining the variable `AgeMonths` with the following:
 *   If SurveyYr=='2009_10' and Age>=80, AgeMonths = ''
 *   If SurveyYr=='2009_10' and AgeMonths>=948, AgeMonths = ''
