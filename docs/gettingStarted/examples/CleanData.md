@@ -76,7 +76,7 @@ To do this, we specify the following global variables in the definitions.py:
 
 If there are unique 'index' variables in the input data, we may wish to tell the function to ignore these variables when checking duplication. 'Index' variables are unique for every row (not subject), and will confound the duplication checking process. We denote these variables using the 'CATEGORY' column of the data dictionary, and by setting its corresponding value to 'Index'. In this example (see nhanes_dict_2-1.xlsx), the variable 'ID' has the value 'Index' for its column 'CATEGORY'.
 
-The cleaned input data is stored under a filename *-<SUFFIX_DROPPED_DUPLICATED_ROWS>.xlsx.
+The cleaned input data is stored under a filename *-`<SUFFIX_DROPPED_DUPLICATED_ROWS>`.xlsx.
 
 ```
 cd.drop_duplicate_rows()
@@ -88,4 +88,27 @@ Dropping duplicate rows in input data...
 No. of dropped rows: 2168
 Replacing the input data...
 Replacing the input data complete. new filename: *\copula-tabular\examples\trainData\nhanes_raw-DD.csv
+```
+
+### CLEAN THE DATA BY STANDARDISING TEXT VARIABLES (CAPITAL/SMALL LETTERS)
+In this example, we perform yet another adhoc operation to convert text/string variables into a standardise case (capital/small letters) format.
+
+To do this, we specify the following global variables in the definitions.py:
+
+*   OPTIONS_STANDARDISE_TEXT_CASE_TYPE = 'uppercase' # default case type to convert strings into: "uppercase", "lowercase", "capitalise"
+*   OPTIONS_STANDARDISE_TEXT_EXCLUDE_LIST = ["Gender", "Work"] # variables to exclude from the conversion.
+*   OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT = {"Race1": "capitalise"} # dictionary to customise case_type for specific variables, overwriting default
+
+Note that 'index' variables are automatically excluded from this standardisation/conversion. Missing "string" type values will be converted to `<NA>`.
+
+The cleaned input data is stored under a filename *-`<SUFFIX_STANDARDISE_TEXT>`.xlsx.
+```
+cd.standardise_text()
+```
+
+#### Standardised text variables output
+```
+Standardising text in input data...
+Replacing the input data...
+Replacing the input data complete. new filename: *\copula-tabular\examples\trainData\nhanes_raw-DD-ST.csv
 ```

@@ -35,3 +35,9 @@ SUFFIX_DROPPED_DUPLICATED_ROWS = "DD" # suffix to append to the end of the outpu
 
 # SETTINGS FOR CONSTRAINTS
 SUFFIX_CONSTRAINTS = "CON"
+
+# SETTINGS FOR STANDARDISE TEXT
+SUFFIX_STANDARDISE_TEXT = "ST"
+OPTIONS_STANDARDISE_TEXT_CASE_TYPE = "uppercase" # default case type to convert strings into: "uppercase", "lowercase", "capitalise"
+OPTIONS_STANDARDISE_TEXT_EXCLUDE_LIST = ["Gender", "Work"] # variables to exclude from the conversion.
+OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT = {"Race1": "capitalise"} # dictionary to customise case_type for specific variables, overwriting default
