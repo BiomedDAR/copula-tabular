@@ -30,6 +30,14 @@ class CleanData:
         # LOADING DEFAULTS FOR DUPLICATED ROWS
         self.dropped_duplicated_rows_filename = "rowsRemoved.xlsx"
         self.suffix_dropped_duplicated_rows = "DD"
+
+        # LOADING DEFAULTS FOR STANDARDISE TEXT
+        self.suffix_standardise_text = "ST"
+        self.options_standardise_text_case_type = "uppercase"
+        self.options_standardise_text_exclude_list = []
+        self.options_standardise_text_case_type_dict = {}
+
+        # LOADING DEFAULTS FOR CONSTRAINTS
         self.suffix_constraints = "CON"
 
         # LOAD DEFINITIONS
@@ -84,6 +92,13 @@ class CleanData:
         # Updating defaults for DROP DUPLICATES
         self._update_defaults(var_to_update="dropped_duplicated_rows_filename", new_value="OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME")
         self._update_defaults(var_to_update="suffix_dropped_duplicated_rows", new_value="SUFFIX_DROPPED_DUPLICATED_ROWS")
+
+        # Updating defaults for STANDARDISE TEXT
+        self._update_defaults(var_to_update="suffix_standardise_text", new_value="SUFFIX_STANDARDISE_TEXT")
+        self._update_defaults(var_to_update="options_standardise_text_case_type", new_value="OPTIONS_STANDARDISE_TEXT_CASE_TYPE")
+        self._update_defaults(var_to_update="options_standardise_text_exclude_list", new_value="OPTIONS_STANDARDISE_TEXT_EXCLUDE_LIST")
+        self._update_defaults(var_to_update="options_standardise_text_case_type_dict", new_value="OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT")
+
         self._update_defaults(var_to_update="suffix_constraints", new_value="SUFFIX_CONSTRAINTS")
 
 
@@ -116,6 +131,10 @@ class CleanData:
         self.var_list = None #list of all variables (column headers) found in input data
         self.var_diff_list = None #list of discrepancies between data dictionary and input data
         self.cat_var_dict = None #dictionary with {cat: [list of variables]}
+
+    def convert_2_dtypes(self, data):
+        """Convert data (df) into best possible dtypes"""
+        return data.convert_dtypes()
 
     def _get_longitudinal_marker_list(self):
 
@@ -380,5 +399,55 @@ class CleanData:
 
         # Update new filename and new input data
         self.update_data(new_df=output_df, filename_suffix=self.suffix_dropped_duplicated_rows)
+
+    # STANDARDISE TEXT
+    def standardise_text_case_conversion(self, data, case_type):
+        if case_type == 'uppercase':
+            data = data.astype(str).str.upper()
+        elif case_type == 'lowercase':
+            data = data.astype(str).str.lower()
+        elif case_type == 'capitalise':
+            data = data.astype(str).str.title()
+
+        return data
+
+    def standardise_text(self):
+        """"""
+
+        if (self.debug):
+            print(f"Standardising text in input data...")
+
+        # Load case_type
+        def_case_type = self.options_standardise_text_case_type #set default case_type
+        exclude_list = self.options_standardise_text_exclude_list
+        case_type_dict = self.options_standardise_text_case_type_dict
+
+        # ExTRACT variables of the "Index"  category
+        subset_list = self.cat_var_dict["Index"]
+
+        # Get a working copy of latest data dataframe
+        df = deepcopy(self.clean_df)
+
+        # convert data_df to best possible dtypes
+        output_df = self.convert_2_dtypes(df)
+
+        # Loop through df and convert all strings to specified case
+        for col in output_df.columns:
+            if col not in subset_list: # exclude variables marked as index type
+                if col not in exclude_list: # exclude varaibles in exclude_list
+
+                    # Overwrite default case_type with specified type in dict
+                    case_type = def_case_type
+                    if col in case_type_dict:
+                        case_type = case_type_dict[col]
+                    
+                    # Perform conversion
+                    if output_df[col].dtype == 'object':
+                        output_df[col] = self.standardise_text_case_conversion(output_df[col], case_type)
+                    elif output_df[col].dtype == 'string':
+                        output_df[col] = self.standardise_text_case_conversion(output_df[col], case_type)
+        
+        # Update new filename and new input data
+        self.update_data(new_df=output_df, filename_suffix=self.suffix_standardise_text)
 
         
