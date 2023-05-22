@@ -17,6 +17,7 @@ The CleanData class comprises several in-built functions:
 *   strips all leading/trailing empty spaces from variable names
 *   verifies variable names in input data against meta information in data dictionary
 *   drops duplicate rows
+*   standardise text format (capital/small letters)
 
 ### External functions
 The CleanData class accepts external/user-specified constraints, in conjunction with the Constraints class.
