@@ -109,7 +109,7 @@ plt.show()
 In this example, we demonstrate the use of the MarginalDist class to generate synthetic data for a univariate dataset, when the dataset
 
 ### Generate random data
-In this example, we use the scipy stats package to generate a fictitious sample, based on a gamma distribution.
+In this example, we use the scipy stats package to generate a fictitious sample, based on a mixed gamma and Gaussian distribution.
 ```
 # GENERATE A "FICTIONAL" DATA SAMPLE USING SCIPY
 samples_1 = stats.gamma.rvs(a=4, loc=2, scale=5, size=400)
