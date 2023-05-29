@@ -95,10 +95,12 @@ Parameters used for generating PDF:/n {'df': 100, 'loc': 1.9389883076225938, 'sc
 Parameters used for generating PPF:/n {'df': 100, 'loc': 1.9389883076225938, 'scale': 8.112381524781696, 'a': 2.0005591824545768, 'b': 1, 'c': 1, 'ecdf': {}, 'gaussian_kde': {}}
 ```
 
-# PLOT STUFF
+### PLOT STUFF
+```
 ax1.legend(loc='best', frameon=False)
 ax2.legend(loc='best', frameon=False)
 plt.show()
+```
 
 ### Plot of learned distribution and generated synthetic data samples
 ![](../../assets/img/univariate_example_1.png)
