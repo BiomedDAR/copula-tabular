@@ -7,6 +7,18 @@ from scipy.interpolate import interp1d
 
 from mz import utils_ as ut_
 
+DIST_MAP = {
+    "beta": "beta_dist",
+    "laplace": "laplace_dist",
+    "loglaplace": "loglaplace_dist",
+    "gamma": "gamma_dist",
+    "gaussian": "gaussian_dist",
+    "student_t": "t_dist",
+    "uniform": "uni_dist",
+    "emp": "empirical_dist",
+    "gaussian_kde": "gaussian_kde_dist"
+}
+
 class MarginalDist:
     """
     """
@@ -19,7 +31,10 @@ class MarginalDist:
         self.marginal_dist = None
         self.fitted_marginal_dist = None
         self.sample_size = 1000
+        self.gaussian_kde_model = None
+        self.fitted = False #set to true if successfully fitted
         self.params = {
+            "df": 100,
             "loc": 0,
             "scale": 1,
             "a": 1,
@@ -35,6 +50,10 @@ class MarginalDist:
         self.cdf = None # cumulative probability of new data input based on parameters (either fitted or given)
         self.pdf = None # probability of new data input based on parameters (either fitted or given)
         self.ppf = None # x-value of cumulative probability of new data input
+        
+
+        self.parametric = ["beta", "laplace", "loglaplace", "gamma", "gaussian", "student_t", "uniform"]
+        self.nonparametric = ["emp", "gaussian_kde"]
 
     def load_params(self, new_params={"loc": 0, "scale": 1}):
 
@@ -49,6 +68,116 @@ class MarginalDist:
 
         return params
     
+    def fit(self, data):
+
+        opt_ks, opt_univariate, uni = self.select_univariate(data=data, candidates=None)
+
+        if self.fitted:
+            self.marginal_dist = uni.marginal_dist
+            self.fitted_marginal_dist = uni.fitted_marginal_dist
+            self.params = uni.params
+            self.gaussian_kde_model = uni.gaussian_kde_model
+
+            return True
+        else: 
+            return False
+    
+
+    def select_univariate(self, data=None, candidates=None):
+        """Select the best univariate class for data"""
+
+        opt_ks = np.inf
+        opt_univariate = None
+        opt_uni = None
+
+        def eval_dist(uni_dist):
+            uni = MarginalDist()
+
+            def cdf_callable(data):
+                return uni.cdf_wrapper(data=data)
+            
+            eval(f"uni.{DIST_MAP[uni_dist]}(operation='fit', data=data)")
+            ks_statistic, ks_pvalue = stats.kstest(data, cdf_callable)
+
+            return ks_statistic, ks_pvalue, uni
+
+
+        if not candidates or candidates is None:
+            candidates = self.parametric
+
+        if (self.debug):
+            print(f"Fitting data with known parametric distributions...")
+
+        for uni_dist in candidates:
+
+            ks_statistic, ks_pvalue, uni = eval_dist(uni_dist)
+
+            if (self.debug):
+                print(f"Fitting data with {uni_dist}:: kstat: {ks_statistic}:: pvalue: {ks_pvalue}")
+            
+            if ks_statistic< opt_ks:
+                if ks_pvalue > 0.05:
+                    opt_ks = ks_statistic
+                    opt_univariate = uni_dist
+                    opt_uni = deepcopy(uni)
+        
+        if opt_univariate is None:
+
+            if (self.debug):
+                print(f"No good distributions found, using non-parametric estimation...")
+            
+            uni_dist = "gaussian_kde"
+            ks_statistic, ks_pvalue, uni = eval_dist(uni_dist)
+            print(f"Fitting data with {uni_dist}:: kstat: {ks_statistic}:: pvalue: {ks_pvalue}")
+
+            if ks_statistic< opt_ks:
+                # if ks_pvalue > 0.05:
+                opt_ks = ks_statistic
+                opt_univariate = uni_dist
+                opt_uni = deepcopy(uni)
+
+        if opt_univariate is None:
+            self.fitted = False
+        else:
+            self.fitted = True
+
+
+        return opt_ks, opt_univariate, opt_uni
+    
+    def pdf_wrapper(self, data=None):
+        """Wrapper function to compute PDF given data samples. Use only when class has already been fitted to a distribution"""
+        if self.fitted_marginal_dist is None:
+            raise Exception("Class has not been fitted to a distribution yet")
+        else:
+            uni_dist = self.fitted_marginal_dist
+
+        eval(f"self.{DIST_MAP[uni_dist]}(data=data, operation='pdf')")
+
+        return self.pdf
+
+    def cdf_wrapper(self, data=None):
+        """Wrapper function to compute CDF given data samples. Use only when class has already been fitted to a distribution."""
+        if self.fitted_marginal_dist is None:
+            raise Exception("Class has not been fitted to a distribution yet")
+        else:
+            uni_dist = self.fitted_marginal_dist
+        
+        eval(f"self.{DIST_MAP[uni_dist]}(data=data, operation='cdf')")
+
+        return self.cdf
+    
+    def ppf_wrapper(self, data=None):
+        """Wrapper function to compute PPF given data samples. Use only when class has already been fitted to a distribution."""
+        if self.fitted_marginal_dist is None:
+            raise Exception("Class has not been fitted to a distribution yet")
+        else:
+            uni_dist = self.fitted_marginal_dist
+
+        eval(f"self.{DIST_MAP[uni_dist]}(data=data, operation='ppf')")
+
+        return self.ppf
+                
+
     
     def beta_dist(self, data=None, operation="fit", new_params={"loc":None, "scale":None, "a":None, "b":None}, sample_size=None):
         """Compute Beta Distribution related operations"""
@@ -185,7 +314,7 @@ class MarginalDist:
         self.marginal_dist = "laplace"
 
         if (operation=="fit"):
-            loc, scale = stats.t.fit(data)
+            loc, scale = stats.laplace.fit(data)
             self.params['loc'] = loc
             self.params['scale'] = scale
             self.fitted_marginal_dist = "laplace"
@@ -517,14 +646,15 @@ class MarginalDist:
         self.marginal_dist = "student_t"
 
         if (operation=="fit"):
-            loc, scale = stats.t.fit(data)
+            df, loc, scale = stats.t.fit(data)
+            self.params['df'] = df
             self.params['loc'] = loc
             self.params['scale'] = scale
             self.fitted_marginal_dist = "student_t"
             self.sample_size = sample_size
 
-            self.sample_cdf = stats.t.cdf(data, loc=self.params['loc'], scale=self.params['scale'])
-            self.sample_pdf = stats.t.pdf(data, loc=self.params['loc'], scale=self.params['scale'])
+            self.sample_cdf = stats.t.cdf(data, df=self.params['df'], loc=self.params['loc'], scale=self.params['scale'])
+            self.sample_pdf = stats.t.pdf(data, df=self.params['df'], loc=self.params['loc'], scale=self.params['scale'])
 
         elif (operation=="sample"):
 
@@ -536,7 +666,7 @@ class MarginalDist:
             if (self.debug):
                 print(f"Parameters used for sampling:/n {params}")
 
-            self.samples = stats.t.rvs(loc=params['loc'], scale=params['scale'], size=size)
+            self.samples = stats.t.rvs(df=params['df'], loc=params['loc'], scale=params['scale'], size=size)
 
             return self.samples
         
@@ -546,7 +676,7 @@ class MarginalDist:
             if (self.debug):
                 print(f"Parameters used for generating PDF:/n {params}")
 
-            self.pdf = stats.t.pdf(data, loc=params['loc'], scale=params['scale'])
+            self.pdf = stats.t.pdf(data, df=params['df'], loc=params['loc'], scale=params['scale'])
 
             return self.pdf
         
@@ -556,7 +686,7 @@ class MarginalDist:
             if (self.debug):
                 print(f"Parameters used for generating CDF:/n {params}")
 
-            self.cdf = stats.t.cdf(data, loc=params['loc'], scale=params['scale'])
+            self.cdf = stats.t.cdf(data, df=params['df'],  loc=params['loc'], scale=params['scale'])
 
             return self.cdf
         
@@ -566,7 +696,7 @@ class MarginalDist:
             if (self.debug):
                 print(f"Parameters used for generating PPF:/n {params}")
 
-            self.ppf = stats.t.ppf(data, loc=params['loc'], scale=params['scale'])
+            self.ppf = stats.t.ppf(data, df=params['df'], loc=params['loc'], scale=params['scale'])
 
             return self.ppf
         
