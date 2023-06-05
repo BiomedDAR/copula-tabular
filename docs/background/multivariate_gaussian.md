@@ -78,9 +78,9 @@ $$
     &= \text{var}\bigg(\frac{1}{c_1}(\mathbf{Z}) \bigg)\\
     &= \text{var}\bigg(\mathbf{X_1} + A(\mathbf{X_2}) \bigg)\\
     &= \text{var}(\mathbf{X_1}) + A\text{var}(\mathbf{X_2})A^T + A\text{cov}(\mathbf{X_1},\mathbf{X_2}) + \text{cov}(\mathbf{X_2},\mathbf{X_1})A^T \\
-    &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + A\boldsymbol{\Sigma}_{12} + \boldsymbol{\Sigma}_{21}A^T\\
-    &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + 2A\boldsymbol{\Sigma}_{12} \\
-    &=\boldsymbol{\Sigma}_{11} + A ( \boldsymbol{\Sigma}_{22}A^T + 2\boldsymbol{\Sigma}_{12}  )
+    &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + A\boldsymbol{\Sigma}_{21} + \boldsymbol{\Sigma}_{12}A^T\\
+    &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + 2A\boldsymbol{\Sigma}_{21} \\
+    &=\boldsymbol{\Sigma}_{11} + A ( \boldsymbol{\Sigma}_{22}A^T + 2\boldsymbol{\Sigma}_{21}  )
 \end{align*}
 $$
 
@@ -108,8 +108,8 @@ $$
 $$
 \begin{align*}
     \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \boldsymbol{\Sigma}_{11} + A ( \boldsymbol{\Sigma}_{22}A^T + 2\boldsymbol{\Sigma}_{12}  )\\
-    &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma}_{22}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{12} ) \\
-    &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{12} ) \\
+    &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma}_{22}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{21} ) \\
+    &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{21} ) \\
     &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} \\
 \end{align*}
 $$
