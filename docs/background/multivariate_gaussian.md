@@ -45,7 +45,7 @@ We can show this using a trick by creating some linear combination, $$\mathbf{Z}
 $$
 \begin{align*}
     \mathbf{Z} &= c_1\mathbf{X_1} + c_2\mathbf{X_2} \\
-    \text{cov}(\mathbf{Z}\mid\mathbf{X_2}) &= 0\\
+    \text{cov}(\mathbf{Z}, \mathbf{X_2}) &= 0 \\
     \text{var}(\mathbf{Z}\mid\mathbf{X_2}) &= \text{var}(\mathbf{Z})\\
     \mathbb{E}(\mathbf{Z}\mid\mathbf{X_2}) &= \mathbb{E}(\mathbf{Z}) = c_1\bm{\mu_1} + c_2\bm{\mu_2}
 \end{align*}
@@ -55,7 +55,7 @@ We have
 
 $$
 \begin{align*}
-    \mathbb{E}(c_1\mathbf{X_1} + c_2\mathbf{X_2} \mid \mathbf{X_2}) &= c_1\bm{\mu_1} + c_2\bm{\mu_2}\\
+    \mathbb{E}(\mathbf{Z}\mid\mathbf{X_2}) = \mathbb{E}(c_1\mathbf{X_1} + c_2\mathbf{X_2} \mid \mathbf{X_2}) &= c_1\bm{\mu_1} + c_2\bm{\mu_2}\\
     c_1\mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) + c_2\mathbf{X_2} &= c_1\bm{\mu_1} + c_2\bm{\mu_2}\\
     \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + \frac{c_2}{c_1}( \bm{\mu_2} - \mathbf{X_2} ) \\
 \end{align*}
@@ -79,6 +79,36 @@ $$
     &= \text{var}\bigg(\mathbf{X_1} + A(\mathbf{X_2}) \bigg)\\
     &= \text{var}(\mathbf{X_1}) + A\text{var}(\mathbf{X_2})A^T + A\text{cov}(\mathbf{X_1},\mathbf{X_2}) + \text{cov}(\mathbf{X_2},\mathbf{X_1})A^T \\
     &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + A\boldsymbol{\Sigma}_{12} + \boldsymbol{\Sigma}_{21}A^T\\
-    &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + 2A\boldsymbol{\Sigma}_{12} 
+    &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + 2A\boldsymbol{\Sigma}_{12} \\
+    &=\boldsymbol{\Sigma}_{11} + A ( \boldsymbol{\Sigma}_{22}A^T + 2\boldsymbol{\Sigma}_{12}  )
 \end{align*}
 $$
+
+We are left with the problem of determining $$A$$.
+Using
+
+$$
+\begin{align*}
+    \text{cov}(\mathbf{Z}, \mathbf{X_2}) = c_1\text{cov}(\mathbf{X_1}, \mathbf{X_2}) + c_2 \text{cov}(\mathbf{X_2}, \mathbf{X_2})&=0\\
+    c_1\text{cov}(\mathbf{X_1}, \mathbf{X_2}) + c_2 \text{var}(\mathbf{X_2}) &= 0\\
+    \text{cov}(\mathbf{X_1}, \mathbf{X_2}) &= - \frac{c_2}{c_1} \text{var}(\mathbf{X_2})\\
+    \boldsymbol{\Sigma_{12}} &= - A \boldsymbol{\Sigma_{22}}\\
+    A &= -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1}\\
+\end{align*}
+$$
+
+This gives us the expressions for mean and covariance respectively as follows:
+
+$$
+\begin{align*}
+    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + \boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( \mathbf{X_2} - \bm{\mu_2}) \\
+\end{align*}
+$$
+
+$$
+\begin{align*}
+    \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \boldsymbol{\Sigma}_{11} + A ( \boldsymbol{\Sigma}_{22}A^T + 2\boldsymbol{\Sigma}_{12}  )\\
+    &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma}_{22}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{12} ) \\
+    &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{12} ) \\
+    &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} \\
+\end{align*}
