@@ -56,8 +56,8 @@ We have
 $$
 \begin{align*}
     \mathbb{E}(\mathbf{Z}\mid\mathbf{X_2}) = \mathbb{E}(c_1\mathbf{X_1} + c_2\mathbf{X_2} \mid \mathbf{X_2}) &= c_1\bm{\mu_1} + c_2\bm{\mu_2}\\
-    c_1\mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) + c_2\mathbf{X_2} &= c_1\bm{\mu_1} + c_2\bm{\mu_2}\\
-    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + \frac{c_2}{c_1}( \bm{\mu_2} - \mathbf{X_2} ) \\
+    c_1\mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) + c_2\mathbf{x_2} &= c_1\bm{\mu_1} + c_2\bm{\mu_2}\\
+    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + \frac{c_2}{c_1}( \bm{\mu_2} - \mathbf{x_2} ) \\
 \end{align*}
 $$
 
@@ -65,7 +65,7 @@ Let $$A:=\frac{c_2}{c_1}$$. Then
 
 $$
 \begin{align*}
-    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + A ( \bm{\mu_2} - \mathbf{X_2} ) \\
+    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + A ( \bm{\mu_2} - \mathbf{x_2} ) \\
 \end{align*}
 $$
 
@@ -101,7 +101,7 @@ This gives us the expressions for mean and covariance respectively as follows:
 
 $$
 \begin{align*}
-    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + \boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( \mathbf{X_2} - \bm{\mu_2}) \\
+    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + \boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( \mathbf{x_2} - \bm{\mu_2}) \\
 \end{align*}
 $$
 
@@ -112,3 +112,4 @@ $$
     &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{12} ) \\
     &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} \\
 \end{align*}
+$$
