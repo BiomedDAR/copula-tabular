@@ -107,7 +107,7 @@ $$
 
 $$
 \begin{align*}
-    \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \boldsymbol{\Sigma}_{11} + A ( \boldsymbol{\Sigma}_{22}A^T + 2\boldsymbol{\Sigma}_{12}  )\\
+    \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \boldsymbol{\Sigma}_{11} + A ( \boldsymbol{\Sigma}_{22}A^T + 2\boldsymbol{\Sigma}_{21}  )\\
     &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma}_{22}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{21} ) \\
     &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1} ( -\boldsymbol{\Sigma_{21}} + 2\boldsymbol{\Sigma}_{21} ) \\
     &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} \\
