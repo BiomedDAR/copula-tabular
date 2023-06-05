@@ -47,7 +47,25 @@ $$
     \mathbf{Z} &= c_1\mathbf{X_1} + c_2\mathbf{X_2} \\
     \text{cov}(\mathbf{Z}\mid\mathbf{X_2}) &= 0\\
     \text{var}(\mathbf{Z}\mid\mathbf{X_2}) &= \text{var}(\mathbf{Z})\\
-    \mathbb{E}(\mathbf{Z}\mid\mathbf{X_2}) &= \mathbb{E}(\mathbf{Z})
+    \mathbb{E}(\mathbf{Z}\mid\mathbf{X_2}) &= \mathbb{E}(\mathbf{Z}) = c_1\bm{\mu_1} + c_2\bm{\mu_2}
+\end{align*}
+$$
+
+We have
+
+$$
+\begin{align*}
+    \mathbb{E}(c_1\mathbf{X_1} + c_2\mathbf{X_2} \mid \mathbf{X_2}) &= c_1\bm{\mu_1} + c_2\bm{\mu_2}\\
+    c_1\mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) + c_2\mathbf{X_2} &= c_1\bm{\mu_1} + c_2\bm{\mu_2}\\
+    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + \frac{c_2}{c_1}( \bm{\mu_2} - \mathbf{X_2} ) \\
+\end{align*}
+$$
+
+Let $$A:=\frac{c_2}{c_1}$$. Then
+
+$$
+\begin{align*}
+    \mathbb{E}(\mathbf{X_1} \mid \mathbf{X_2} ) &= \bm{\mu_1} + A ( \bm{\mu_2} - \mathbf{X_2} ) \\
 \end{align*}
 $$
 
@@ -58,15 +76,8 @@ $$
     \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \text{var}\bigg(\frac{1}{c_1}(\mathbf{Z}-c_2\mathbf{X_2})\mid\mathbf{X_2} \bigg)\\
     &=\text{var}\bigg(\frac{1}{c_1}(\mathbf{Z})\mid\mathbf{X_2} \bigg)\\
     &= \text{var}\bigg(\frac{1}{c_1}(\mathbf{Z}) \bigg)\\
-    &= \text{var}\bigg(\mathbf{X_1} + \frac{c_2}{c_1}(\mathbf{X_2}) \bigg)
-\end{align*}
-$$
-
-Let $$A:=\frac{c_2}{c_1}$$. Then
-
-$$
-\begin{align*}
-    \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \text{var}(\mathbf{X_1}) + A\text{var}(\mathbf{X_2})A^T + A\text{cov}(\mathbf{X_1},\mathbf{X_2}) + \text{cov}(\mathbf{X_2},\mathbf{X_1})A^T \\
+    &= \text{var}\bigg(\mathbf{X_1} + A(\mathbf{X_2}) \bigg)\\
+    &= \text{var}(\mathbf{X_1}) + A\text{var}(\mathbf{X_2})A^T + A\text{cov}(\mathbf{X_1},\mathbf{X_2}) + \text{cov}(\mathbf{X_2},\mathbf{X_1})A^T \\
     &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + A\boldsymbol{\Sigma}_{12} + \boldsymbol{\Sigma}_{21}A^T\\
     &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + 2A\boldsymbol{\Sigma}_{12} 
 \end{align*}
