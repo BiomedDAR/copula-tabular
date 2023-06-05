@@ -55,8 +55,19 @@ Then
 
 $$
 \begin{align*}
-    \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \text{var}(\frac{1}{c_1}(\mathbf{Z}-c_2\mathbf{X_2})\mid\mathbf{X_2})\\
-    &=\text{var}(\frac{1}{c_1}(\mathbf{Z})\mid\mathbf{X_2})\\
-    &= \text{var}(\frac{1}{c_1}(\mathbf{Z}))
+    \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \text{var}\bigg(\frac{1}{c_1}(\mathbf{Z}-c_2\mathbf{X_2})\mid\mathbf{X_2} \bigg)\\
+    &=\text{var}\bigg(\frac{1}{c_1}(\mathbf{Z})\mid\mathbf{X_2} \bigg)\\
+    &= \text{var}\bigg(\frac{1}{c_1}(\mathbf{Z}) \bigg)\\
+    &= \text{var}\bigg(\mathbf{X_1} + \frac{c_2}{c_1}(\mathbf{X_2}) \bigg)
+\end{align*}
+$$
+
+Let $$A:=\frac{c_2}{c_1}$$. Then
+
+$$
+\begin{align*}
+    \text{var}(\mathbf{X_1}\mid\mathbf{X_2}) &= \text{var}(\mathbf{X_1}) + A\text{var}(\mathbf{X_2})A^T + A\text{cov}(\mathbf{X_1},\mathbf{X_2}) + \text{cov}(\mathbf{X_2},\mathbf{X_1})A^T \\
+    &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + A\boldsymbol{\Sigma}_{12} + \boldsymbol{\Sigma}_{21}A^T\\
+    &= \boldsymbol{\Sigma}_{11} + A\boldsymbol{\Sigma}_{22}A^T + 2A\boldsymbol{\Sigma}_{12} 
 \end{align*}
 $$
