@@ -12,7 +12,7 @@ Consider a multivariate random vector $$\mathbf{X}\in\mathbb{R}^{d\times n}$$, $
 We first partition all relevant matrices as follows:
 
 $$
-\begin{equation}
+\begin{align}
 \mathbf{X} = \begin{bmatrix}
         \mathbf{X_1}\\\mathbf{X_2}
     \end{bmatrix},
@@ -26,16 +26,16 @@ $$
         \boldsymbol{\Sigma_{21}} & \boldsymbol{\Sigma_{22}} &
     \end{bmatrix},
 \htmlId{eq:test}{\tag{1}}
-\end{equation}
+\end{align}
 $$
 
-where $\boldsymbol{\Sigma_{11}} \in \mathbb{R}^{d_1\times d_1}$$, $$\boldsymbol{\Sigma_{22}} \in \mathbb{R}^{d_2\times d_2}$$, and  $\boldsymbol{\Sigma_{21}} = \boldsymbol{\Sigma_{12}}^T \in \mathbb{R}^{d_2\times d_1}$$.
+where $$\boldsymbol{\Sigma_{11}} \in \mathbb{R}^{d_1\times d_1}$$, $$\boldsymbol{\Sigma_{22}} \in \mathbb{R}^{d_2\times d_2}$$, and  $$\boldsymbol{\Sigma_{21}} = \boldsymbol{\Sigma_{12}}^T \in \mathbb{R}^{d_2\times d_1}$$.
 
 The distribution of $$\mathbf{X_1}$$ conditional on $$\mathbf{X_2}=\mathbf{x}_2$$ is a multivariate normal $$(\mathbf{X_1}|\mathbf{X_2=a})\sim \mathcal{N}(\bar{\bm{\mu}},\bar{\boldsymbol{\Sigma}})$$, where
 
 $$
-\begin{align}
+\begin{align*}
     \bar{\bm{\mu}} &= \bm{\mu_1} + \boldsymbol{\Sigma}_{12}\boldsymbol{\Sigma}_{22}^{-1}(\mathbf{x_2}-\bm{\mu_2})\\
     \bar{\boldsymbol{\Sigma}} &= \boldsymbol{\Sigma}_{11} - \boldsymbol{\Sigma}_{12}\boldsymbol{\Sigma}_{22}^{-1}\boldsymbol{\Sigma}_{21}
-\end{align}
+\end{align*}
 $$
