@@ -12,6 +12,12 @@ Consider a multivariate random vector $$X\in\mathbb{R}^{d\times n}$$, $$X\sim\ma
 We first partition all relevant matrices as follows:
 $$
 \begin{equation}
+\mathbf{X} = 
+\end{equation}
+$$
+
+$$
+\begin{equation}
 \mathbf{X} = \begin{bmatrix}
         \mathbf{X_1}\\\mathbf{X_2}
     \end{bmatrix},
