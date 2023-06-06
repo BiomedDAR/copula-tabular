@@ -6,6 +6,12 @@ nav_order: 3
 math: katex
 ---
 
+# Elliptical-Contoured Distributions
+
+## Definition of an Elliptical-Contoured Distribution
+For details, please refer to [Fang et al.](https://www.sciencedirect.com/science/article/pii/S0047259X01920172?ref=pdf_download&fr=RR-2&rr=7d05d3866a259fb6)
+
+
 ## Conditional Multivariate Gaussian Distribution
 Consider a multivariate random vector $$\mathbf{X}\in\mathbb{R}^{d\times n}$$, $$\mathbf{X}\sim\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$$. We want to compute the conditional joint distribution of $$\mathbf{X_1}$$ given $$\mathbf{X_2}=\mathbf{x}_2$$, such that $$\mathbf{X_1}\in\mathbb{R}^{d_1\times n}$$, $$\mathbf{X_2}\in\mathbb{R}^{d_2\times n}$$, and $$d=d_1+d_2$$. 
 
