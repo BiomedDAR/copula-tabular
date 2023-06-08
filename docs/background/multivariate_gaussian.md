@@ -11,6 +11,33 @@ math: katex
 ## Definition of an Elliptical-Contoured Distribution
 For details, please refer to [Fang et al.](https://www.sciencedirect.com/science/article/pii/S0047259X01920172?ref=pdf_download&fr=RR-2&rr=7d05d3866a259fb6)
 
+Let $$Z$$ be a $$d$$-dimensional random vector that follows a stochastic representation $$\bm{\mu} + r\mathbf{A}\mathbf{u}$$
+such that
+*   $$\bm{\mu} \in \mathbb{R}^{d\times 1}$$ (location vector)
+*   $$r \geq 0, $$r$$ is a (univariate) random variable of some density (independent radial part)
+*   $$\mathbf{A}\mathbf{A}^T = \boldsymbol{\Sigma}, \boldsymbol{\Sigma}\in\mathbb{R}^{d\times d}$$ (positive-definite matrix modelling the covariance)
+*   $$\mathbf{u}$$ is uniformly distributed on the unit sphere in $$\mathbb{R}^d, i.e. \mathbf{u}\sim U(\{ \mathbf{x} \in \mathbb{R}^d: \lVert \mathbf{x} \rVert=1 \})$$
+
+One can think of $$\mathbf{A}$$, the Cholesky factor of some covariance matrix, as some multivariate linear transformation acting on $$r\mathbf{u}$$, a spherical distribution.
+
+The probability density of $$Z \sim \text{EC}_d(\mathbf{0}, \boldsymbol{\Sigma}, g)$$ can be written in the form
+
+$$
+\begin{align}
+    \lvert \boldsymbol{\Sigma} \rvert^{1/2} g( (Z-\bm{\mu})^T \boldsymbol{\Sigma}^{-1} (Z-\bm{\mu}) ),
+\end{align}
+$$
+where $$g(\cdot)$$ is some scale function unique determined by the distribution of $$r$$.
+
+When
+
+$$
+\begin{align}
+    g(x) := \frac{1}{(2\pi)^{-d/2}} \exp (\frac{-x}{2}), 
+\end{align}
+$$
+
+$$Z$$ has a $$d$$-dimensional probability distribution.
 
 ## Conditional Multivariate Gaussian Distribution
 Consider a multivariate random vector $$\mathbf{X}\in\mathbb{R}^{d\times n}$$, $$\mathbf{X}\sim\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$$. We want to compute the conditional joint distribution of $$\mathbf{X_1}$$ given $$\mathbf{X_2}=\mathbf{x}_2$$, such that $$\mathbf{X_1}\in\mathbb{R}^{d_1\times n}$$, $$\mathbf{X_2}\in\mathbb{R}^{d_2\times n}$$, and $$d=d_1+d_2$$. 
