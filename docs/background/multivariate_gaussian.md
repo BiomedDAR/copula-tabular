@@ -14,7 +14,7 @@ For details, please refer to [Fang et al.](https://www.sciencedirect.com/science
 Let $$Z$$ be a $$d$$-dimensional random vector that follows a stochastic representation $$\bm{\mu} + r\mathbf{A}\mathbf{u}$$
 such that
 *   $$\bm{\mu} \in \mathbb{R}^{d\times 1}$$ (location vector)
-*   $$r \geq 0, $$r$$ is a (univariate) random variable of some density (independent radial part)
+*   $$r \geq 0$$, $$r$$ is a (univariate) random variable of some density (independent radial part)
 *   $$\mathbf{A}\mathbf{A}^T = \boldsymbol{\Sigma}, \boldsymbol{\Sigma}\in\mathbb{R}^{d\times d}$$ (positive-definite matrix modelling the covariance)
 *   $$\mathbf{u}$$ is uniformly distributed on the unit sphere in $$\mathbb{R}^d, i.e. \mathbf{u}\sim U(\{ \mathbf{x} \in \mathbb{R}^d: \lVert \mathbf{x} \rVert=1 \})$$
 
@@ -27,6 +27,7 @@ $$
     \lvert \boldsymbol{\Sigma} \rvert^{1/2} g( (Z-\bm{\mu})^T \boldsymbol{\Sigma}^{-1} (Z-\bm{\mu}) ),
 \end{align}
 $$
+
 where $$g(\cdot)$$ is some scale function unique determined by the distribution of $$r$$.
 
 When
