@@ -20,7 +20,7 @@ such that
 
 One can think of $$\mathbf{A}$$, the Cholesky factor of some covariance matrix, as some multivariate linear transformation acting on $$r\mathbf{u}$$, a spherical distribution.
 
-The probability density of $$Z \sim \text{EC}_d(\mathbf{0}, \boldsymbol{\Sigma}, g)$$ can be written in the form
+The probability density of $$Z \sim \text{EC}_d(\bm{\mu}, \boldsymbol{\Sigma}, g)$$ can be written in the form
 
 $$
 \begin{align}
@@ -38,24 +38,22 @@ $$
 \end{align}
 $$
 
-$$Z$$ has a $$d$$-dimensional Gaussian probability distribution:
+$$Z$$ has a $$d$$-dimensional Gaussian probability distribution (also denoted as $$\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$$):
 
 $$
 \begin{align}
-    \frac{1}{ ((2\pi)^{d} \lvert \boldsymbol{\Sigma} \rvert)^{1/2} } \exp (\frac{-1}{2} (Z-\bm{\mu})^T \boldsymbol{\Sigma}^{-1} (Z-\bm{\mu}) )
+    \frac{1}{ ((2\pi)^{d} \lvert \boldsymbol{\Sigma} \rvert)^{1/2} } \exp \bigg(\frac{-1}{2} (Z-\bm{\mu})^T \boldsymbol{\Sigma}^{-1} (Z-\bm{\mu}) \bigg)
 \end{align}
 $$
 
-where
+where $$\boldsymbol{\Sigma}: \{ \rho_{ij} \}$$ is some postive definite (correlation matrix) such that for $$i,j = 1,\dots, d$$, $$\rho_{ij} = \rho_{ji}$$, and
 
 $$
 \begin{align}
-    \boldsymbol{\Sigma}:= \rho_{ij}: \{ \begin{cases}
-        \rho_{ii} &= 1\\,
-        0 < \rho_{ij} < 1 &for i\neq j,
-        \rho_{ij} = \rho_{ji} & i,j = 1,\dots, d
+    \rho_{ij} =  \begin{cases}
+        1 &\text{if} i=j\\,
+        0 < \rho_{ij} < 1 &\text{if} i\neq j
     \end{cases}
-    \}
 \end{align}
 $$
 
