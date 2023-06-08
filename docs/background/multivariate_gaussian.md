@@ -94,7 +94,7 @@ $$
 <details>
     <summary>Proof</summary>
 
-We can show this using a trick by creating some linear combination, $$\mathbf{Z}$$, using $$\mathbf{X_1}$$ and $$\mathbf{X_2}$$, such that $$\mathbf{Z}$$ has zero correlation with $$\mathbf{X_2}$$. Since any linear combination of normally distributed random variables is also normally distributed, $$\mathbf{Z}$$ and $$\mathbf{X_2}$$ have a joint normal distribution, and will therefore be independent. This gives us the following expressions:
+We can show this using a trick by creating some linear combination, $\mathbf{Z}$, using $$\mathbf{X_1}$$ and $$\mathbf{X_2}$$, such that $$\mathbf{Z}$$ has zero correlation with $$\mathbf{X_2}$$. Since any linear combination of normally distributed random variables is also normally distributed, $$\mathbf{Z}$$ and $$\mathbf{X_2}$$ have a joint normal distribution, and will therefore be independent. This gives us the following expressions:
 
 $$
 \begin{align*}
