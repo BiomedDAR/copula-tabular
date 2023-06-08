@@ -6,9 +6,9 @@ nav_order: 3
 math: katex
 ---
 
-# Elliptical-Contoured Distributions
+# Multivariate Gaussian Distributions
 
-## Definition of an Elliptical-Contoured Distribution
+## As a member of an Elliptical-Contoured Distribution
 For details, please refer to [Fang et al.](https://www.sciencedirect.com/science/article/pii/S0047259X01920172?ref=pdf_download&fr=RR-2&rr=7d05d3866a259fb6)
 
 Let $$Z$$ be a $$d$$-dimensional random vector that follows a stochastic representation $$\bm{\mu} + r\mathbf{A}\mathbf{u}$$
@@ -51,8 +51,8 @@ where $$\boldsymbol{\Sigma}: \{ \rho_{ij} \}$$ is some postive definite (correla
 $$
 \begin{align}
     \rho_{ij} =  \begin{cases}
-        1 &\text{if} i=j\\,
-        0 < \rho_{ij} < 1 &\text{if} i\neq j
+        1 &\text{ if } i=j,\\
+        0 < \rho_{ij} < 1 &\text{ if } i\neq j
     \end{cases}
 \end{align}
 $$
@@ -90,6 +90,9 @@ $$
     \bar{\boldsymbol{\Sigma}} &= \boldsymbol{\Sigma}_{11} - \boldsymbol{\Sigma}_{12}\boldsymbol{\Sigma}_{22}^{-1}\boldsymbol{\Sigma}_{21}
 \end{align*}
 $$
+
+<details>
+    <summary>Proof</summary>
 
 We can show this using a trick by creating some linear combination, $$\mathbf{Z}$$, using $$\mathbf{X_1}$$ and $$\mathbf{X_2}$$, such that $$\mathbf{Z}$$ has zero correlation with $$\mathbf{X_2}$$. Since any linear combination of normally distributed random variables is also normally distributed, $$\mathbf{Z}$$ and $$\mathbf{X_2}$$ have a joint normal distribution, and will therefore be independent. This gives us the following expressions:
 
@@ -164,3 +167,7 @@ $$
     &= \boldsymbol{\Sigma}_{11} -\boldsymbol{\Sigma_{12}}\boldsymbol{\Sigma_{22}}^{-1}\boldsymbol{\Sigma_{21}} \\
 \end{align*}
 $$
+
+</details>
+
+## Copulas from Meta-Elliptical Distributions
