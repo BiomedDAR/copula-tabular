@@ -199,3 +199,14 @@ $$
 $$
 
 where $$\phi$$ is the $$d$$-dimensional multivariate weighted Gaussian density function and the copula density of an elliptically-contoured distribution.
+
+## Kendall's Correlation Coefficient
+Let $$\mathbf{X}=(X_1, X_2, \dots, X_d)$$ have a meta-elliptical distribution $$\text{ME}_d(\mathbf{0}, \boldsymbol{\Sigma}, g; F_1, \dots, F_d)$$. Then the Kendall's tau of $$\mathbf{X}$$ is given by
+
+$$
+\begin{align}
+    \tau = \frac{2}{\pi} \text{arcsin} (\rho),
+\end{align}
+$$
+
+and it depends only on $$\rho$$ and is invariant in the lcass of meta-elliptical distributions $$\text{ME}_d(\mathbf{0}, \boldsymbol{\Sigma}, g; F_1, \dots, F_d)$$.
