@@ -24,11 +24,11 @@ The probability density of $$Z \sim \text{EC}_d(\mathbf{0}, \boldsymbol{\Sigma},
 
 $$
 \begin{align}
-    \lvert \boldsymbol{\Sigma} \rvert^{1/2} g( (Z-\bm{\mu})^T \boldsymbol{\Sigma}^{-1} (Z-\bm{\mu}) ),
+    \lvert \boldsymbol{\Sigma} \rvert^{-1/2} g( (Z-\bm{\mu})^T \boldsymbol{\Sigma}^{-1} (Z-\bm{\mu}) ),
 \end{align}
 $$
 
-where $$g(\cdot)$$ is some scale function unique determined by the distribution of $$r$$.
+where $$g(\cdot)$$ is some scale function uniquely determined by the distribution of $$r$$.
 
 When
 
