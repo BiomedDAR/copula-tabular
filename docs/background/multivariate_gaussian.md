@@ -63,7 +63,7 @@ Consider a multivariate random vector $$\mathbf{X}\in\mathbb{R}^{d\times n}$$, $
 We first partition all relevant matrices as follows:
 
 $$
-\begin{align}
+\begin{align*}
 \mathbf{X} = \begin{bmatrix}
         \mathbf{X_1}\\\mathbf{X_2}
     \end{bmatrix},
@@ -77,7 +77,7 @@ $$
         \boldsymbol{\Sigma_{21}} & \boldsymbol{\Sigma_{22}} &
     \end{bmatrix},
 \htmlId{eq:test}{\tag{1}}
-\end{align}
+\end{align*}
 $$
 
 where $$\boldsymbol{\Sigma_{11}} \in \mathbb{R}^{d_1\times d_1}$$, $$\boldsymbol{\Sigma_{22}} \in \mathbb{R}^{d_2\times d_2}$$, and  $$\boldsymbol{\Sigma_{21}} = \boldsymbol{\Sigma_{12}}^T \in \mathbb{R}^{d_2\times d_1}$$.
@@ -171,7 +171,7 @@ $$
 <!-- </details> -->
 
 ## Copulas from Meta-Elliptical Distributions
-Let $$\mathbf{X} = (X_1, X_2, \dots, X_d)^T$$ be a random vector with each component $X_i$ having a given continuous marginal probability density $$f_i(x_i)$$ and corresponding cumulative distribution $$F_i(x_i)$$. Without loss of generality, let $$Z:=(Z_1, Z_2, \dots, Z_d)^T ~ \text{EC}_d(\bm{0}, \boldsymbol{\Sigma}, g)$$ where $g$ is given by
+Let $$\mathbf{X} = (X_1, X_2, \dots, X_d)^T$$ be a random vector with each component $$X_i$$ having a given continuous marginal probability density $$f_i(x_i)$$ and corresponding cumulative distribution $$F_i(x_i)$$. Without loss of generality, let $$Z:=(Z_1, Z_2, \dots, Z_d)^T \sim \text{EC}_d(\bm{0}, \boldsymbol{\Sigma}, g)$$ where $$g$$ is given by
 
 $$
 \begin{align}
@@ -194,8 +194,8 @@ The density function of $$\mathbf{X}$$ is then
 
 $$
 \begin{align}
-    h(x_1, x_2, \cdots, x_d) = \phi(Q_g^{-1}( F_1(X_1) ), Q_g^{-1}( F_2(X_2) ), \dots, Q_g^{-1}( F_d(X_d) ) ) \prod^d_{i=1} f_x(x_i)
-\end{align},
+    h(x_1, x_2, \cdots, x_d) = \phi(Q_g^{-1}( F_1(X_1) ), Q_g^{-1}( F_2(X_2) ), \dots, Q_g^{-1}( F_d(X_d) ) ) \prod^d_{i=1} f_x(x_i),
+\end{align}
 $$
 
-where $$\phi$$ is the $d$-dimensional multivariate weighted Gaussian density function.
+where $$\phi$$ is the $$d$$-dimensional multivariate weighted Gaussian density function.
