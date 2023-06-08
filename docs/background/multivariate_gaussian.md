@@ -34,11 +34,30 @@ When
 
 $$
 \begin{align}
-    g(x) := \frac{1}{(2\pi)^{-d/2}} \exp (\frac{-x}{2}), 
+    g(x) := \frac{1}{(2\pi)^{d/2}} \exp (\frac{-x}{2}), 
 \end{align}
 $$
 
-$$Z$$ has a $$d$$-dimensional probability distribution.
+$$Z$$ has a $$d$$-dimensional Gaussian probability distribution:
+
+$$
+\begin{align}
+    \frac{1}{ ((2\pi)^{d} \lvert \boldsymbol{\Sigma} \rvert)^{1/2} } \exp (\frac{-1}{2} (Z-\bm{\mu})^T \boldsymbol{\Sigma}^{-1} (Z-\bm{\mu}) )
+\end{align}
+$$
+
+where
+
+$$
+\begin{align}
+    \boldsymbol{\Sigma}:= \rho_{ij}: \{ \begin{cases}
+        \rho_{ii} &= 1\\,
+        0 < \rho_{ij} < 1 &for i\neq j,
+        \rho_{ij} = \rho_{ji} & i,j = 1,\dots, d
+    \end{cases}
+    \}
+\end{align}
+$$
 
 ## Conditional Multivariate Gaussian Distribution
 Consider a multivariate random vector $$\mathbf{X}\in\mathbb{R}^{d\times n}$$, $$\mathbf{X}\sim\mathcal{N}(\boldsymbol{\mu},\boldsymbol{\Sigma})$$. We want to compute the conditional joint distribution of $$\mathbf{X_1}$$ given $$\mathbf{X_2}=\mathbf{x}_2$$, such that $$\mathbf{X_1}\in\mathbb{R}^{d_1\times n}$$, $$\mathbf{X_2}\in\mathbb{R}^{d_2\times n}$$, and $$d=d_1+d_2$$. 
