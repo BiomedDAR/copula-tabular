@@ -171,3 +171,31 @@ $$
 <!-- </details> -->
 
 ## Copulas from Meta-Elliptical Distributions
+Let $$\mathbf{X} = (X_1, X_2, \dots, X_d)^T$$ be a random vector with each component $X_i$ having a given continuous marginal probability density $$f_i(x_i)$$ and corresponding cumulative distribution $$F_i(x_i)$$. Without loss of generality, let $$Z:=(Z_1, Z_2, \dots, Z_d)^T ~ \text{EC}_d(\bm{0}, \boldsymbol{\Sigma}, g)$$ where $g$ is given by
+
+$$
+\begin{align}
+    g(x) := \frac{1}{(2\pi)^{d/2}} \exp (\frac{-x}{2}).
+\end{align}
+$$
+
+Then
+
+$$
+\begin{align}
+    Z_i = Q_g^{-1}( F_i(X_i) ),
+\end{align}
+$$
+
+where $$Q_g^{-1}$$ is the inverse of $$Q_g$$, a univariate standard Gaussian distribution $$\mathcal{N}(0,1)$$.
+
+$$\mathbf{X}$$ is said to have a *meta-elliptical distribution*.
+The density function of $$\mathbf{X}$$ is then
+
+$$
+\begin{align}
+    h(x_1, x_2, \cdots, x_d) = \phi(Q_g^{-1}( F_1(X_1) ), Q_g^{-1}( F_2(X_2) ), \dots, Q_g^{-1}( F_d(X_d) ) ) \prod^d_{i=1} f_x(x_i)
+\end{align},
+$$
+
+where $$\phi$$ is the $d$-dimensional multivariate weighted Gaussian density function.
