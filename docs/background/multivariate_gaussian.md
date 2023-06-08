@@ -189,7 +189,7 @@ $$
 
 where $$Q_g^{-1}$$ is the inverse of $$Q_g$$, a univariate standard Gaussian distribution $$\mathcal{N}(0,1)$$.
 
-$$\mathbf{X}$$ is said to have a *meta-elliptical distribution*.
+$$\mathbf{X}$$ is said to have a *meta-elliptical distribution* denoted as $$\text{ME}_d(\mathbf{0}, \boldsymbol{\Sigma}, g; F_1, \dots, F_d)$$.
 The density function of $$\mathbf{X}$$ is then
 
 $$
@@ -198,4 +198,4 @@ $$
 \end{align}
 $$
 
-where $$\phi$$ is the $$d$$-dimensional multivariate weighted Gaussian density function.
+where $$\phi$$ is the $$d$$-dimensional multivariate weighted Gaussian density function and the copula density of an elliptically-contoured distribution.
