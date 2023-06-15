@@ -68,9 +68,12 @@ class MarginalDist:
 
         return params
     
-    def fit(self, data):
+    def fit(self, data, candidates=None):
+        """
+        Inputs: candidates (list)
+        """
 
-        opt_ks, opt_univariate, uni = self.select_univariate(data=data, candidates=None)
+        opt_ks, opt_univariate, uni = self.select_univariate(data=data, candidates=candidates)
 
         if self.fitted:
             self.marginal_dist = uni.marginal_dist
@@ -105,36 +108,55 @@ class MarginalDist:
         if not candidates or candidates is None:
             candidates = self.parametric
 
-        if (self.debug):
-            print(f"Fitting data with known parametric distributions...")
-
-        for uni_dist in candidates:
-
-            ks_statistic, ks_pvalue, uni = eval_dist(uni_dist)
-
             if (self.debug):
-                print(f"Fitting data with {uni_dist}:: kstat: {ks_statistic}:: pvalue: {ks_pvalue}")
+                print(f"Fitting data with known parametric distributions...")
+
+            for uni_dist in candidates:
+
+                ks_statistic, ks_pvalue, uni = eval_dist(uni_dist)
+
+                if (self.debug):
+                    print(f"Fitting data with {uni_dist}:: kstat: {ks_statistic}:: pvalue: {ks_pvalue}")
+                
+                if ks_statistic< opt_ks:
+                    if ks_pvalue > 0.05:
+                        opt_ks = ks_statistic
+                        opt_univariate = uni_dist
+                        opt_uni = deepcopy(uni)
             
-            if ks_statistic< opt_ks:
-                if ks_pvalue > 0.05:
+            if opt_univariate is None:
+
+                if (self.debug):
+                    print(f"No good distributions found, using non-parametric estimation...")
+                
+                uni_dist = "gaussian_kde"
+                ks_statistic, ks_pvalue, uni = eval_dist(uni_dist)
+                if (self.debug):
+                    print(f"Fitting data with {uni_dist}:: kstat: {ks_statistic}:: pvalue: {ks_pvalue}")
+
+                if ks_statistic< opt_ks:
+                    # if ks_pvalue > 0.05:
                     opt_ks = ks_statistic
                     opt_univariate = uni_dist
                     opt_uni = deepcopy(uni)
         
-        if opt_univariate is None:
+        else:
+            for uni_dist in candidates:
 
-            if (self.debug):
-                print(f"No good distributions found, using non-parametric estimation...")
-            
-            uni_dist = "gaussian_kde"
-            ks_statistic, ks_pvalue, uni = eval_dist(uni_dist)
-            print(f"Fitting data with {uni_dist}:: kstat: {ks_statistic}:: pvalue: {ks_pvalue}")
+                if (self.debug):
+                    print(f"Fitting data with known parametric distributions...")
 
-            if ks_statistic< opt_ks:
-                # if ks_pvalue > 0.05:
-                opt_ks = ks_statistic
-                opt_univariate = uni_dist
-                opt_uni = deepcopy(uni)
+                if uni_dist in self.parametric or uni_dist in self.nonparametric:
+                    ks_statistic, ks_pvalue, uni = eval_dist(uni_dist)
+
+                    if (self.debug):
+                        print(f"Fitting data with {uni_dist}:: kstat: {ks_statistic}:: pvalue: {ks_pvalue}")
+                    
+                    if ks_statistic < opt_ks:
+                        opt_ks = ks_statistic
+                        opt_univariate = uni_dist
+                        opt_uni = deepcopy(uni)
+
 
         if opt_univariate is None:
             self.fitted = False
@@ -204,7 +226,8 @@ class MarginalDist:
             size = self.sample_size
 
             if (self.debug):
-                print(f"Parameters used for sampling:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for sampling:/n {params}")
             
             self.samples = stats.beta.rvs(a=params['a'], b=params['b'], loc=params['loc'], scale=params['scale'], size=size)
 
@@ -215,7 +238,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
 
             self.pdf = stats.beta.pdf(data, a=params['a'], b=params['b'], loc=params['loc'], scale=params['scale'])
 
@@ -226,7 +250,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating CDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating CDF:/n {params}")
 
             self.cdf = stats.beta.cdf(data, a=params['a'], b=params['b'], loc=params['loc'], scale=params['scale'])
 
@@ -237,7 +262,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PPF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PPF:/n {params}")
 
             self.ppf = stats.beta.ppf(data, a=params['a'], b=params['b'], loc=params['loc'], scale=params['scale'])
 
@@ -330,7 +356,8 @@ class MarginalDist:
             size = self.sample_size
 
             if (self.debug):
-                print(f"Parameters used for sampling:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for sampling:/n {params}")
 
             self.samples = stats.laplace.rvs(loc=params['loc'], scale=params['scale'], size=size)
 
@@ -340,7 +367,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
 
             self.pdf = stats.laplace.pdf(data, loc=params['loc'], scale=params['scale'])
 
@@ -350,7 +378,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating CDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating CDF:/n {params}")
 
             self.cdf = stats.laplace.cdf(data, loc=params['loc'], scale=params['scale'])
 
@@ -360,7 +389,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PPF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PPF:/n {params}")
 
             self.ppf = stats.laplace.ppf(data, loc=params['loc'], scale=params['scale'])
 
@@ -391,7 +421,8 @@ class MarginalDist:
             size = self.sample_size
 
             if (self.debug):
-                print(f"Parameters used for sampling:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for sampling:/n {params}")
 
             self.samples = stats.loglaplace.rvs(c=params['c'], loc=params['loc'], scale=params['scale'], size=size)
 
@@ -401,7 +432,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
             
             self.pdf = stats.loglaplace.pdf(data, c=params['c'], loc=params['loc'], scale=params['scale'])
 
@@ -412,7 +444,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating CDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating CDF:/n {params}")
 
             self.cdf = stats.loglaplace.cdf(data, c=params['c'], loc=params['loc'], scale=params['scale'])
 
@@ -423,7 +456,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PPF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PPF:/n {params}")
 
             self.ppf = stats.loglaplace.ppf(data, c=params['c'], loc=params['loc'], scale=params['scale'])
 
@@ -455,7 +489,8 @@ class MarginalDist:
             size = self.sample_size
 
             if (self.debug):
-                print(f"Parameters used for sampling:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for sampling:/n {params}")
 
             self.samples = stats.gamma.rvs(a=params['a'], loc=params['loc'], scale=params['scale'], size=size)
 
@@ -466,7 +501,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
             
             self.pdf = stats.gamma.pdf(data, a=params['a'], loc=params['loc'], scale=params['scale'])
 
@@ -477,7 +513,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating CDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating CDF:/n {params}")
 
             self.cdf = stats.gamma.cdf(data, a=params['a'], loc=params['loc'], scale=params['scale'])
 
@@ -488,7 +525,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PPF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PPF:/n {params}")
 
             self.ppf = stats.gamma.ppf(data, a=params['a'], loc=params['loc'], scale=params['scale'])
 
@@ -519,7 +557,8 @@ class MarginalDist:
             size = self.sample_size
             
             if (self.debug):
-                print(f"Parameters used for sampling:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for sampling:/n {params}")
                 
             self.samples = stats.norm.rvs(loc=params['loc'], scale=params['scale'], size=size)
 
@@ -530,7 +569,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
 
             self.pdf = stats.norm.pdf(data, loc=params['loc'], scale=params['scale'])
 
@@ -541,7 +581,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating CDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating CDF:/n {params}")
 
             self.cdf = stats.norm.cdf(data, loc=params['loc'], scale=params['scale'])
 
@@ -552,7 +593,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PPF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PPF:/n {params}")
 
             self.ppf = stats.norm.ppf(data, loc=params['loc'], scale=params['scale'])
 
@@ -594,7 +636,8 @@ class MarginalDist:
             params = self.params #does not accept new_params
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
 
             self.pdf = self.gaussian_kde_model.evaluate(data)
 
@@ -604,7 +647,8 @@ class MarginalDist:
             params = self.params #does not accept new_params
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
 
             # y_cdf = np.array([tup[0] for tup in [quad(norm.pdf, a, b) for a, b in [(a, b) for a, b in zip(x, x[1:len(x)])]]] + [0]).cumsum()
 
@@ -620,7 +664,8 @@ class MarginalDist:
             params = self.params #does not accept new_params
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
 
             # x = self.params['x']
             # lower, upper = self._get_bounds(x)
@@ -664,7 +709,8 @@ class MarginalDist:
             size = self.sample_size
 
             if (self.debug):
-                print(f"Parameters used for sampling:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for sampling:/n {params}")
 
             self.samples = stats.t.rvs(df=params['df'], loc=params['loc'], scale=params['scale'], size=size)
 
@@ -674,7 +720,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
 
             self.pdf = stats.t.pdf(data, df=params['df'], loc=params['loc'], scale=params['scale'])
 
@@ -684,7 +731,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating CDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating CDF:/n {params}")
 
             self.cdf = stats.t.cdf(data, df=params['df'],  loc=params['loc'], scale=params['scale'])
 
@@ -694,7 +742,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PPF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PPF:/n {params}")
 
             self.ppf = stats.t.ppf(data, df=params['df'], loc=params['loc'], scale=params['scale'])
 
@@ -723,7 +772,8 @@ class MarginalDist:
             size = self.sample_size
             
             if (self.debug):
-                print(f"Parameters used for sampling:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for sampling:/n {params}")
                 
             self.samples = stats.uniform.rvs(loc=params['loc'], scale=params['scale'], size=size)
 
@@ -733,7 +783,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PDF:/n {params}")
 
             self.pdf = stats.uniform.pdf(data, loc=params['loc'], scale=params['scale'])
 
@@ -743,7 +794,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating CDF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating CDF:/n {params}")
 
             self.cdf = stats.uniform.cdf(data, loc=params['loc'], scale=params['scale'])
 
@@ -753,7 +805,8 @@ class MarginalDist:
             params = self.load_params(new_params=new_params)
 
             if (self.debug):
-                print(f"Parameters used for generating PPF:/n {params}")
+                if (self.fitted_marginal_dist in self.parametric):
+                    print(f"Parameters used for generating PPF:/n {params}")
 
             self.ppf = stats.uniform.ppf(data, loc=params['loc'], scale=params['scale'])
 

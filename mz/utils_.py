@@ -1,6 +1,27 @@
 import numpy as np
 import pandas as pd
+from scipy import stats
 import os
+import contextlib
+
+
+EPSILON = np.finfo(np.float32).eps
+
+@contextlib.contextmanager
+def random_seed(seed):
+    """Context manager for managing the random seed.
+    Args:
+        seed (int):
+            The random seed.
+    """
+
+    state = np.random.get_state()
+    np.random.seed(seed)
+    try: 
+        yield
+    finally:
+        np.random.set_state(state)
+
 
 def gen_randomData(
     dtypes = ['bool','bool','float', 'int', 'str'],
@@ -50,6 +71,11 @@ def gen_randomData(
     
     data_df = pd.DataFrame(columns)
     return data_df
+
+# LINEAR FUNCTIONS
+def gen_linear_func(x, m=1, c=0, noise_factor=0):
+    noise = stats.uniform.rvs(size=len(x))
+    return m*x + c + noise*noise_factor
 
 
 # GENERAL FUNCTIONS FOR FILES
@@ -133,3 +159,29 @@ def remove_items(listA, listB):
     if item in listB:
       listB.remove(item)
   return listB
+
+# LINEAR ALGEBRA
+def is_pos_def(A):
+    """Check if symmetric matrix is positive definite"""
+    if np.allclose(A, A.T):
+        try:
+            np.linalg.cholesky(A)
+            return True
+        except np.linalg.LinAlgError:
+            return False
+    else:
+        # NOT SYMMETRIC
+        return False
+    
+def makePD(corr):
+    """Convert a matrix to positive definite"""
+    if (is_pos_def(corr)):
+        return corr
+    else:
+        eigValue, eigVector = np.linalg.eigh(corr)
+        cnvEigV = np.diag(np.clip(eigValue, EPSILON, 100000))
+        new_corr = eigVector @ cnvEigV @ eigVector.transpose()
+        Norm = np.tile(np.diag(new_corr),(np.diag(new_corr).size,1))
+        new_corr = np.divide(new_corr,np.sqrt(Norm*Norm.transpose()))
+
+        return new_corr

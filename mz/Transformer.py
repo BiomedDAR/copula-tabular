@@ -182,7 +182,7 @@ class Transformer:
             # TRANSFORMING
             
             # (1) BOOLEAN / NUMERICAL (float64)/(int64)
-            if (col_dtype_str=='boolean' or col_dtype_str=='Float64' or col_dtype_str=='Int64'):
+            if (col_dtype_str=='boolean' or col_dtype_str=='Float64' or col_dtype_str=='Int64' or col_dtype_str=='Int32'):
                 output_field_name = f"{col}.value"
 
                 numeric_df[output_field_name] = data_df[col].astype(float)
@@ -308,7 +308,9 @@ class Transformer:
                 else:
                     raise TypeError('Transformer Type is not recognised.')
             else:
-                raise TypeError('Input array must be of type boolean, Float64, Int64, string')
+                if (self.debug):
+                    print(f"Input array Col_dtype={col_dtype_str}")
+                raise TypeError('Input array must be of type boolean, Float64, Int64, Int32, string, datetime64[ns], object, category')
 
             # FIX NULLS (not used for categorical)
             fix_null = False

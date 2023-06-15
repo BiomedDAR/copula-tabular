@@ -209,4 +209,4 @@ $$
 \end{align}
 $$
 
-and it depends only on $$\rho$$ and is invariant in the lcass of meta-elliptical distributions $$\text{ME}_d(\mathbf{0}, \boldsymbol{\Sigma}, g; F_1, \dots, F_d)$$.
+and it depends only on $$\rho$$ and is invariant in the class of meta-elliptical distributions $$\text{ME}_d(\mathbf{0}, \boldsymbol{\Sigma}, g; F_1, \dots, F_d)$$.
