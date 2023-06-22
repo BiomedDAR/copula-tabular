@@ -30,7 +30,7 @@ $$
 \end{align}
 $$
 
-We now extend the above into the multivariate scenario where $$\mathbf{X} = (X_1, X_2, \dots, X_d)$$ is a multivariate random vector with joint CDF $$H$$, with continuous and increasing marginal CDFs, $$F_{X_1} \dots, F_{X_d}$$. We have
+We now extend the above into the multivariate scenario where $$\mathbf{X} = (X_1, X_2, \dots, X_d)$$ is a multivariate random vector with joint CDF, $$H$$, with continuous and increasing marginal CDFs, $$F_{X_1} \dots, F_{X_d}$$. We have
 
 $$
 \begin{align}
@@ -53,9 +53,11 @@ Let $$u_i = F_{X_i}(x_i)$$. Then we have
 $$
 \begin{align}
     C(F_{X_1}(x_1), \dots, F_{X_d}(x_d)) = H(x_1, \dots, x_d),
-    \htmlId{eq:copula_function}{\tag{2}}
+    \htmlId{eq:copula_function}{\tag{4}}
 \end{align}
 $$
+
+## Sklar's Theorem and Building Joint Distributions
 
 This gives us first half of the Sklar's Theorem: Given a ($$d$$-dimensional) CDF, $$H$$, with marginals, $$F_{X_1} \dots, F_{X_d}$$, there exists a copula, $$C$$, such that 
 
@@ -65,10 +67,10 @@ $$
 \end{align*}
 $$
 
-When $$F_{X_i}$$ is continuous for all $i \in \{1,\dots, d\}$$, $$C$$ is unique; otherwise $$C$$ is uniquely determined only on $$\text{Ran}(F_{X_1}) \times \dots \times \text{Ran}(F_{X_d})$$ ($$\text{Ran}(F_{X_i})$$ is the range of $$F_{X_i}$$ ).
+When $$F_{X_i}$$ is continuous for all $$i \in \{1,\dots, d\}$$, $$C$$ is unique; otherwise $$C$$ is uniquely determined only on $$\text{Ran}(F_{X_1}) \times \dots \times \text{Ran}(F_{X_d})$$ ($$\text{Ran}(F_{X_i})$$ is the range of $$F_{X_i}$$ ).
 
 Unfortunately, we seldom, if ever, know the joint CDF of a multivariate dataset.
-To generate synthetic data, we often use the second half the Sklar's Theorem: Given some copula, $$C$$, and univariate CDFs, $$F_{X_1} \dots, F_{X_d}$$, we can find a unique joint CDF, $$H$$, defined in equation $$\href{#eq:copula_function}{(1)}$$, with marginals $$F_{X_1} \dots, F_{X_d}$$.
+To generate synthetic data, we often use the second half the Sklar's Theorem: Given some copula, $$C$$, and univariate CDFs, $$F_{X_1} \dots, F_{X_d}$$, we can find a unique joint CDF, $$H$$, as defined in equation $$\href{#eq:copula_function}{(4)}$$, with marginals $$F_{X_1} \dots, F_{X_d}$$.
 
 ## Conditional Copula
 Given a three dimensional vector $$(Y_1, Y_2, X)$$, we study the *dependence structure* of $$(Y_1, Y_2)$$ for a given value of $$(X=x)$$.
