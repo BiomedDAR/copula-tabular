@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Example for Multivariate Synthetic Data
+title: Example for Multivariate Synthetic Data (Linear)
 parent: Examples
 grand_parent: Getting Started
 nav_order: 6
 ---
 
 ## Example of GaussianCopula Class
-This example demonstrates the use of the GaussianCopula class to generate synthetic data for a multivariate dataset.
+This example demonstrates the use of the GaussianCopula class to generate synthetic data for a multivariate dataset of some linearity.
 
 ### Import Libraries
 ```
