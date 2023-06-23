@@ -1,12 +1,12 @@
 ---
 layout: default
-title: Multivariate Gaussian Distribution
+title: Gaussian Copula
 parent: Background
 nav_order: 3
 math: katex
 ---
 
-# Multivariate Gaussian Distributions
+# Gaussian Copula
 
 ## As a member of an Elliptical-Contoured Distribution
 For details, please refer to [Fang et al.](https://www.sciencedirect.com/science/article/pii/S0047259X01920172?ref=pdf_download&fr=RR-2&rr=7d05d3866a259fb6)
@@ -183,22 +183,28 @@ Then
 
 $$
 \begin{align}
-    Z_i = Q_g^{-1}( F_i(X_i) ),
+    Z_i = \Phi_g^{-1}( F_i(X_i) ),
 \end{align}
 $$
 
-where $$Q_g^{-1}$$ is the inverse of $$Q_g$$, a univariate standard Gaussian distribution $$\mathcal{N}(0,1)$$.
+where $$\Phi_g^{-1}$$ is the inverse of $$\Phi_g$$, a univariate standard Gaussian distribution $$\mathcal{N}(0,1)$$.
 
 $$\mathbf{X}$$ is said to have a *meta-elliptical distribution* denoted as $$\text{ME}_d(\mathbf{0}, \boldsymbol{\Sigma}, g; F_1, \dots, F_d)$$.
 The density function of $$\mathbf{X}$$ is then
 
 $$
 \begin{align}
-    h(x_1, x_2, \cdots, x_d) = \phi(Q_g^{-1}( F_1(X_1) ), Q_g^{-1}( F_2(X_2) ), \dots, Q_g^{-1}( F_d(X_d) ) ) \prod^d_{i=1} f_x(x_i),
+    h(x_1, x_2, \cdots, x_d) = \phi(\Phi_g^{-1}( F_1(X_1) ), \Phi_g^{-1}( F_2(X_2) ), \dots, \Phi_g^{-1}( F_d(X_d) ) ) \prod^d_{i=1} f_x(x_i),
 \end{align}
 $$
 
-where $$\phi$$ is the $$d$$-dimensional multivariate weighted Gaussian density function and the copula density of an elliptically-contoured distribution.
+where $$\phi$$ is the $$d$$-dimensional multivariate weighted Gaussian density function and the copula density of an elliptically-contoured distribution. Then, denoting $$\Phi$$ as the $$d$$-dimensional multivariate weighted Gaussian CDF, the corresponding Gaussian copula can be defined as:
+
+$$
+\begin{align}
+    C^{\text{Gauss}} ( F_1(X_1), F_2(X_2), \dots, F_d(X_d) ) = \Phi(\Phi_g^{-1}( F_1(X_1) ), \Phi_g^{-1}( F_2(X_2) ), \dots, \Phi_g^{-1}( F_d(X_d) ) )
+\end{align}
+$$
 
 ## Kendall's Correlation Coefficient
 Let $$\mathbf{X}=(X_1, X_2, \dots, X_d)$$ have a meta-elliptical distribution $$\text{ME}_d(\mathbf{0}, \boldsymbol{\Sigma}, g; F_1, \dots, F_d)$$. Then the Kendall's tau of $$\mathbf{X}$$ is given by
