@@ -194,7 +194,7 @@ The density function of $$\mathbf{X}$$ is then
 
 $$
 \begin{align}
-    h(x_1, x_2, \cdots, x_d) = \phi(\Phi_g^{-1}( F_1(X_1) ), \Phi_g^{-1}( F_2(X_2) ), \dots, \Phi_g^{-1}( F_d(X_d) ) ) \prod^d_{i=1} f_x(x_i),
+    h(x_1, x_2, \cdots, x_d) = \phi(\Phi_g^{-1}( F_1(x_1) ), \Phi_g^{-1}( F_2(x_2) ), \dots, \Phi_g^{-1}( F_d(x_d) ) ) \prod^d_{i=1} f_x(x_i),
 \end{align}
 $$
 
@@ -202,7 +202,7 @@ where $$\phi$$ is the $$d$$-dimensional multivariate weighted Gaussian density f
 
 $$
 \begin{align}
-    C^{\text{Gauss}} ( F_1(X_1), F_2(X_2), \dots, F_d(X_d) ) = \Phi(\Phi_g^{-1}( F_1(X_1) ), \Phi_g^{-1}( F_2(X_2) ), \dots, \Phi_g^{-1}( F_d(X_d) ) )
+    C^{\text{Gauss}} ( F_1(x_1), F_2(x_2), \dots, F_d(x_d) ) = \Phi(\Phi_g^{-1}( F_1(x_1) ), \Phi_g^{-1}( F_2(x_2) ), \dots, \Phi_g^{-1}( F_d(x_d) ) )
 \end{align}
 $$
 
