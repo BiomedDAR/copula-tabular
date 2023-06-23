@@ -108,13 +108,26 @@ $$
 
 where $$F_{1y}$$ and $$F_{2y}$$ are the corresponding conditional marginals of $$X_1$$ and $$X_2$$ respectively.
 
+We can derive this from the known identities of conditional CDFs:
+
+$$
+\begin{align*}
+    \frac{\partial H(X_1, X_2, Y)}{\partial y} &= H_y(x_1, x_2) f_Y(y) \\
+    \frac{\partial C(F_{X_1}(x_1), F_{X_2}(x_2), F_Y(y))}{\partial y} &= H_y(x_1, x_2) f_Y(y) \\
+    \frac{\partial C(F_{X_1}(x_1), F_{X_2}(x_2), F_Y(y))}{\partial F_Y(y)} f_Y(y) &= H_y(x_1, x_2) f_Y(y) \\
+    \frac{\partial C(F_{X_1}(x_1), F_{X_2}(x_2), F_Y(y))}{\partial F_Y(y)} &= H_y(x_1, x_2)\\
+    C_y(F_{1y}(x_1), F_{2y}(x_2)) \cdot \mathbb{P}(F_Y(Y)=F_Y(y))&= H_y(x_1, x_2)\\
+    C_y(F_{1y}(x_1), F_{2y}(x_2)) &= H_y(x_1, x_2)\\
+\end{align*}
+$$
+
 ## Partial Copula
 Let $$U_1:= F_{1y}(X_1)$$, $$U_2:= F_{2y}(X_2)$$. The *partial copula function* is defined as
 
 $$
 \begin{align*}
 \bar{C}(u_1, u_2) &:= \mathbb{P} (U_1 \leq u_1, U_2 \leq u_2) \\
-&= \int \mathbb{P} (U_1 \leq u_1, U_2 \leq u_2 \vert X=x) f_Y(y) dy \\
+&= \int \mathbb{P} (U_1 \leq u_1, U_2 \leq u_2 \vert Y=y) f_Y(y) dy \\
 &= \int C_x(u_1, u_2) f_Y(y) dy
 % \htmlId{eq:partial_copula_function}{\tag{3}}
 \end{align*}
