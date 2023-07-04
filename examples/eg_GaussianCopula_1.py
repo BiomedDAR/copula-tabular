@@ -1,16 +1,5 @@
----
-layout: default
-title: Example for Multivariate Synthetic Data (Linear)
-parent: Examples
-grand_parent: Getting Started
-nav_order: 6
----
+# This example demonstrates the use of the GaussianCopula class to generate synthetic data for a multivariate dataset
 
-## Example of GaussianCopula Class
-This example demonstrates the use of the GaussianCopula class to generate synthetic data for a multivariate dataset of some linearity.
-
-### Import Libraries
-```
 # LOAD DEPENDENCIES
 import pprint, sys, os
 import matplotlib.pyplot as plt
@@ -27,23 +16,19 @@ from mz.MarginalDist import MarginalDist
 from mz.GaussianCopula import GaussianCopula
 from mz.Transformer import Transformer
 from mz import utils_ as ut_
-```
 
-### Generate random data
-In this example, we are simulating a simple linear relationship between variables `x` and `y`, such that `y = 0.2x`, with uniform noise.
-This implies that the theoretical correlation between `x` and `y` is `1`, and their sample correlation should be very close to `1`.
-We also throw in a random variable `w`, of some Beta distribution. `w` is generated independently of `x` and `y`.
+# GENERATE A "FICTIONAL" DATA SAMPLE USING SCIPY
+# In this example, we are simulating a simple linear relationship between variables x and y, such that y = 0.2x, with uniform noise.
+# This implies that the theoretical correlation between x and y is 1, and their sample correlation should be very close to 1.
+# We also throw in a random variable `w`, of some Beta distribution. `w` is generated independently of x and y.
 
-We build a generic function to generate some multivariate data.
-
-```
 def sample_multiple_corr(
-            size=1000,
-            seed=4,
-            func1=None,
-            func2=None,
-            x1=None,
-            x2=None
+        size=1000,
+        seed=4,
+        func1=None,
+        func2=None,
+        x1=None,
+        x2=None
     ):
 
     def linear_func(x):
@@ -86,11 +71,7 @@ def sample_multiple_corr(
     })
 
     return data
-```
 
-We call the function `sample_multiple_corr` using the following inputs:
-
-```
 def linear_func1(x):
     return ut_.gen_linear_func(x, m=0.2, c=0, noise_factor=0.3)
 
@@ -108,43 +89,22 @@ data_df = sample_multiple_corr(
     x1 = x1,
     x2 = x2
 )
-```
 
-### Fit the multivariate data using a Gaussian Copula
+# FIT GAUSSIAN COPULA
+trial = 'default'
+if (trial=='default'):
+    gaussian_copula = GaussianCopula(debug=True, correlation_method='kendall')
+    gaussian_copula.fit(data_df)
 
-```
-gaussian_copula = GaussianCopula(debug=True, correlation_method='kendall')
-gaussian_copula.fit(data_df)
-```
+# SAMPLE FROM FITTED COPULA
+with_conditions = False
+if (with_conditions):
+    pass
+else:
+    syn_samples_df = gaussian_copula.sample(size=2000)
 
-### Sample Output
-From the debug output, we see that the simulated data fits none of the known parametric distribution, since it comprises of both a `Gamma` distribution and a `Normal` distribution. Instead, it was fitted with the `Gaussian_KDE`.
+# VISUALISATION
 
-```
-Fitting var: cat2_x
-Fitting data with known parametric distributions...
-Fitting data with beta:: kstat: 0.08625566083423458:: pvalue: 2.1444459149468223e-13
-Fitting data with laplace:: kstat: 0.13086841826833986:: pvalue: 2.51271289344259e-30
-Fitting data with loglaplace:: kstat: 0.09094332550131301:: pvalue: 7.621736893869741e-15
-Fitting data with gamma:: kstat: 0.06903383644766103:: pvalue: 9.870248316569304e-09   
-Fitting data with gaussian:: kstat: 0.12926624795255431:: pvalue: 1.349186913723636e-29
-Fitting data with student_t:: kstat: 0.12922667033316265:: pvalue: 1.406007841037184e-29
-Fitting data with uniform:: kstat: 0.24262346091040143:: pvalue: 3.9696214480772015e-104
-No good distributions found, using non-parametric estimation...
-Fitting data with gaussian_kde:: kstat: 0.03488425501886348:: pvalue: 0.01501752263100655
-```
-
-
-### Sample some synthetic multivariate data from the fitted Gaussian Copula
-We now sample some synthetic multivariate data from the fitted Gaussian Copula.
-
-```
-syn_samples_df = gaussian_copula.sample(size=2000)
-```
-
-### Visualisation
-
-```
 from mz import VIsualPlot as vp
 
 # Plot Histogram of Data Sample
@@ -172,15 +132,3 @@ ax_scatter, fig_scatter = vp.scatterPlot(data_df['cat2_x'], data_df['cat3_y'], l
 ax_scatter, fig_scatter = vp.scatterPlot(syn_samples_df['cat2_x'], syn_samples_df['cat3_y'], label="Synthetic", fig=fig_scatter, ax=ax_scatter, color='grey', marker='x')
 
 plt.show()
-```
-
-### Sample Output
-
-#### Plot of Histograms of both Original and Synthetic Data
-![](../../assets/img/gaussianCopula_example_1_histogram.png)
-
-#### Plot of Scatterplot of Original and Synthetic Data
-![](../../assets/img/gaussianCopula_example_1_scatterplot.png)
-
-#### Plot of Correlation Matrix of Original and Synthetic Data
-![](../../assets/img/gaussianCopula_example_1_correlation_matrix.png)
