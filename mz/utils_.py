@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 import os
+import platform
 import contextlib
 
 
 EPSILON = np.finfo(np.float32).eps
+OS_TYPE = platform.system()
 
 @contextlib.contextmanager
 def random_seed(seed):
@@ -101,6 +103,13 @@ def update_filename_with_suffix(filename, suffix):
 
     return new_filename
 
+def clean_filename_str(filename):
+    filename = str(filename).replace(":",r"-")
+    filename = filename.replace(" ",r"-")
+
+    return filename
+
+
 # GENERAL FUNCTIONS FOR EXCELS
 def get_worksheet_names(file_name):
     '''
@@ -138,6 +147,87 @@ def strip_string_spaces(dataframe, col=None):
         dataframe[col] = dataframe[col].str.strip()
 
     return dataframe
+
+def mapping_dictDateFormatConversion(str):
+
+    if ("dddd" in str): # day of the week, full form (Monday):
+        str = str.replace("dddd", r"%A")
+
+    if ("ddd" in str): # day of the week, short form (Mon):
+        str = str.replace("ddd", r"%a")
+
+    if ("dd" in str): # day number with a leading zero
+        str = str.replace("dd", r"%d")
+    elif ("d" in str): # day number without a leading zero
+        if OS_TYPE=='Windows': # use "%-d" for unix, "%#d" for windows
+            str = str.replace("d", r"%#d")
+        elif OS_TYPE=='Linux' or 'Darwin':
+            str = str.replace("d", r"%-d")
+
+    if ("mmmm" in str): # month name, full form, (January):
+        str = str.replace("mmmm", r"%B")
+
+    if ("mmm" in str): # month name, short form, (Jan):
+        str = str.replace("mmm", r"%b")
+
+    if ("mm" in str): # month number with a leading zero
+        str = str.replace("mm", r"%m")
+    elif ("m" in str): # month number without a leading zero
+        if OS_TYPE=='Windows': # use "%-m" for unix, "%#m" for windows
+            str = str.replace("m", r"%#m")
+        elif OS_TYPE=='Linux' or 'Darwin':
+            str = str.replace("m", r"%-m")
+    
+    if ("yyyy" in str): # year four digits
+        str = str.replace("yyyy", r"%Y")
+
+    if ("yy" in str): # year last 2 digits
+        str = str.replace("yy", r"%y")
+
+    return str
+
+# TIME
+def date_format_search(data):
+    list_of_formats = ["%Y-%m-%d", "%d-%m-%Y", "%m-%d-%Y", "%m/%d/%Y", "%d/%m/%Y", "%d.%m.%Y", "%d %B %Y", "%b %d, %Y", "%y-%m-%d", "%d-%m-%y", "%m-%d-%y", "%m/%d/%y", "%d/%m/%y", "%d.%m.%y", "%d %B %y", "%b %d, %y"]
+
+    chosen_format = list_of_formats[0]
+    num_NaT = len(data)
+    for format in list_of_formats:
+        num_Nat_i = count_date_format_errors(data, format)
+        if num_Nat_i < num_NaT:
+            num_NaT = num_Nat_i
+            chosen_format = format
+
+    return chosen_format
+
+def count_date_format_errors(data, format):
+
+    data = strip_string_spaces(data)
+    con_data = pd.to_datetime(data, format=format, errors="coerce")
+    num_NaT = con_data.isnull().sum()
+
+    return num_NaT
+
+# ASCII-compatible
+def convert_to_ascii(data):
+    """
+    Function to convert all string/object columns in a dataframe to characters that can safely be encoded to ASCII.
+    """
+    # load unidecode package
+    from unidecode import unidecode
+  
+    # Iterate through columns of the dataframe
+    if isinstance(data, pd.DataFrame):
+        for col in data.columns:
+            # Select only string/object columns
+            if data[col].dtype == object or data[col].dtype == "string":
+                # Remove international accents from the column and assign it back to the same column
+                data[col] = data[col].apply(unidecode)
+                # data[col] = data[col].str.replace("€", r"\€", regex=True).apply(unidecode)
+    elif type(data) == str:
+        data = unidecode(data)
+    
+    return data
 
 
 # GENERAL ALGORITHMS

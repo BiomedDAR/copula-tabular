@@ -18,6 +18,8 @@ The CleanData class comprises several in-built functions:
 *   verifies variable names in input data against meta information in data dictionary
 *   drops duplicate rows
 *   standardise text format (capital/small letters)
+*   converts all characters to ASCII-compatible alternatives
+*   standardise date format
 
 ### External functions
 The CleanData class accepts external/user-specified constraints, in conjunction with the Constraints class.

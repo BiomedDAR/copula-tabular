@@ -1,5 +1,6 @@
 from mz import utils_ as ut_
 import pandas as pd
+import numpy as np
 import pprint
 import os
 from copy import deepcopy
@@ -24,6 +25,8 @@ class CleanData:
 
         self.dict_var_varname = "NAME" # column in data dictionary containing variable names in input data
         self.dict_var_varcategory = "CATEGORY" # column in data dictionary setting the category of the variable name
+        self.dict_var_type = "TYPE" # column in data dictionary setting the type of variable (string, numeric, date)
+        self.dict_var_codings = "CODINGS" # column in data dictionary setting the codigns of variable (dataformat, categories)
         self.var_name_stripemptyspaces = False #If True, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary.
         self.longitudinal_variableMarker = None #column header which contains the list of categories stipulating a list of longitudinal markers
 
@@ -36,6 +39,15 @@ class CleanData:
         self.options_standardise_text_case_type = "uppercase"
         self.options_standardise_text_exclude_list = []
         self.options_standardise_text_case_type_dict = {}
+
+        # LOADING DEFAULTS FOR STANDARDISE DATES
+        self.suffix_standardise_date = "DATE"
+        self.options_standardise_date_format = "yyyy-mm-dd"
+        self.options_faileddate_conversions_filename = 'failed_date_conversions.csv'
+
+        # LOADING DEFAULTS FOR ASCII CONVERSION
+        self.suffix_convert_ascii = "ASCII"
+        self.options_convert_ascii_exclusion_list = []
 
         # LOADING DEFAULTS FOR CONSTRAINTS
         self.suffix_constraints = "CON"
@@ -64,6 +76,9 @@ class CleanData:
 
         # GET CATEGORY: FIELD DICTIONARY
         self._get_field_category_from_dict()
+        
+        # GET TYPE: FIELD DICTIONARY
+        self._get_dataType_from_dict()
 
         # SAVE NEW DATA AND DICTIONARY IN TRAINDATA PATH
         self._save_data_to_file()
@@ -83,6 +98,9 @@ class CleanData:
         self._update_defaults(var_to_update="folder_trainData", new_value="TRAIN_PATH")
         self._update_defaults(var_to_update="dict_var_varname", new_value="DICT_VAR_VARNAME")
         self._update_defaults(var_to_update="dict_var_varcategory", new_value="DICT_VAR_VARCATEGORY")
+        self._update_defaults(var_to_update="dict_var_type", new_value="DICT_VAR_TYPE")
+        self._update_defaults(var_to_update="dict_var_codings", new_value="DICT_VAR_CODINGS")
+        
         self._update_defaults(var_to_update="var_name_stripemptyspaces", new_value="VAR_NAME_STRIPEMPTYSPACES")
         
         # Updating defaults for OUTPUT TYPES
@@ -98,6 +116,15 @@ class CleanData:
         self._update_defaults(var_to_update="options_standardise_text_case_type", new_value="OPTIONS_STANDARDISE_TEXT_CASE_TYPE")
         self._update_defaults(var_to_update="options_standardise_text_exclude_list", new_value="OPTIONS_STANDARDISE_TEXT_EXCLUDE_LIST")
         self._update_defaults(var_to_update="options_standardise_text_case_type_dict", new_value="OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT")
+
+        # Updating defaults for STANDARDISE DATES
+        self._update_defaults(var_to_update="suffix_standardise_date", new_value="SUFFIX_STANDARDISE_DATE")
+        self._update_defaults(var_to_update="options_standardise_date_format", new_value="OPTIONS_STANDARDISE_DATE_FORMAT")
+        self._update_defaults(var_to_update="options_faileddate_conversions_filename", new_value="OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME")
+
+        # Updating defaults for CONVERTING ASCII
+        self._update_defaults(var_to_update="suffix_convert_ascii", new_value="SUFFIX_CONVERT_ASCII")
+        self._update_defaults(var_to_update="options_convert_ascii_exclusion_list", new_value="OPTIONS_CONVERT_ASCII_EXCLUSION_LIST")
 
         self._update_defaults(var_to_update="suffix_constraints", new_value="SUFFIX_CONSTRAINTS")
 
@@ -131,6 +158,7 @@ class CleanData:
         self.var_list = None #list of all variables (column headers) found in input data
         self.var_diff_list = None #list of discrepancies between data dictionary and input data
         self.cat_var_dict = None #dictionary with {cat: [list of variables]}
+        self.type_var_dict = None #dictionary with {type: [list of variables]}
 
     def convert_2_dtypes(self, data):
         """Convert data (df) into best possible dtypes"""
@@ -150,6 +178,7 @@ class CleanData:
         """Reads raw data from input definitions and outputs it as a dataframe.
         Data can be in the following formats:
             a) Excel .xlsx
+            b) Text .csv
         
         Parameters
         ----------
@@ -187,6 +216,8 @@ class CleanData:
                 else:
                     print(f"Sheetname is preassigned as {sheetname}.")
                 self.raw_data_sheetname = sheetname
+            elif (extension=='csv'):
+                file_type = 'csv'
                         
         except ValueError as e:
             raise ValueError("Error in getting sheetname of file type xlsx: " + str(e)) from None
@@ -197,6 +228,9 @@ class CleanData:
                 self.raw_df = pd.read_excel(self.raw_data_filename,
                     sheet_name=sheetname
                 )
+            elif file_type=='csv':
+                # Read file and output as dataframe
+                self.raw_df = pd.read_csv(self.raw_data_filename)
         except ValueError as e:
             raise ValueError('Could not read sheet in excel file: ' + str(e)) from None
         
@@ -259,8 +293,10 @@ class CleanData:
 
         # STRIP EMPTY SPACES
         if (strip_empty_spaces):
-            self.clean_df = ut_.strip_empty_spaces(self.raw_df)
-            self.clean_dict_df = ut_.strip_empty_spaces(self.dict_df)
+            self.clean_df = deepcopy(self.raw_df)
+            self.clean_dict_df = deepcopy(self.dict_df)
+            self.clean_df = ut_.strip_empty_spaces(self.clean_df)
+            self.clean_dict_df = ut_.strip_empty_spaces(self.clean_dict_df)
             ut_.strip_string_spaces(self.clean_dict_df, col=self.dict_var_varname) #string spaces are not automatically stripped from data (prevent auto conversion to dates)
         else: 
             self.clean_df = deepcopy(self.raw_df)
@@ -356,6 +392,17 @@ class CleanData:
         # Create a dictionary
         self.cat_var_dict = {key: list(cat_df[A][cat_df[B] == key]) for key in cat_df[B].unique()}
 
+    def _get_dataType_from_dict(self):
+
+        # Extract dataframe columns with variable name and variable category
+        A = self.dict_var_varname
+        B = self.dict_var_type
+        cat_df = self.clean_dict_df[[A, B]]
+
+        # Create a dictionary
+        self.type_var_dict = {key: list(cat_df[A][cat_df[B] == key]) for key in cat_df[B].unique()}
+
+
 
     # DROP DUPLICATES
     def drop_duplicate_rows(self):
@@ -450,4 +497,156 @@ class CleanData:
         # Update new filename and new input data
         self.update_data(new_df=output_df, filename_suffix=self.suffix_standardise_text)
 
+    # CONVERTING ASCII
+    def converting_ascii(self, ascii_exclusion_list=None):
+        """Converts all characters in input data to ASCII-compatible format
+
+        Parameters
+        ----------
+        ascii_exclusion_list : list, default = self.options_convert_ascii_exclusion_list
+            List of characters to not replace
+
+        Returns
+        -------
+        self : object
+            Returns self with clean_df updated with the ascii compatible data
+
+        """
+
+        # Load options
+        ascii_exclusion_list = ascii_exclusion_list or self.options_convert_ascii_exclusion_list
+
+        if (self.debug):
+            print(f"Converting all characters to ASCII-compatible in input data...")
+            print(f"List of Exclusions: \n{ascii_exclusion_list}")
+
+        # Get a working copy of latest data dataframe
+        df = deepcopy(self.clean_df)
+
+        # convert data_df to best possible dtypes
+        output_df = self.convert_2_dtypes(df)
+
+        # replace all characters in list of exclusions
+        list_of_cols_with_ex_char = []
+        for col in output_df.columns:
+            if output_df[col].dtype == object or output_df[col].dtype == "string":
+                for ex_char in ascii_exclusion_list:
+                    if any(ex_char in s for s in output_df[col]):
+                        replace_str = f"-~*{ex_char}*~-"
+                        output_df[col] = output_df[col].str.replace(ex_char, replace_str, regex=False)
+                        list_of_cols_with_ex_char.append(col)
+
+        # convert all string/object columns to ascii-compatible characters
+        output_df = ut_.convert_to_ascii(output_df)
+
+        # revert all characters in list of exclusions
+        for col in list_of_cols_with_ex_char:
+            for ex_char in ascii_exclusion_list:
+                replace_str = f"-~*{ex_char}*~-"
+                replace_str = ut_.convert_to_ascii(replace_str)
+                output_df[col] = output_df[col].str.replace(replace_str, ex_char, regex=False)
+
+
+        # Update new filename and new input data
+        self.update_data(new_df=output_df, filename_suffix=self.suffix_convert_ascii)
+
+    
+    # STANDARDISE DATES
+    def standardise_date(self, def_date_format=None, faileddate_conversions_filename=None):
+        """Standardises the date/time in input data.
+
+        Standardise the date format of variables of the TYPE "date" (as specified in the data dictionary). Primarily changes the format of the column as per the predefined standard date and time format, as specified in OPTIONS_STANDARDISE_DATE_FORMAT (global definitions).
+
+        It also stores the failed conversions in a csv file, as specified in OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME (global definitions)
         
+        Parameters
+        ----------
+        def_date_format : string, optional
+            the standard date format to use for all dates (ignore if already specified in global definitions, default is 'yyyy-mm-dd') [follows format used in ms-excel, see ref. https://www.ablebits.com/office-addins-blog/change-date-format-excel/]
+
+        faileddate_conversions_filename : string, optional
+            the filename.csv for storing list of failed date conversions (ignore if already specified in global definitions, default is 'failed_date_conversions.csv') [only csv allowed]
+        
+        Returns
+        -------
+        No value returned, updates the dataFile given.
+        """
+
+        if (self.debug):
+            print(f"Standardising date/time in input data...")
+
+        # ExTRACT variables of the "Index"  category
+        if 'Index' in self.cat_var_dict:
+            index_list = self.cat_var_dict["Index"]
+            chosen_index = index_list[0]
+        else: 
+            chosen_index = None
+
+        # Load standardised date format
+        def_date_format = def_date_format or self.options_standardise_date_format
+        def_date_format_convert = ut_.mapping_dictDateFormatConversion(def_date_format)
+
+        # Get list of variables defined as 'date' in TYPE
+        dateVar_list = self.type_var_dict['date']
+
+        # Get a working copy of latest data dataframe
+        df = deepcopy(self.clean_df)
+
+        # convert data_df to best possible dtypes
+        output_df = self.convert_2_dtypes(df)
+
+        # initialise empty dataframe to store failed conversions
+        failedIndices_df = pd.DataFrame()
+        faileddate_conversions_filename = faileddate_conversions_filename or self.options_faileddate_conversions_filename
+
+        #
+        for dateVar in dateVar_list:
+            
+            dateColFieldFormat = deepcopy(def_date_format_convert) # the date format to convert to
+
+            # the date format to convert from
+            raw_dateColFieldFormat = self.clean_dict_df[self.clean_dict_df[self.dict_var_varname]==dateVar][self.dict_var_codings].values[0]
+            raw_dateColFieldFormat = ut_.mapping_dictDateFormatConversion(str(raw_dateColFieldFormat))
+            
+            # Conversion (Easiest Case [Excel])
+            if output_df[dateVar].dtype == 'datetime64[ns]': # when raw excel column is specified as datatype: date in excel
+                output_df[dateVar] = pd.to_datetime(output_df[dateVar], errors="ignore").dt.strftime(dateColFieldFormat)
+
+            elif output_df[dateVar].dtype == 'string': # when column is specified as string
+
+                # Check if date format is usable. If not, learn one from the data
+                if raw_dateColFieldFormat == '' or raw_dateColFieldFormat=='nan':
+                    if (self.debug):
+                        print(f'Standardise date: raw_dateCOlFieldFormat for variable {dateVar} is not valid.')
+
+                    raw_dateColFieldFormat = ut_.date_format_search(output_df[dateVar])
+                    if (self.debug):
+                        print(f"Using {raw_dateColFieldFormat} as date format.")
+
+                # Conversion
+                output_df = ut_.strip_string_spaces(output_df, col=dateVar)
+                output_df[dateVar] = pd.to_datetime(output_df[dateVar], format=raw_dateColFieldFormat, errors="coerce").dt.strftime(dateColFieldFormat)
+
+            # save failed conversions to dataframe
+            if chosen_index is not None:
+                failedIndices_df[dateVar] = output_df[output_df[dateVar].isna()][chosen_index]
+            else: # if chosen_index is not available, use df index
+                failedIndices_df[dateVar] = output_df[output_df[dateVar].isna()].index
+
+            if (self.output_type_data == 'csv'): #workaround to prevent automatic date conversion of csv by ms-excel
+                output_df[dateVar] = ' ' + output_df[dateVar].astype(str) 
+
+            # update dict 'CODINGS' column with new standardised date format
+            self.clean_dict_df.loc[self.clean_dict_df[self.dict_var_varname]==dateVar, self.dict_var_codings] = def_date_format
+
+        # Update new filename and new input data
+        self.update_data(new_df=output_df, filename_suffix=self.suffix_standardise_date)
+
+        # Update new data dictionary with new standardised date format
+        self._save_dict_to_file()
+
+        
+
+        # Save failed conversions to file
+        f_filename = self.train_data_path + faileddate_conversions_filename
+        ut_.save_df_as_csv(failedIndices_df, f_filename, index=True)
