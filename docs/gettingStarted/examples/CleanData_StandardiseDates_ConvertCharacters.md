@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Example for CleanData class
+title: Example for CleanData class (Date Standardisation, Character Conversion)
 parent: Examples
 grand_parent: Getting Started
 nav_order: 5
