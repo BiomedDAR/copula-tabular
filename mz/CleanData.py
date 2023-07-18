@@ -165,6 +165,17 @@ class CleanData:
         return data.convert_dtypes()
 
     def _get_longitudinal_marker_list(self):
+        """
+        Updates the longitudinal_marker_list using the longitudinal_variableMarker column in raw_df.
+        
+        Parameters
+        ----------
+        self : an instance of the Preprocessing class
+        
+        Returns
+        -------
+        longitudinal_marker_list : a list of longitudinal markers
+        """  
 
         if self.longitudinal_variableMarker is not None:
             self.longitudinal_marker_list = list(self.raw_df[self.longitudinal_variableMarker].unique())
@@ -240,6 +251,20 @@ class CleanData:
         return self.raw_df
 
     def read_inputDict(self, sheetname=None):
+        """This function reads a raw data dictionary (currently only supports .xlsx files) and returns it as a dataframe. 
+        If no sheetname is given the first sheet of the file is assumed.
+        
+        Parameters
+        ----------
+        sheetname : str
+            name of sheet to be read from .xlsx file.
+            
+        Returns
+        -------
+        self.dict_df : pandas.dataframe
+            dataframe containing raw data dictionary.
+        
+        """
 
         if (self.debug):
             print(f"Reading data dictionary from filename: {self.raw_data_dict_filename}")
@@ -285,7 +310,19 @@ class CleanData:
         return self.dict_df
 
     def _check_variable_match_dict_data(self, strip_empty_spaces=False):
-        """Check if variables in dictionary match the field headers in self.raw_df. Problematic fields will be stored in self.var_diff_list."""
+        """Check if variables in dictionary match the field headers in self.raw_df. Problematic fields will be stored in self.var_diff_list.
+        
+        Parameters
+        ----------
+        strip_empty_spaces : bool (default=False)
+            Boolean determining whether or not to strip empty spaces in both the raw_df and dict_df.
+
+        Returns
+        -------
+        bool
+            Returns True if no variable mismatches, False otherwise.
+        
+        """
 
         # Load the variables names found in the data dictionary
         if self.dict_var_varname not in self.dict_df.columns:
@@ -323,6 +360,14 @@ class CleanData:
 
 
     def _save_data_to_file(self):
+        """Function to save data to file.
+        This function saves the clean_df data frame to a CSV file or XLSX file depending on the file's extension. 
+        
+        Parameters
+        ----------
+        self : object
+            The DataPipeline object which contains data frames and file locations.
+        """
 
         file_ext = ut_.get_extension(self.data_latest_filename)
 
@@ -340,6 +385,7 @@ class CleanData:
             raise ValueError(f"Not able to save data to file for extension type: {file_ext}")
 
     def _save_dict_to_file(self):
+        """Save the current clean_dict_df DataFrame to the latest filename with the corresponding extension type (ie: .csv, .xlsx)."""
 
         file_ext = ut_.get_extension(self.dict_latest_filename)
 
@@ -357,7 +403,15 @@ class CleanData:
             raise ValueError(f"Not able to save dictionary to file for extension type: {file_ext}")
         
     def update_data(self, new_df, filename_suffix=""):
-        """Update and replace the input data in the CleanData class with new input data"""
+        """
+        Update the input data in the CleanData class with new input data and overwrite the previous version.
+        
+        Parameters
+        ----------
+        new_df (pandas Dataframe): The new data to replace old data in this class.
+        filename_suffix (str, optional): An optional suffix added to the output file when data is saved. Default is ""
+        
+        """
 
         if (self.debug):
             print(f"Replacing the input data...")
@@ -383,6 +437,20 @@ class CleanData:
 
         
     def _get_field_category_from_dict(self):
+        """
+        Extracts dataframe columns with variable name and variable category and 
+        creates a dictionary with the categories as keys and the respective variables 
+        as values.
+        
+        Parameters
+        ----------
+        self : object, instance of the dataframe   
+        
+        Returns
+        -------
+        type_var_dict : dictionary
+            dictionary with the categories as keys and the respective variables as values.
+        """
 
         # Extract dataframe columns with variable name and variable category
         A = self.dict_var_varname
@@ -393,6 +461,20 @@ class CleanData:
         self.cat_var_dict = {key: list(cat_df[A][cat_df[B] == key]) for key in cat_df[B].unique()}
 
     def _get_dataType_from_dict(self):
+        """
+        Extracts dataframe columns with variable name and variable type and 
+        creates a dictionary with the type as keys and the respective variables 
+        as values.
+        
+        Parameters
+        ----------
+        self : object, instance of the dataframe   
+        
+        Returns
+        -------
+        type_var_dict : dictionary
+            dictionary with the variable type as keys and the respective variables as values.
+        """
 
         # Extract dataframe columns with variable name and variable category
         A = self.dict_var_varname
@@ -449,6 +531,21 @@ class CleanData:
 
     # STANDARDISE TEXT
     def standardise_text_case_conversion(self, data, case_type):
+        """
+        The standardise_text_case_conversion function takes dataframe (cols) and one case type parameter as input and returns the text data converted as per the case type specified.
+
+        Parameters
+        ----------
+        data : pandas dataframe
+            The columns of the dataframe should contain text as data type.
+        case_type : str
+            The case type should be specified as either uppercase, lowercase or capitalise.
+                    
+        Returns
+        ---------
+        pandas dataframe
+        The dataframe with all the text values converted to one specified case type.
+        """
         if case_type == 'uppercase':
             data = data.astype(str).str.upper()
         elif case_type == 'lowercase':
@@ -459,7 +556,21 @@ class CleanData:
         return data
 
     def standardise_text(self):
-        """"""
+        """
+        Standardises text case in input data.
+
+        Parameters
+        ----------
+        self: Module object
+            Module object containing all the attributes and methods.
+        df: DataFrame
+            Dataframe containing data for standardisation.
+            
+        Returns
+        -------
+        output_df: DataFrame
+            DataFrame with standardised case types for string and object values.
+        """
 
         if (self.debug):
             print(f"Standardising text in input data...")
