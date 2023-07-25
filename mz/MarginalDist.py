@@ -16,11 +16,14 @@ DIST_MAP = {
     "student_t": "t_dist",
     "uniform": "uni_dist",
     "emp": "empirical_dist",
-    "gaussian_kde": "gaussian_kde_dist"
+    "gaussian_kde": "gaussian_kde_dist",
+    "degenerate": "degenerate_dist"
 }
 
 class MarginalDist:
     """
+
+    Change Log: (MZ) 13-07-2023: Added degenerate distribution
     """
 
     def __init__(self,
@@ -41,7 +44,8 @@ class MarginalDist:
             "b": 1,
             "c": 1,
             "ecdf": {},
-            "gaussian_kde": {}
+            "gaussian_kde": {},
+            "constant_value": None
         }
 
         self.sample_cdf = None #cdf of samples used to fit the distribution
@@ -71,9 +75,23 @@ class MarginalDist:
     def fit(self, data, candidates=None):
         """
         Inputs: candidates (list)
+
+        Change Log: (MZ) 13-07-2023: Added degenerate distribution
         """
 
-        opt_ks, opt_univariate, uni = self.select_univariate(data=data, candidates=candidates)
+        if len(np.unique(data)) == 1: # Check if data contains only one type of value
+            # self.params['constant_value'] = np.unique(data)[0]
+            # self.marginal_dist = 'degenerate'
+            # self.fitted_marginal_dist = 'degenerate'
+
+            if (self.debug):
+                print(f"Fitting data with degenerate distribution...")
+
+            uni = MarginalDist()
+            uni.degenerate_dist(operation='fit', data=data)
+            self.fitted = True
+        else:
+            opt_ks, opt_univariate, uni = self.select_univariate(data=data, candidates=candidates)
 
         if self.fitted:
             self.marginal_dist = uni.marginal_dist
@@ -87,7 +105,10 @@ class MarginalDist:
     
 
     def select_univariate(self, data=None, candidates=None):
-        """Select the best univariate class for data"""
+        """Select the best univariate class for data
+        
+        Change Log: (MZ) 13-07-2023 put evaluation of uni_dist in try/except block
+        """
 
         opt_ks = np.inf
         opt_univariate = None
@@ -99,8 +120,12 @@ class MarginalDist:
             def cdf_callable(data):
                 return uni.cdf_wrapper(data=data)
             
-            eval(f"uni.{DIST_MAP[uni_dist]}(operation='fit', data=data)")
-            ks_statistic, ks_pvalue = stats.kstest(data, cdf_callable)
+            try:
+                eval(f"uni.{DIST_MAP[uni_dist]}(operation='fit', data=data)")
+                ks_statistic, ks_pvalue = stats.kstest(data, cdf_callable)
+            except:
+                ks_statistic = np.inf
+                ks_pvalue = 0
 
             return ks_statistic, ks_pvalue, uni
 
@@ -199,6 +224,63 @@ class MarginalDist:
 
         return self.ppf
                 
+
+    def degenerate_dist(self, data=None, operation="fit", new_params={"constant_value":None}, sample_size=None):
+        """Compute Degenerate Distribution related operations"""
+
+        self.marginal_dist = "degenerate"
+
+        if (operation=="fit"):
+            unique_values = np.unique(data)
+            if (len(unique_values)==1):
+                self.params['constant_value'] = unique_values[0]
+            
+            self.fitted_marginal_dist = "degenerate"
+            self.sample_size = sample_size
+
+        elif (operation=='sample'):
+            params = self.load_params(new_params=new_params)
+            if (sample_size is not None):
+                self.sample_size = sample_size
+            size = self.sample_size
+
+            if (self.debug):
+                print(f"Parameters used for sampling:/n {params}")
+            
+            self.samples = np.full(size, self.params['constant_value'])
+
+            return self.samples
+        
+        elif (operation=='pdf'):
+            params = self.load_params(new_params=new_params)
+
+            if (self.debug):
+                print(f"Parameters used for generating PDF:/n {params}")
+            
+            self.pdf = np.where(data==self.params['constant_value'], 1, 0)
+
+            return self.pdf
+        
+        elif (operation=="cdf"):
+            params = self.load_params(new_params=new_params)
+
+            if (self.debug):
+                print(f"Parameters used for generating CDF:/n {params}")
+
+            self.cdf = np.where(data < self.params['constant_value'], 0, 1)
+
+            return self.cdf
+
+        elif (operation=="ppf"):
+            params = self.load_params(new_params=new_params)
+
+            if (self.debug):
+                print(f"Parameters used for generating PPF:/n {params}")
+
+            self.ppf = np.full(data.shape, self.params['constant_value'])
+
+            return self.ppf
+
 
     
     def beta_dist(self, data=None, operation="fit", new_params={"loc":None, "scale":None, "a":None, "b":None}, sample_size=None):

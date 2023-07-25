@@ -3,7 +3,7 @@ layout: default
 title: Example for Univariate Synthetic Data
 parent: Examples
 grand_parent: Getting Started
-nav_order: 5
+nav_order: 6
 ---
 
 ## Example of MarginalDist Class

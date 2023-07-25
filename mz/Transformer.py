@@ -240,8 +240,14 @@ class Transformer:
                     numeric_df = pd.concat([numeric_df, df_onehot], axis=1)
                     numeric_df = numeric_df.astype('float') #convert column from uint8 to float dtype
 
+                    # Create a dictionary to map each string to its corresponding column
+                    dic = {}
+                    for st in data_df[col].unique().tolist():
+                        dic[st] = str(col) + "." + str(st)
+
                     # Update meta_dict
                     transformer_meta_dict[col]['transformer_type'] = 'One-Hot'
+                    transformer_meta_dict[col]['params_dict'] = dic
                     transformer_meta_dict[col]['output_fields'] = {}
                     for onehotcol in df_onehot.columns:
                         transformer_meta_dict[col]['output_fields'][onehotcol] = {

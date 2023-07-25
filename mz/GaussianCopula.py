@@ -8,6 +8,9 @@ EPSILON = np.finfo(np.float32).eps
 
 class GaussianCopula:
     """
+
+    Change Log: (MZ): 13-07-2023: Added print_copula_params()
+    (MZ): 14-07-2023: Added conditions for self.fitted boolean in self.fit()
     """
 
     def __init__(self,
@@ -22,6 +25,12 @@ class GaussianCopula:
         self.correlation_method = correlation_method #method for computing correlation
         self.fitted = False
     
+    def print_copula_params(self):
+
+        print('Displaying Copula Parameters:')
+        for var_name in self.var_names:
+            var_univariate = self.univariates[var_name]
+            print(f"Learned marginal distribution for {var_name}: {var_univariate.fitted_marginal_dist}")
 
     def compute_correlation(self, data, method='kendall', transform_to_normal=False):
         """Compute the (pairwise) correlation matrix using input data
@@ -71,6 +80,8 @@ class GaussianCopula:
         if marginal_dist_dict is None:
             marginal_dist_dict = {}
 
+        self.fitted = True
+
         for var_name, var in data.items():
 
             # Initialise MarginalDist
@@ -85,7 +96,9 @@ class GaussianCopula:
                 candidates = None
 
             # Fit univariate using MarginalDist
-            univariate.fit(data=var, candidates=candidates)
+            fit_success = univariate.fit(data=var, candidates=candidates)
+            if (not fit_success):
+                self.fitted = False
 
             # Update array
             var_names.append(var_name)
@@ -98,7 +111,7 @@ class GaussianCopula:
         if (self.correlation is None):
             self.correlation = self.compute_correlation(data, method=self.correlation_method)
 
-        self.fitted = True
+        
 
     def conditional_Gaussian(self, conditions):
         """Compute the parameters (mean, covariance) of a conditional multivariate normal distribution.

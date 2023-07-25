@@ -22,6 +22,7 @@ def hist(data_1d, fig=None, ax=None, position=None, title=None, alpha=0.8, color
     ax.hist(data_1d, density=True, bins='auto', alpha=alpha, color=color, label=label)
 
     ax.legend(loc='best', frameon=False)
+    ax.set_title(title, fontsize=8)
 
     return ax, fig
 
