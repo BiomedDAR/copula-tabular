@@ -4,6 +4,7 @@ from scipy import stats
 import os
 import platform
 import contextlib
+import copy
 
 
 EPSILON = np.finfo(np.float32).eps
@@ -79,6 +80,43 @@ def gen_linear_func(x, m=1, c=0, noise_factor=0):
     noise = stats.uniform.rvs(size=len(x))
     return m*x + c + noise*noise_factor
 
+# BUILD DATA DICTIONARY
+def build_basic_data_dictionary(varList, descr="No description available", type="numeric", codings=None, category=None, secondary=None, constraints=None):
+
+    if codings is None: codings = ""
+    if category is None: category = ""
+    if secondary is None: secondary = ""
+    if constraints is None: constraints = ""
+
+    default_dict = {
+        "DESCRIPTION": descr,
+        "TYPE": type,
+        "CODINGS": codings,
+        "CATEGORY": category,
+        "COLUMN_NUMBER": 0,
+        "SECONDARY": secondary,
+        "CONSTRAINTS": constraints
+    }
+
+    # Initialise data_dict
+    data_dict = {}
+    for var in varList:
+        data_dict[var] = default_dict
+
+    # Create Dataframe
+    names = list(data_dict.keys())
+    values = list(data_dict.values())
+    df = pd.DataFrame().from_records(values, columns=list(data_dict[names[0]].keys()))
+    df.insert(0, 'NAME', names)
+
+    # Update "COLUMN_NUMBER"
+    for index, row in df.iterrows():
+        # Set the value of the 'COLUMN_NUMBER' column to be one higher than the row's index
+        df.loc[index, 'COLUMN_NUMBER'] = index + 1
+
+    return df
+
+
 
 # GENERAL FUNCTIONS FOR FILES
 def get_extension(filename):
@@ -147,6 +185,34 @@ def strip_string_spaces(dataframe, col=None):
         dataframe[col] = dataframe[col].str.strip()
 
     return dataframe
+
+def update_dataframe_rows(df, refCol, listRows, col, val):
+    """This function is used to update rows of a dataframe based on certain conditions. 
+
+    Parameters:
+        df (dataframe): the dataframe to be updated
+        refCol (str): column name of the dataframe to be used as reference for the update
+        listRows (list): a list of values from the reference column to determine which rows should be updated
+        col (str): column name of the dataframe to be updated
+        val (any): new value to be used for updating
+
+    Returns:
+        dataframe with updated rows
+
+    Example:
+
+    Assuming a dataframe with columns 'A' and 'B', and columns A consists of values 1,2,3,4
+
+    update_dataframe_rows(df, 'A', [2,4], 'B', 5)
+
+    This will update all the rows with A values of 2 and 4, setting the corresponding B values to 5.
+    """
+
+    # update the 'col' column of the dataframe with 'val'
+    df.loc[df[refCol].isin(listRows), col] = val
+
+    return df
+
 
 def mapping_dictDateFormatConversion(str):
 

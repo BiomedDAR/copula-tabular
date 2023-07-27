@@ -29,18 +29,25 @@ class Transformer:
 
         default_datetime_format (str): Default datetime format to use. Default is f"%Y-%m-%d %H:%M:%S".
 
+        var_list (list): List of variables to transform. Default is None (all will be transformed)
+
         debug (bool): Flag to print debugging lines. Default is `False`.
+
+        Change Log:
+        (MZ) 27-07-2023 updated class to handle var_list (instead of transforming all variables, user can specify list of variables to transform, removing all other variables outside that list)
     """
     def __init__(self,
         metaData=None,
-        definitions=None,
+        definitions=None, #not used (yet)
         default_transformer_type_4_string='One-Hot',
         default_datetime_format=f"%Y-%m-%d %H:%M:%S",
+        var_list=None,
         debug=False
     ):
         self.metaData = metaData
-        self.definitions = definitions
+        self.definitions = definitions # (not used yet)
         self.debug = debug
+        self.var_list = var_list #to limit the number of transformed variables to a subset of the given inputs
 
         self.transformer_meta_dict = None
 
@@ -158,6 +165,19 @@ class Transformer:
                                   
         return rev_df_col
     
+    def _curate_var_list(self, data_df):
+        all_vars = list(data_df.columns)
+        if self.var_list is not None:
+            for item in self.var_list:
+                if item not in all_vars:
+                    self.var_list.remove(item)
+
+                    if (self.debug):
+                        print(f"Removed variable: {item} from var_list. Not found in data input.")
+        else:
+            self.var_list = all_vars
+
+    
     def transform(self, data_df):
 
         # initialise empty dataframe
@@ -167,8 +187,12 @@ class Transformer:
         # convert data_df to best possible dtypes
         data_df = self.convert_2_dtypes(data_df)
 
+        # limit transformation to items in var_list (input variable)
+        self._curate_var_list(data_df)
+
         # loop through each column of the dataframe 
-        for i, col in enumerate(data_df.columns):
+        for i, col in enumerate(self.var_list):
+        # for i, col in enumerate(data_df.columns):
 
             transformer_meta_dict[col] = {} #initialise transformer_meta_dict for field
             

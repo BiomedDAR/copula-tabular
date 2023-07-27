@@ -17,11 +17,7 @@ from scipy import stats
 fig, (ax1, ax2) = plt.subplots(1,2)
 
 # GENERATE A "FICTIONAL" DATA SAMPLE USING SCIPY
-# In this example, we use the scipy stats package to generate a fictitious sample, based on a gamma distribution.
-# a = 2
-# loc = 2
-# scale = 8
-# samples = stats.gamma.rvs(a=a, loc=loc, scale=scale, size=4000)
+# In this example, we use the scipy stats package to generate a fictitious multimodal sample, based on a Gaussian and a gamma distribution.
 samples_1 = stats.gamma.rvs(a=4, loc=2, scale=5, size=400)
 samples_2 = stats.norm.rvs(loc=60, scale=6, size=400)
 samples = np.concatenate((samples_1, samples_2))
@@ -29,16 +25,6 @@ samples = np.concatenate((samples_1, samples_2))
 # VISUALISE THEORETICAL PDF, CDF AND HISTOGRAM OF GENERATED DATA
 # Plot Histogram of Data Sample
 ax1.hist(samples, density=True, bins='auto', alpha=0.8, color='blue', label=f'Histogram of Original Samples n={(len(samples))}')
-
-# # Plot PDF of Data Sample
-# x = np.linspace(np.min(samples), np.max(samples), 100)
-# sample_pdf = stats.gamma.pdf(x=x, a=a, loc=loc, scale=scale)
-# ax1.plot(x, sample_pdf, 'b-', lw=1, label='Actual PDF using true parameters')
-
-# # Plot CDF of Data Sample
-# x = np.linspace(np.min(samples), np.max(samples), 100)
-# sample_cdf = stats.gamma.cdf(x=x, a=a, loc=loc, scale=scale)
-# ax2.plot(x, sample_cdf, 'b-', lw=1, label='Actual CDF using true parameters')
 
 # INITIALISE A MARGINALDIST CLASS
 univariate = MarginalDist(debug=True)
