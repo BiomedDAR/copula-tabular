@@ -22,8 +22,11 @@ DIST_MAP = {
 
 class MarginalDist:
     """
+    Learn/Build marginal distributions for univariate data
 
     Change Log: (MZ) 13-07-2023: Added degenerate distribution
+    Change Log: (MZ) 13-07-2023 put evaluation of uni_dist in try/except block
+    Change Log: (MZ) 27-07-2023 fix the number of steps to be below 10,000 (for CDF estimation)
     """
 
     def __init__(self,
@@ -683,7 +686,10 @@ class MarginalDist:
             return self.ppf
         
     def gaussian_kde_dist(self, data=None, operation="fit", new_params={"scale": None}, sample_size=None, bw_method=None, weights=None):
-        """Compute Gaussian Kernel Density Estimate related operations"""
+        """Compute Gaussian Kernel Density Estimate related operations
+        
+        Change Log: (MZ) 27-07-2023 fix the number of steps to be below 10,000 (for CDF estimation)
+        """
 
         self.marginal_dist = "gaussian_kde"
 
@@ -704,6 +710,12 @@ class MarginalDist:
             lower, upper = self._get_bounds(data)
             step = 0.01
             expanded_x = np.arange(lower, upper, step)
+
+            if (len(expanded_x) > 10000): #fix the number of steps to be below 10,000
+                (expanded_x, step_size) = np.linspace(lower, upper, num=10000, endpoint=False, retstep=True)
+            if (self.debug):
+                print(f"Step-size: {step_size}; Number of samples for KDE-CDF estimation: {len(expanded_x)}")
+                
             expanded_u = self.generic_cdf(expanded_x, self.gaussian_kde_model.evaluate)
             self.params["gaussian_kde"] = {
                 "x": expanded_x,
