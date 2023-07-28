@@ -10,7 +10,7 @@ class Transformer:
     Inputs:
         metaData (dict): 
             E.g. '<name of field>: {
-                'null': use this field to specify the fill value for <na> entries. non-numerical options include 'mean', 'mode', 'median'. Numerical values will be used directly. Default for 'boolean' is -1. Default for 'float' and 'int' is 'mean'. (rounded to int for 'int')
+                'null': use this field to specify the fill value for <na> entries. non-numerical options include 'mean', 'mode', 'median', 'ignore' (left as it is). Numerical values will be used directly. Default for 'boolean' is -1. Default for 'float' and 'int' is 'mean'. (rounded to int for 'int')
 
                 'transformer_type': use this field to specify transformer type to use, especially for dtype inputs with multiple options. 
                     - For 'string' inputs, options include 'One-Hot', 'LabelEncoding', 'Cat1', 'Cat1Fuzzy'
@@ -31,10 +31,15 @@ class Transformer:
 
         var_list (list): List of variables to transform. Default is None (all will be transformed)
 
+        removeNull (bool): Whether to remove all rows with null inputs before transformation. Default is False
+
         debug (bool): Flag to print debugging lines. Default is `False`.
 
         Change Log:
-        (MZ) 27-07-2023 updated class to handle var_list (instead of transforming all variables, user can specify list of variables to transform, removing all other variables outside that list)
+        (MZ) 18-04-2023: add "fuzzy" option, ref. SDV
+        (MZ) 27-07-2023: updated class to handle var_list (instead of transforming all variables, user can specify list of variables to transform, removing all other variables outside that list)
+        (MZ) 28-07-2023: added ignore option for null treatment
+        (MZ) 28-07-2023: added removeNull input option
     """
     def __init__(self,
         metaData=None,
@@ -42,14 +47,17 @@ class Transformer:
         default_transformer_type_4_string='One-Hot',
         default_datetime_format=f"%Y-%m-%d %H:%M:%S",
         var_list=None,
+        removeNull=False,
         debug=False
     ):
         self.metaData = metaData
         self.definitions = definitions # (not used yet)
         self.debug = debug
         self.var_list = var_list #to limit the number of transformed variables to a subset of the given inputs
+        self.removeNull = removeNull
 
         self.transformer_meta_dict = None
+        self.data_curated_df = None # the dataframe that has undergone curation based on var_list and removeNull options, prior to transformation
 
         self.default_transformer_type_4_string = default_transformer_type_4_string
         self.default_datetime_format = default_datetime_format
@@ -59,7 +67,10 @@ class Transformer:
         return data.convert_dtypes()
     
     def _get_null_value_from_metaData(self, column, default_value, data_df):
-        """Compute the set_null_value from options specified in metaData for the field: column"""
+        """Compute the set_null_value from options specified in metaData for the field: column
+
+        Change Log (MZ): 28-07-2023 added ignore option
+        """
 
         set_null_value = default_value
         if self.metaData is not None:
@@ -73,6 +84,8 @@ class Transformer:
                         set_null_value = data_df[column].mode(dropna=True)[0]
                     elif (null_value=='median'):
                         set_null_value = data_df[column].median()
+                    elif (null_value=='ignore'):
+                        set_null_value = np.nan
                     else:
                         set_null_value = float(null_value)
         
@@ -189,15 +202,20 @@ class Transformer:
 
         # limit transformation to items in var_list (input variable)
         self._curate_var_list(data_df)
+        data_curated_df = data_df[self.var_list]
+
+        # remove all rows with null
+        if self.removeNull:
+            data_curated_df = data_curated_df.dropna()            
 
         # loop through each column of the dataframe 
-        for i, col in enumerate(self.var_list):
-        # for i, col in enumerate(data_df.columns):
+        # for i, col in enumerate(self.var_list):
+        for i, col in enumerate(data_curated_df.columns):
 
             transformer_meta_dict[col] = {} #initialise transformer_meta_dict for field
             
             # GET PANDAS dtype for column i
-            col_dtype_str = data_df[col].dtype
+            col_dtype_str = data_curated_df[col].dtype
             transformer_meta_dict[col]['original_dtype'] = col_dtype_str #update transformer_meta_dict with original pd dtype of field
 
             if (self.debug):
@@ -209,7 +227,7 @@ class Transformer:
             if (col_dtype_str=='boolean' or col_dtype_str=='Float64' or col_dtype_str=='Int64' or col_dtype_str=='Int32'):
                 output_field_name = f"{col}.value"
 
-                numeric_df[output_field_name] = data_df[col].astype(float)
+                numeric_df[output_field_name] = data_curated_df[col].astype(float)
 
                 if (col_dtype_str=='boolean'):
                     transformer_meta_dict[col]['transformer_type'] = 'Boolean'
@@ -230,7 +248,7 @@ class Transformer:
 
                 # Convert from string/datetime to pandas datetime format
                 output_field_name = f"{col}.value"
-                numeric_df[output_field_name] = pd.to_datetime(data_df[col], format=datetime_format)
+                numeric_df[output_field_name] = pd.to_datetime(data_curated_df[col], format=datetime_format)
 
                 # Convert column from datetime to int format
                 null_mask = numeric_df[output_field_name].isnull()
@@ -256,17 +274,17 @@ class Transformer:
 
             elif (col_dtype_str=='string' or col_dtype_str=='object' or col_dtype_str=='category'):
 
-                transformer_type = self._get_transformer_type_from_metaData(col, data_df)
+                transformer_type = self._get_transformer_type_from_metaData(col, data_curated_df)
 
                 if transformer_type=='One-Hot':
                     # Perform one-hot encoding
-                    df_onehot = pd.get_dummies(data_df[col], prefix=col, prefix_sep='.')
+                    df_onehot = pd.get_dummies(data_curated_df[col], prefix=col, prefix_sep='.')
                     numeric_df = pd.concat([numeric_df, df_onehot], axis=1)
                     numeric_df = numeric_df.astype('float') #convert column from uint8 to float dtype
 
                     # Create a dictionary to map each string to its corresponding column
                     dic = {}
-                    for st in data_df[col].unique().tolist():
+                    for st in data_curated_df[col].unique().tolist():
                         dic[st] = str(col) + "." + str(st)
 
                     # Update meta_dict
@@ -280,15 +298,15 @@ class Transformer:
                 elif transformer_type=='LabelEncoding':
                     # Perform label encoding
 
-                    data_df[col] = data_df[col].fillna('IS_NULL')
+                    data_curated_df[col] = data_curated_df[col].fillna('IS_NULL')
                     
                     # Create a dictionary to map each string to its corresponding integer 
-                    dic = {x[1]:x[0] for x in enumerate(set(data_df[col]))}
-                    inv_dic = {x[0]:x[1] for x in enumerate(set(data_df[col]))}
+                    dic = {x[1]:x[0] for x in enumerate(set(data_curated_df[col]))}
+                    inv_dic = {x[0]:x[1] for x in enumerate(set(data_curated_df[col]))}
                     
                     # Use the dictionary to map each string to its corresponding integer
                     output_field_name = f"{col}.value"
-                    numeric_df[output_field_name] = data_df[col].map(dic).astype('float')
+                    numeric_df[output_field_name] = data_curated_df[col].map(dic).astype('float')
 
                     # Update meta_dict
                     transformer_meta_dict[col]['transformer_type'] = 'LabelEncoding'
@@ -302,9 +320,9 @@ class Transformer:
 
                 elif transformer_type=='Cat1':
                     # Categorical transformation: assigning representative float by frequency of occurence
-                    data_df[col] = data_df[col].fillna('IS_NULL')
+                    data_curated_df[col] = data_curated_df[col].fillna('IS_NULL')
                     output_field_name = f"{col}.value"
-                    transformed_col, rep, intervals, stds = self._categorical_transformer(data_df[col])
+                    transformed_col, rep, intervals, stds = self._categorical_transformer(data_curated_df[col])
                     numeric_df[output_field_name] = transformed_col
 
                     # Update meta_dict
@@ -319,9 +337,9 @@ class Transformer:
 
                 elif transformer_type=='Cat1Fuzzy':
                     # Categorical transformation: assigning representative float by frequency of occurence
-                    data_df[col] = data_df[col].fillna('IS_NULL')
+                    data_curated_df[col] = data_curated_df[col].fillna('IS_NULL')
                     output_field_name = f"{col}.value"
-                    transformed_col, rep, intervals, stds = self._categorical_transformer(data_df[col], type='Gaussian')
+                    transformed_col, rep, intervals, stds = self._categorical_transformer(data_curated_df[col], type='Gaussian')
                     numeric_df[output_field_name] = transformed_col
 
                     # Update meta_dict
@@ -344,12 +362,12 @@ class Transformer:
 
             # FIX NULLS (not used for categorical)
             fix_null = False
-            got_null = data_df[col].isna().any()
+            got_null = data_curated_df[col].isna().any()
             if got_null:
                 fix_null = True
 
                 null_output_field_name = f"{col}.is_null" #follow convention in SDV
-                numeric_df[null_output_field_name] = data_df[col].isna().astype(float)
+                numeric_df[null_output_field_name] = data_curated_df[col].isna().astype(float)
 
                 transformer_meta_dict[col]['output_fields'][null_output_field_name] = {
                     'dtype': numeric_df[null_output_field_name].dtype  # update transformer_meta_dict with output pd dtype of field
@@ -359,30 +377,35 @@ class Transformer:
                     set_null_value = self._get_null_value_from_metaData(
                         column = col,
                         default_value = -1, #default fill value for boolean is set to -1
-                        data_df = data_df
+                        data_df = data_curated_df
                     )
-                    numeric_df.loc[data_df[col].isna(), output_field_name] = set_null_value
+                    numeric_df.loc[data_curated_df[col].isna(), output_field_name] = set_null_value
                 elif (col_dtype_str=='Float64'):
                     set_null_value = self._get_null_value_from_metaData(
                         column = col,
-                        default_value = data_df[col].mean(), #default fill value for float is set to mean
-                        data_df = data_df
+                        default_value = data_curated_df[col].mean(), #default fill value for float is set to mean
+                        data_df = data_curated_df
                     )
-                    numeric_df.loc[data_df[col].isna(), output_field_name] = set_null_value
+                    numeric_df.loc[data_curated_df[col].isna(), output_field_name] = set_null_value
                 elif (col_dtype_str=='Int64'):
                     set_null_value = self._get_null_value_from_metaData(
                         column = col,
-                        default_value = data_df[col].mean(), #default fill value for int is set to mean
-                        data_df = data_df
+                        default_value = data_curated_df[col].mean(), #default fill value for int is set to mean
+                        data_df = data_curated_df
                     )
-                    numeric_df.loc[data_df[col].isna(), output_field_name] = round(set_null_value)
+                    if not np.isnan(set_null_value):
+                        numeric_df.loc[data_curated_df[col].isna(), output_field_name] = round(set_null_value)
                 elif (col_dtype_str=='datetime64[ns]'):
                     set_null_value = self._get_null_value_from_metaData(
                         column = f"{col}.value",
                         default_value = numeric_df[f"{col}.value"].mean(), #default fill value for datetime is set to mean
                         data_df = numeric_df
                     )
-                    numeric_df.loc[data_df[col].isna(), output_field_name] = round(set_null_value)
+                    if not np.isnan(set_null_value):
+                        numeric_df.loc[data_curated_df[col].isna(), output_field_name] = round(set_null_value)
+
+                if np.isnan(set_null_value):
+                    fix_null = False
 
             transformer_meta_dict[col]['null'] = {
                 'got_null': got_null,
@@ -390,6 +413,7 @@ class Transformer:
             }
 
         self.transformer_meta_dict = transformer_meta_dict
+        self.data_curated_df = data_curated_df
 
         return numeric_df
 
