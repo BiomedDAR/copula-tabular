@@ -22,6 +22,10 @@ Should we choose to ignore the conditional distributions, we may continue to mod
 *   we may not replace missing values with `mean`/`mode` options, as this will distort the marginal distribution of `AgeMonths`. The best option in this case is to use the `ignore` option, which uses as many data-points as possible, ignoring missing values only when necessary.
 *   we may also remove all the rows with N.A. values prior to transformation. This probably works best, provided there are enough rows left after the filtering.
 
+There are two useful applications for synthetic data in this experiment:
+*   Replicating the original data as it is; that is fulfilling its listed characteristics above. This is hard to reproduce without exerting external constraints, if conditional-copula, or the option where null values are removed prior to transformation, was not adopted. 
+*   Inputing AgeMonths values for 'SurveyYr' = '2009_10' and 'Age'>=80, AND 'SurveyYr' = '2011_12' and 'Age'>=3. (yet to be implemented)
+
 ### Import Libraries
 ```
 # LOAD DEPENDENCIES
