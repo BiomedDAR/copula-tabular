@@ -27,6 +27,7 @@ class MarginalDist:
     Change Log: (MZ) 13-07-2023: Added degenerate distribution
     Change Log: (MZ) 13-07-2023 put evaluation of uni_dist in try/except block
     Change Log: (MZ) 27-07-2023 fix the number of steps to be below 10,000 (for CDF estimation)
+    Change Log: (MZ) 28-07-2023 format data to remove all nan
     """
 
     def __init__(self,
@@ -689,9 +690,15 @@ class MarginalDist:
         """Compute Gaussian Kernel Density Estimate related operations
         
         Change Log: (MZ) 27-07-2023 fix the number of steps to be below 10,000 (for CDF estimation)
+        Change Log: (MZ) 28-07-2023 format data to remove all nan
         """
 
         self.marginal_dist = "gaussian_kde"
+
+        if isinstance(data, (int, float)):
+            pass
+        else:
+            data = data[~np.isnan(data)] #format data to remove all nan
 
         if (operation=="fit"):
             self.params['gaussian_kde']['bw_method'] = bw_method

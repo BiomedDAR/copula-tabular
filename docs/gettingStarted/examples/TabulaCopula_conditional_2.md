@@ -93,7 +93,7 @@ tc = TabulaCopula(
 ### Generation Synthetic Data (without conditional-copula option)
 And generate synthetic data:
 ```
-tc.syn_generate(cond_bool=cond_bool)
+tc.syn_generate(cond_bool=False)
 ```
 
 ### Visualisation of Results
@@ -137,3 +137,95 @@ plt.show()
 
 #### Plot of Correlation Matrix of Original and Synthetic Data
 ![](../../assets/img/tabulaCopula_example_2_correlation_matrix.png)
+
+### Initialise the TabulaCopula class with definitions
+We may repeat the above setup, but this time with an additional conditional-copula element. To do so, we modify the `conditionalSettings_dict` option.
+
+Since there is only one "round" of conditioning, we label this "round" as `set_1`. There are 2 `parents` involved: `SurveyYr` and `Age`, both of which are split into sets based on what we know from the data dictionary.
+```
+conditionalSettings_dict = {
+    "set_1": {
+        "bool": True,
+        "parent_conditions": { # 2 parents
+            "SurveyYr": { # split variable into 2 sets
+                "condition": "set",
+                "condition_value": {
+                    1: ["2009_10"],
+                    2: ["2011_12"]
+                }
+            },
+            "Age": { # split variable into 3 sets based on range
+                "condition": "range",
+                "condition_value": {
+                    1: [">=3", "<79"],
+                    2: ["<3"],
+                    3: [">=79"]
+                }
+            }
+        },
+        "conditions_var": ["Age"],
+        "children": ['AgeMonths']
+    }
+}
+```
+
+We are now ready to initialise our `TabulaCopula` class:
+```
+tc = TabulaCopula(
+    definitions = defi,
+    output_general_prefix = output_general_prefix,
+    var_list_filter = var_list,
+    metaData_transformer = metaData_transformer,
+    conditionalSettings_dict = conditionalSettings_dict,
+    removeNull = False, #when False, will NOT remove null values prior to transformation
+    debug = True
+)
+```
+
+### Generation Synthetic Data (without conditional-copula option)
+And generate synthetic data:
+```
+tc.syn_generate(cond_bool=True)
+```
+
+### Visualisation of Results
+```
+from mz import VIsualPlot as vp
+
+data_df_filename = f"{dir_path}/synData/nhanes_raw-DD-CON-ST-{output_general_prefix}-CURATED.csv"
+syn_samples_conditional_df_filename = f"{dir_path}/synData/nhanes_raw-DD-CON-ST-{output_general_prefix}-COND_REV.csv"
+
+data_df = pd.read_csv(data_df_filename)
+syn_samples_conditional_df = pd.read_csv(syn_samples_conditional_df_filename)
+
+# Plot Correlation Plots
+ax_corr_cond_1, ax_corr_cond_2, fig_cond_corr = vp.corrMatrix_compare(data_df, syn_samples_conditional_df)
+
+# Plot Histogram of Data Sample
+ax_cond_hist, fig_cond_histogram = vp.hist_compare(data_df, syn_samples_conditional_df, var_list=var_list, no_cols=3)
+
+# Plot Scatter
+data_df_surveyYr_2009_10 = data_df[data_df['SurveyYr']=='2009_10']
+data_df_surveyYr_2011_12 = data_df[data_df['SurveyYr']=='2011_12']
+syn_samples_conditional_df_surveyYr_2009_10 = syn_samples_conditional_df[syn_samples_conditional_df['SurveyYr']=='2009_10']
+syn_samples_conditional_df_surveyYr_2011_12 = syn_samples_conditional_df[syn_samples_conditional_df['SurveyYr']=='2011_12']
+
+ax_scatter_cond, fig_scatter_cond = vp.scatterPlot(data_df_surveyYr_2009_10['Age'], data_df_surveyYr_2009_10['AgeMonths'], fig=plt.figure(), color='blue', marker='.', label='Real (2009_10)')
+ax_scatter_cond, fig_scatter_cond = vp.scatterPlot(data_df_surveyYr_2011_12['Age'], data_df_surveyYr_2011_12['AgeMonths'], fig=fig_scatter_cond, ax=ax_scatter_cond, color='red', marker='.', label='Real (2011_12)')
+
+ax_scatter_cond, fig_scatter_cond = vp.scatterPlot(syn_samples_conditional_df_surveyYr_2009_10['Age'], syn_samples_conditional_df_surveyYr_2009_10['AgeMonths'], fig=fig_scatter_cond, ax=ax_scatter_cond, color='grey', marker='x', label='Syn-Cond (2009_10)')
+ax_scatter_cond, fig_scatter_cond = vp.scatterPlot(syn_samples_conditional_df_surveyYr_2011_12['Age'], syn_samples_conditional_df_surveyYr_2011_12['AgeMonths'], fig=fig_scatter_cond, ax=ax_scatter_cond, color='black', marker='x', label='Syn-Cond (2011_12)')
+
+plt.show()
+```
+
+### Sample Output
+
+#### Plot of Histograms of both Original and Synthetic Data
+![](../../assets/img/tabulaCopula_example_2_conditional_histogram.png)
+
+#### Plot of Scatterplot of Original and Synthetic Data
+![](../../assets/img/tabulaCopula_example_2_conditional_scatterplot.png)
+
+#### Plot of Correlation Matrix of Original and Synthetic Data
+![](../../assets/img/tabulaCopula_example_2_conditional_correlation_matrix.png)

@@ -11,6 +11,7 @@ class Transformer:
         metaData (dict): 
             E.g. '<name of field>: {
                 'null': use this field to specify the fill value for <na> entries. non-numerical options include 'mean', 'mode', 'median', 'ignore' (left as it is). Numerical values will be used directly. Default for 'boolean' is -1. Default for 'float' and 'int' is 'mean'. (rounded to int for 'int')
+                    Effects on other packages: With the 'ignore' option, the marginal distribution will be computed after removing NaN values. The pairwise correlation will be computed after removing NaN values present in the two variables.
 
                 'transformer_type': use this field to specify transformer type to use, especially for dtype inputs with multiple options. 
                     - For 'string' inputs, options include 'One-Hot', 'LabelEncoding', 'Cat1', 'Cat1Fuzzy'

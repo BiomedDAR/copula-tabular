@@ -8,6 +8,19 @@ from pprint import pprint
 
 class TabulaCopula:
     """
+    Wrapper for performing conditional-copula (Gaussian) for Tabula Data
+
+    Inputs:
+
+        conditionalSettings_dict (dict): dictionary of inputs for using conditional-copula
+
+        metaData_transformer (dict): dictionary of inputs for the Transformer class initialisation (ref Transformer metaData(dict))
+    
+        var_list_filter (list): List of variables to transform. Default is None (all will be transformed)
+
+        removeNull (bool): Whether to remove all null values prior to transformation. Default is False.
+
+        debug (bool): Flag to print debugging lines. Default is `False`.
     """
 
     def __init__(self,
@@ -15,6 +28,8 @@ class TabulaCopula:
         output_general_prefix='',
         conditionalSettings_dict=None,
         metaData_transformer=None,
+        var_list_filter=None,
+        removeNull=False,
         debug=True
     ):
         
@@ -33,6 +48,8 @@ class TabulaCopula:
         self.dict_var_varcategory = "CATEGORY" # column in data dictionary setting the category of the variable name
         self.dict_var_vartype = "TYPE" # column in data dictionary containing variable types in input data
 
+        self.conditional_set_bool = False # flag set to true when filenames initialised for conditional setup
+
         # LOAD DEFINITIONS
         self.definitions = definitions
         self._load_definitions()
@@ -40,6 +57,8 @@ class TabulaCopula:
         # REPLACE DEFINTIONS WITH USER-INPUTS (FUNCTION LEVEL)
         self.output_general_prefix = output_general_prefix
         self.metaData_transformer = metaData_transformer
+        self.var_list_filter = var_list_filter # list of variables to transform (subset of all input variables)
+        self.removeNull = removeNull
         self.conditionalSettings_dict = conditionalSettings_dict
 
         # LOAD DATA DICTIONARY
@@ -93,6 +112,7 @@ class TabulaCopula:
         self.var_list = None #list of all variables (column headers) found in input data
         self.processed_var_list = None #list of all variables (column headers) that have been transformed
         self.transformed_df = None #initialise transformed training data (dataframe)
+        self.curated_train_df = None #initialise curated data prior to transformation (dataframe)
         self.syn_samples_df = None #initialise synthetic samples (dataframe)
         self.syn_samples_conditional_df = None #initialise conditional synthetic samples (dataframe)
         self.reversed_df = None #initialise reversed synthetic samples (dataframe)
@@ -164,8 +184,15 @@ class TabulaCopula:
         var_names = [row[self.dict_var_varname] for index, row in self.dict_df.iterrows() if row[self.dict_var_vartype] == 'string']
         self.train_df[var_names] = self.train_df[var_names].astype("str")
 
+
         if (self.debug):
             print(f"Input data loaded.")
+
+        # Initialise list of variables found in input dataset
+        self.var_list = list(self.train_df.columns)
+
+        if (self.debug):
+            print(f"Total number of variables in input data: {len(self.var_list)}")
 
         return self.train_df
 
@@ -214,26 +241,42 @@ class TabulaCopula:
 
         return self.dict_df
 
-    def transform(self, metaData):
+    def transform(self, metaData=None, var_list=None):
+
+        if metaData is None:
+            metaData = deepcopy(self.metaData_transformer)
+
+        if var_list is None:
+            var_list = deepcopy(self.var_list_filter)
 
         # Initialise Transformer using given metaData
-        transformer = Transformer(metaData=metaData)
+        transformer = Transformer(
+            metaData = metaData,
+            var_list = var_list,
+            removeNull = self.removeNull,
+            debug = self.debug
+        )
         self.transformed_df = transformer.transform(self.train_df)
         self.processed_var_list = list(transformer.transformer_meta_dict.keys())
+        self.curated_train_df = transformer.data_curated_df
 
         # Save Transformer (main)
         self.storage['transformer'] = transformer
 
         # Save transformed data (output to file)
         self._save_data_to_file(self.transformed_df, self.output_filenames['transformed'])
+        self._save_data_to_file(self.curated_train_df, self.output_filenames['curated'])
 
         return self.transformed_df
     
-    def transform_conditional(self, metaData):
+    def transform_conditional(self, metaData=None):
         # Change Log: 05-07-2023
 
         trainData = self.train_df # initialise data to be transformed
         transformedData = self.transformed_df # initialise transformed dataframe (FULL)
+
+        if metaData is None: #not used anymore
+            metaData = deepcopy(self.metaData_transformer)
         
         for set_no, conditionalBody in self.conditionalSettings_dict.items():
 
@@ -342,6 +385,25 @@ class TabulaCopula:
             self._save_data_to_file(self.reversed_conditional_df, self.output_filenames["conditional_reversed_samples"])
 
         return self.reversed_df, self.reversed_conditional_df
+    
+    def print_details_copula(self):
+
+        # Get Copula
+        cp = self.storage['copula']
+        cp.print_copula_params()
+
+        # Get Conditional Copula
+        if self.conditional_set_bool:
+            for set_no, conditionalBody in self.conditionalSettings_dict.items():
+                if set_no in self.storage['cond_copula']:
+                    for merged_set_index, b in self.storage['cond_copula'][set_no].items():
+
+                        pprint(f'Printing Conditional-Copula Parameters for {set_no}: {merged_set_index}')
+
+                        cp_cond = self.storage['cond_copula'][set_no][merged_set_index]
+                        cp_cond.print_copula_params()
+        
+        return 0
     
     def fit_gaussian_copula(self, correlation_method='kendall', marginal_dist_dict=None):
 
@@ -483,6 +545,15 @@ class TabulaCopula:
                                         sub_cond_array = (temp_rev_col == set_value)
                                     else:
                                         sub_cond_array = sub_cond_array | (temp_rev_col == set_value)
+
+                        elif (parentVarBody['condition']=="range"):
+                            parentVar_value = list(parentVarTransform_meta_outputfields)[0] #<parentVar>.value
+                            for set_value in set_values:
+                                if sub_cond_array is None:
+                                    sub_cond_array = eval(f"(samples[parentVar_value]{set_value})")
+                                else:
+                                    sub_cond_array = sub_cond_array & eval(f"(samples[parentVar_value]{set_value})")
+
                         
                         if cond_array[merged_set_index] is None:
                             cond_array[merged_set_index] = sub_cond_array
@@ -496,7 +567,7 @@ class TabulaCopula:
                         sampling_condition_array = samples.loc[cond_array[merged_set_index]]
 
                     if (self.debug):
-                        print(f"Filted Samples Based on Condition: {set_no}:{merged_set_index} \n: {sampling_condition_array}")
+                        print(f"Filtered Samples Based on Condition: {set_no}:{merged_set_index} \n: {sampling_condition_array}")
 
                     if (sampling_condition_array is not None):
                         # Drop Children from Full-Samples
@@ -551,6 +622,7 @@ class TabulaCopula:
                                 s_row_e = s_row[conditions_Array]
                                 conditions = s_row_e.to_dict()
 
+                            print(conditions)
                             cond_samples = gaussian_copula_conditional.sample(size=1, conditions=conditions)
 
                             if (self.debug):
@@ -573,11 +645,16 @@ class TabulaCopula:
 
         # Transformation
         try:
-            self.transform(metaData=self.metaData_transformer)
+            self.transform(metaData=self.metaData_transformer, var_list=self.var_list_filter)
             if cond_bool:
                 self.transform_conditional(metaData=self.metaData_transformer)
+
         except ValueError as e:
             raise ValueError('Error performing transformation: ' + str(e)) from None
+        
+        # Check there are variables left after filtering for chosen variables
+        if len(self.storage['transformer'].var_list) == 0:
+            raise ValueError('No variables left to transform after filtering.')
         
         # Fit Copula
         try:
@@ -619,6 +696,13 @@ class TabulaCopula:
 
         self.output_filenames = {}
 
+        # For Curated Data prior to Transformation
+        curated_filename_suffix = "CURATED"
+        curated_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, curated_filename_suffix)
+        curated_filename = ut_.change_extension(curated_filename, self.output_type_data)
+        curated_filename = self.syn_data_path + curated_filename
+        self.output_filenames["curated"] = curated_filename
+
         # For Transformed Data
         transformed_filename_suffix = "TRANSFORMED"
         transformed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, transformed_filename_suffix)
@@ -644,38 +728,41 @@ class TabulaCopula:
         self.set_index_permutations_dict = {}
         self.output_filenames["conditional_transformed"] = {}
 
-        for set_no, conditionalBody in self.conditionalSettings_dict.items():
-            if (conditionalBody["bool"]):
-                if "parent_conditions" in conditionalBody:
-                    
-                    # Build Conditional Set-Index (build permutations)
-                    full_list_set_index = self._conditional_makeSetIndex(conditionalBody["parent_conditions"])
-                    self.set_index_permutations_dict[set_no] = full_list_set_index # store for future use
-                    self.output_filenames['conditional_transformed'][set_no] = {}
+        if self.conditionalSettings_dict is not None:
+            for set_no, conditionalBody in self.conditionalSettings_dict.items():
+                if (conditionalBody["bool"]):
+                    if "parent_conditions" in conditionalBody:
+                        
+                        # Build Conditional Set-Index (build permutations)
+                        full_list_set_index = self._conditional_makeSetIndex(conditionalBody["parent_conditions"])
+                        self.set_index_permutations_dict[set_no] = full_list_set_index # store for future use
+                        self.output_filenames['conditional_transformed'][set_no] = {}
 
-                    for merged_set_index in full_list_set_index: # e.g. "1-1-1", "1-2-1"
+                        for merged_set_index in full_list_set_index: # e.g. "1-1-1", "1-2-1"
 
-                        # Transformed Data
-                        clean_str_suffix = ut_.clean_filename_str(str(set_no) + "-" + str(merged_set_index))
-                        transformed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, clean_str_suffix)
-                        transformed_filename = ut_.update_filename_with_suffix(transformed_filename, transformed_filename_suffix)
-                        transformed_filename = ut_.change_extension(transformed_filename, self.output_type_data)
-                        transformed_filename = self.syn_data_path + transformed_filename
-                        self.output_filenames['conditional_transformed'][set_no][merged_set_index] = transformed_filename
+                            # Transformed Data
+                            clean_str_suffix = ut_.clean_filename_str(str(set_no) + "-" + str(merged_set_index))
+                            transformed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, clean_str_suffix)
+                            transformed_filename = ut_.update_filename_with_suffix(transformed_filename, transformed_filename_suffix)
+                            transformed_filename = ut_.change_extension(transformed_filename, self.output_type_data)
+                            transformed_filename = self.syn_data_path + transformed_filename
+                            self.output_filenames['conditional_transformed'][set_no][merged_set_index] = transformed_filename
 
-        # For CONDITIONAL Synthetic Data (before reversal)
-        conditional_synthetic_filename_suffix = "COND_SYN"
-        conditional_synthetic_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_synthetic_filename_suffix)
-        conditional_synthetic_filename = ut_.change_extension(conditional_synthetic_filename, self.output_type_data)
-        conditional_synthetic_filename = self.syn_data_path + conditional_synthetic_filename
-        self.output_filenames["conditional_synthetic_samples"] = conditional_synthetic_filename
+            # For CONDITIONAL Synthetic Data (before reversal)
+            conditional_synthetic_filename_suffix = "COND_SYN"
+            conditional_synthetic_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_synthetic_filename_suffix)
+            conditional_synthetic_filename = ut_.change_extension(conditional_synthetic_filename, self.output_type_data)
+            conditional_synthetic_filename = self.syn_data_path + conditional_synthetic_filename
+            self.output_filenames["conditional_synthetic_samples"] = conditional_synthetic_filename
 
-        # For Reversed Transformed Data
-        conditional_reversed_filename_suffix = "COND_REV"
-        conditional_reversed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_reversed_filename_suffix)
-        conditional_reversed_filename = ut_.change_extension(conditional_reversed_filename, self.output_type_data)
-        conditional_reversed_filename = self.syn_data_path + conditional_reversed_filename
-        self.output_filenames["conditional_reversed_samples"] = conditional_reversed_filename
+            # For Reversed Transformed Data
+            conditional_reversed_filename_suffix = "COND_REV"
+            conditional_reversed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_reversed_filename_suffix)
+            conditional_reversed_filename = ut_.change_extension(conditional_reversed_filename, self.output_type_data)
+            conditional_reversed_filename = self.syn_data_path + conditional_reversed_filename
+            self.output_filenames["conditional_reversed_samples"] = conditional_reversed_filename
+
+            self.conditional_set_bool = True
 
 
     def _save_data_to_file(self, df, filename, sheetname="Sheet1"):

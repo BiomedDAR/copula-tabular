@@ -89,7 +89,7 @@ def corrMatrix(data, fig=None, position=None, title=None):
     corr = data.corr()
     np_corr = corr.to_numpy()
 
-    im = ax.matshow(np_corr, interpolation='nearest', cmap='jet')
+    im = ax.matshow(np_corr, interpolation='nearest', cmap='jet', vmin=-1, vmax=1)
 
     ax.set_title(title, fontsize=8)
     ax.set_xticklabels(['']+list(corr.columns))
@@ -101,6 +101,15 @@ def corrMatrix(data, fig=None, position=None, title=None):
     fig.colorbar(im, ax=ax)
 
     return ax, fig
+
+def corrMatrix_compare(real_data, syn_data):
+    fig_corr = plt.figure()
+
+    ax_corr_1, fig_corr = corrMatrix(real_data, fig=fig_corr, position=121, title='Plot of Correlation Matrix (REAL)')
+    ax_corr_2, fig_corr = corrMatrix(syn_data, fig=fig_corr, position=122, title='Plot of Correlation Matrix (SYN)')
+
+    return ax_corr_1, ax_corr_2, fig_corr
+
 
 def scatterPlot(x_data, y_data, label='', fig=None, ax=None, position=None, title=None, color='blue', marker='.',):
     """This function creates a scatterplot of x_data vs. y_data, with optional formatting and labeling as provided.
@@ -142,7 +151,7 @@ def scatterPlot(x_data, y_data, label='', fig=None, ax=None, position=None, titl
 
     return ax, fig
 
-def scatterPlot_compare(real_data, syn_data, x_var, y_var):
+def scatterPlot_compare(real_data, syn_data, x_var, y_var, fig=None):
     """This function creates a scatterplot of x_var vs. y_var for both real and synthetic data.
 
     Params: 
@@ -154,6 +163,8 @@ def scatterPlot_compare(real_data, syn_data, x_var, y_var):
             The variable to plot on the x-axis.
         y_var : str
             The variable to plot on the y-axis.
+        fig : matplotlib.figure.Figure, optional
+            The figure on which the data should be plotted. Default: None.
 
     Returns:
         fig_scatter : matplotlib.figure.Figure
@@ -162,13 +173,14 @@ def scatterPlot_compare(real_data, syn_data, x_var, y_var):
             The axes on which the scatterplot is shown.
     """
 
+    fig_scatter = fig or plt.figure()
+
     x_real = real_data[x_var]
     y_real = real_data[y_var]
 
     x_syn = syn_data[x_var]
     y_syn = syn_data[y_var]
 
-    fig_scatter = plt.figure()
     ax_scatter, fig_scatter = scatterPlot(x_real, y_real, label="Real", fig=fig_scatter, color='blue', marker='.')
     
     ax_scatter, fig_scatter = scatterPlot(x_syn, y_syn, label="Synthetic", fig=fig_scatter, ax=ax_scatter, color='grey', marker='x', title=f"Scatterplot of {y_var} against {x_var}")

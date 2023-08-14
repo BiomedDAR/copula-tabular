@@ -40,7 +40,7 @@ class GaussianCopula:
         if (self.debug):
             print(f"Correlation Fitting Method={method}")
 
-        # TRANSFORM TO NORMAL (WHY?)
+        # TRANSFORM TO NORMAL
         if (transform_to_normal):
             temp_dict = {}
             for var_name, var in data.items():
@@ -73,7 +73,8 @@ class GaussianCopula:
 
 
     def fit(self, data, marginal_dist_dict=None):
-        """Compute the distribution for each variable and then its covariance matrix"""
+        """Compute the distribution for each variable and then its covariance matrix
+        """
 
         var_names = []
         univariates = {}
