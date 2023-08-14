@@ -188,6 +188,30 @@ And generate synthetic data:
 tc.syn_generate(cond_bool=True)
 ```
 
+Note that `tc.syn_generate` is a wrapper for the following snippet:
+```
+tc.transform()
+if cond_bool:
+    tc.transform_conditional()
+    
+tc.fit_gaussian_copula()
+if cond_bool:
+    tc.fit_gaussian_copula_conditional()
+
+tc.sample_gaussian_copula(sample_size=2000)
+if cond_bool:
+    tc.sample_gaussian_copula_conditional()
+
+tc.reverse_transform()
+```
+
+At times, it may be useful to run these steps individually.
+
+For debugging purposes, it is also useful to glean certain details of the learned copula, which we may extract using:
+```
+tc.print_details_copula()
+```
+
 ### Visualisation of Results
 ```
 from mz import VIsualPlot as vp

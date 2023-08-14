@@ -8,7 +8,7 @@ from pprint import pprint
 
 class TabulaCopula:
     """
-    Wrapper for performing conditional-copula (Gaussian) for Tabula Data
+    Wrapper for performing copula/conditional-copula (Gaussian) for Tabular-type data.
 
     Inputs:
 
@@ -21,6 +21,32 @@ class TabulaCopula:
         removeNull (bool): Whether to remove all null values prior to transformation. Default is False.
 
         debug (bool): Flag to print debugging lines. Default is `False`.
+
+    Example inputs:
+        conditionalSettings_dict = {
+        "set_1": {
+            "bool": True,
+            "parent_conditions": { # 2 parents, the `Y` in `P(X | Y)`.
+                "SurveyYr": { # split variable into 2 sets
+                    "condition": "set",
+                    "condition_value": {
+                        1: ["2009_10"],
+                        2: ["2011_12"]
+                    }
+                },
+                "Age": { # split variable into 3 sets based on range
+                    "condition": "range",
+                    "condition_value": {
+                        1: [">=3", "<79"],
+                        2: ["<3"],
+                        3: [">=79"]
+                    }
+                }
+            },
+            "conditions_var": ["Age"], # the `Y` to keep constant while generating values of `X` in `P(X | Y)`. Can be a float, in which case it is a threshold to fix all variables with pairwise correlation (with X) above then said threshold.
+            "children": ['AgeMonths'] #variable for which to learn the joint conditional distributions on, the `X` in `P(X | Y)`.
+        }
+    }
     """
 
     def __init__(self,
