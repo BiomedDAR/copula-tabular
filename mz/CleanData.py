@@ -7,6 +7,12 @@ from copy import deepcopy
 
 class CleanData:
     """
+    Class for cleaning data
+    Inputs:
+        definitions (loaded global definitions)
+
+    Change Log:
+        (MZ): 17-08-2023: added generation of initial report (modified options in Dictionary)
     """
 
     def __init__(self,
@@ -23,9 +29,11 @@ class CleanData:
         self.output_type_data = 'csv'
         self.output_type_dict = 'xlsx'
 
+        self.initial_report_filename = 'initial_report.xlsx' #output file name to store the initial report prior to optional cleaning steps
+
         self.dict_var_varname = "NAME" # column in data dictionary containing variable names in input data
         self.dict_var_varcategory = "CATEGORY" # column in data dictionary setting the category of the variable name
-        self.dict_var_type = "TYPE" # column in data dictionary setting the type of variable (string, numeric, date)
+        self.dict_var_type = "TYPE" # column in data dictionary setting the type of variable (string, numeric, date, bool)
         self.dict_var_codings = "CODINGS" # column in data dictionary setting the codigns of variable (dataformat, categories)
         self.var_name_stripemptyspaces = False #If True, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary.
         self.longitudinal_variableMarker = None #column header which contains the list of categories stipulating a list of longitudinal markers
@@ -84,6 +92,9 @@ class CleanData:
         self._save_data_to_file()
         self._save_dict_to_file()
 
+        # Generate Report (initial, prior to optional steps)
+        self.gen_data_report(data=self.clean_df, dict=self.clean_dict_df)
+
         
     def _update_defaults(self, var_to_update, new_value):
         if hasattr(self.definitions, new_value):
@@ -106,6 +117,9 @@ class CleanData:
         # Updating defaults for OUTPUT TYPES
         self._update_defaults(var_to_update="output_type_data", new_value="OUTPUT_TYPE_DATA")
         self._update_defaults(var_to_update="output_type_dict", new_value="OUTPUT_TYPE_DICT")
+
+        # Updating defaults for REPORTS
+        self._update_defaults(var_to_update="initial_report_filename", new_value="INITIAL_REPORT_FILENAME")
 
         # Updating defaults for DROP DUPLICATES
         self._update_defaults(var_to_update="dropped_duplicated_rows_filename", new_value="OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME")
@@ -137,6 +151,9 @@ class CleanData:
 
         self.train_data_path = self.prefix_path + self.folder_trainData + "\\"
 
+        # Initialise filename for reports
+        self.initial_report_filename = self.train_data_path + self.initial_report_filename
+
         # Initialise latest_filename for cleaned input data
         self.data_latest_filename = self.train_data_path + self.definitions.RAWXLSX
         self.data_latest_filename = ut_.change_extension(self.data_latest_filename, self.output_type_data)
@@ -159,6 +176,7 @@ class CleanData:
         self.var_diff_list = None #list of discrepancies between data dictionary and input data
         self.cat_var_dict = None #dictionary with {cat: [list of variables]}
         self.type_var_dict = None #dictionary with {type: [list of variables]}
+        self.report_df = None #initialise the report (dataframe) prior to optional cleaning steps
 
     def convert_2_dtypes(self, data):
         """Convert data (df) into best possible dtypes"""
@@ -308,6 +326,65 @@ class CleanData:
             print(f"Data dictionary loaded.")
 
         return self.dict_df
+    
+    def gen_data_report(self, data, dict):
+
+        report_cols = ['data_type','data_type_in_dict','data_type_mismatch', 'count_missing_values', 'percentage_missing_values']
+        report_df = pd.DataFrame(columns=report_cols, index=data.columns) #initialise dataframe B (not efficient)
+
+        for col in data.columns:
+            report_df.loc[col, 'data_type'] = str(data[col].dtype) #add datatype information
+
+        for datatype_dict, data_type_set_var in self.type_var_dict.items():
+            for set_var in data_type_set_var:
+                report_df.loc[set_var, 'data_type_in_dict'] = str(datatype_dict)
+        
+        # Check for possible datatype mismatch
+        report_df['data_type_mismatch'] = "Possible mismatch"
+        report_df.loc[(report_df['data_type_in_dict'] == 'numeric') & 
+              (report_df['data_type'].isin(['int64', 'float64', 'timedelta[ns]'])),'data_type_mismatch'] = 'Matched'
+        report_df.loc[(report_df['data_type_in_dict'] == 'string') & 
+              (report_df['data_type'].isin(['category', 'object'])),'data_type_mismatch'] = 'Matched'
+        report_df.loc[(report_df['data_type_in_dict'] == 'date') & 
+              (report_df['data_type'].isin(['datetime64', 'object'])),'data_type_mismatch'] = 'Matched'
+        report_df.loc[(report_df['data_type_in_dict'] == 'bool') & 
+              (report_df['data_type'].isin(['bool'])),'data_type_mismatch'] = 'Matched'
+        
+        # Check for number of missing values
+        count_missing_values = data.isnull().sum()
+        percentage_missing_values = data.isnull().mean()
+        report_df = report_df.assign(count_missing_values=count_missing_values)
+        report_df = report_df.assign(percentage_missing_values=percentage_missing_values)
+
+        # Populate data range
+        f = lambda row: str(data[str(row.name)].min()) + ":" + str(data[str(row.name)].max()) if row['data_type_in_dict'] == 'numeric' else np.nan
+        report_df['numeric_range'] = report_df.apply(f, axis=1)
+
+        # Populate data list for objects
+        def f2(col_name):
+            list_unqiue = data[str(col_name)].unique()
+            if len(list_unqiue)<20:
+                return ','.join(str(v) for v in list_unqiue)
+            else:
+                return 'Too many'
+        f3 = lambda row: f2(row.name) if row['data_type_in_dict'] == 'string' else "N.A."
+        report_df['unique_categories'] = report_df.apply(f3, axis=1)
+
+        # Save to class
+        self.report_df = report_df
+
+        # Save to file
+        try:
+            print(self.initial_report_filename)
+            self._save_df_to_file(report_df, self.initial_report_filename,sheetname='by Variable')
+            if (self.debug):
+                print(f"Initial Report Generated: filename: {self.initial_report_filename}")
+        except:
+            if (self.debug):
+                print(f"Initial Report Generation FAILED.")
+            return 0
+
+        return 1
 
     def _check_variable_match_dict_data(self, strip_empty_spaces=False):
         """Check if variables in dictionary match the field headers in self.raw_df. Problematic fields will be stored in self.var_diff_list.
@@ -358,6 +435,22 @@ class CleanData:
         
         return len(self.var_diff_list)==0
 
+    def _save_df_to_file(self, df, filename, sheetname='Sheet1', index=True):
+
+        file_ext = ut_.get_extension(filename)
+
+        if (file_ext=='csv'):
+            ut_.save_df_as_csv(df, filename, index=index)
+
+        elif (file_ext=='xlsx'):
+            ut_.save_df_as_excel(df, 
+                excel_file_name = filename, 
+                sheet_name = sheetname,
+                index = index # saving the index or not
+            )
+
+        else:
+            raise ValueError(f"Not able to save data to file for extension type: {file_ext}")
 
     def _save_data_to_file(self):
         """Function to save data to file.

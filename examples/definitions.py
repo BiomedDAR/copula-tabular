@@ -29,6 +29,9 @@ VAR_NAME_STRIPEMPTYSPACES = True # option. If True, empty spaces will be strippe
 OUTPUT_TYPE_DATA = 'csv' # the output file type for the clean data files. Available options: 'csv', 'xlsx'. If not specified, default is 'csv'
 OUTPUT_TYPE_DICT = 'xlsx' # the output file type fot the amended dictionary. Available options: 'csv', 'xlsx'. If not specified, default is 'xlsx'
 
+# SETTINGS FOR REPORT GENERATION
+INITIAL_REPORT_FILENAME = 'initialisation_report.xlsx' #output file name to store the initial report prior to optional cleaning steps
+
 # SETTINGS FOR DROP DUPLICATES
 OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME = 'rowsRemoved.xlsx' # output file name to store the duplicated rows which have been dropped
 SUFFIX_DROPPED_DUPLICATED_ROWS = "DD" # suffix to append to the end of the output filename of the input data.
