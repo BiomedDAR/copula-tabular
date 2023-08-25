@@ -20,6 +20,7 @@ The CleanData class comprises several in-built functions:
 *   standardise text format (capital/small letters)
 *   converts all characters to ASCII-compatible alternatives
 *   standardise date format
+*   rudimentary report of data (number of missing values, range, data-type, etc...)
 
 ### External functions
 The CleanData class accepts external/user-specified constraints, in conjunction with the Constraints class.

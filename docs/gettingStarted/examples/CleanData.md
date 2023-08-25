@@ -48,6 +48,7 @@ Upon initialisation, the CleanData class automatically
 *   checks if the variables given in the input data matches the meta information stored in the data dictionary.
 *   extracts a list of longitudinal markers (ignore if there are no longitudinal markers specified)
 *   save the new input data and data dictionary files in the new folder
+*   computes an initial report, saved in the new folder
 
 ```
 cd = CleanData(definitions=defi)
