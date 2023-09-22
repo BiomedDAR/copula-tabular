@@ -25,6 +25,6 @@ For installation instructions, getting started guides and tutorials, background 
 ## Development notes
 
 ## Copyright and license
-Copyright 2023 BiomedDAR. Licensed under [MIT](LICENSE.txt).
+Copyright 2023 BiomedDAR, BII, A*STAR. Licensed under [MIT](LICENSE.txt).
 
 ## Acknowledgements

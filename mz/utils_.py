@@ -186,6 +186,40 @@ def strip_string_spaces(dataframe, col=None):
 
     return dataframe
 
+def convert_datatypes(df):
+    """Convert from nullable datatypes to non-nullable, for backwards compatibility (if required)"""
+    for col in df.columns:
+        if df[col].dtype == 'Float64':
+            df[col] = df[col].astype('float64')
+        elif df[col].dtype == 'Int32':
+            df[col] = df[col].astype('int32')
+        elif df[col].dtype == 'Int64':
+            df[col] = df[col].astype('int64')
+        else:
+            pass
+    return df
+
+def df_sampling(df, p=0.8):
+    """This function takes in a Pandas dataframe object and a sampling probability `p` and returns two separate dataframes, a sample and a control.
+    
+    Parameters: 
+        df (pandas.Dataframe): A Pandas dataframe object to be sampled.
+        p (float): A float value between 0 and 1 representing the sampling probability. Should be less than or equal to 1. This will be used to decide how many rows to be sampled from the original dataframe.
+
+    Returns:
+        df_sampled (pandas.Dataframe): A dataframe consisting of randomly-sampled rows from the original dataframe
+        df_control (pandas.Dataframe): A dataframe consisting of the remaining rows from the original dataframe
+    """
+    
+    n = df.shape[0]
+    s = np.random.choice(n, int(n*p), replace=False)
+
+    df_sampled = df.iloc[s]
+    df_control = df[~df.index.isin(s)]
+
+    return df_sampled, df_control
+
+
 def update_dataframe_rows(df, refCol, listRows, col, val):
     """This function is used to update rows of a dataframe based on certain conditions. 
 

@@ -158,4 +158,8 @@ fig_scatter_cond = plt.figure()
 ax_scatter_cond, fig_scatter_cond = vp.scatterPlot(data_df['cat2_x'], data_df['cat3_y'], label="Real", fig=fig_scatter_cond, color='blue', marker='.')
 ax_scatter_cond, fig_scatter_cond = vp.scatterPlot(syn_samples_conditional_df['cat2_x'], syn_samples_conditional_df['cat3_y'], label="Synthetic (Cond)", fig=fig_scatter_cond, ax=ax_scatter_cond, color='grey', marker='x', title=f"Scatterplot of cat3_y against cat2_x (Cond)")
 
+# SAVE INSTANCE FOR FUTURE USE
+# instance will be saved as a pickle file, along with a dictionary of output filenames
+tc.save()
+
 plt.show()

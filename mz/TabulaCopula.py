@@ -2,8 +2,10 @@ from mz import utils_ as ut_
 import pandas as pd
 from copy import deepcopy
 import os
+import pickle
 from mz.Transformer import Transformer
 from mz.GaussianCopula import GaussianCopula
+from mz.PrivacyMetric import PrivacyMetric as PM
 from pprint import pprint
 
 class TabulaCopula:
@@ -19,8 +21,10 @@ class TabulaCopula:
         var_list_filter (list): List of variables to transform. Default is None (all will be transformed)
 
         removeNull (bool): Whether to remove all null values prior to transformation. Default is False.
+        
+        sampling (float): Percentage of sample points draw from the transformed dataframe, leaving the rest as control. Default is 1 (use all). Note that the sampling is done after the transformation, not before.
 
-        debug (bool): Flag to print debugging lines. Default is `False`.
+        debug (bool): Flag to print debugging lines. Default is `True`.
 
     Example inputs:
         conditionalSettings_dict = {
@@ -47,6 +51,10 @@ class TabulaCopula:
             "children": ['AgeMonths'] #variable for which to learn the joint conditional distributions on, the `X` in `P(X | Y)`.
         }
     }
+
+    Change log:
+        (MZ) 07-09-2023: add sampling option to transformed data (form disjoint subsets for training and control).
+        (MZ) 21-09-2023: add functionality to save class as pickle, save output filenames dictionary to csv.
     """
 
     def __init__(self,
@@ -56,6 +64,7 @@ class TabulaCopula:
         metaData_transformer=None,
         var_list_filter=None,
         removeNull=False,
+        sampling = 1,
         debug=True
     ):
         
@@ -64,11 +73,13 @@ class TabulaCopula:
         # LOADING DEFAULTS
         self.folder_trainData = "trainData"
         self.folder_synData = "synData"
+        self.folder_privacyMetrics = "privacyMetrics"
 
         self.output_general_prefix = ''
 
         self.output_type_data = 'csv'
         self.output_type_dict = 'xlsx'
+        self.output_type_obj = 'pkl'
 
         self.dict_var_varname = "NAME" # column in data dictionary containing variable names in input data
         self.dict_var_varcategory = "CATEGORY" # column in data dictionary setting the category of the variable name
@@ -77,72 +88,86 @@ class TabulaCopula:
         self.conditional_set_bool = False # flag set to true when filenames initialised for conditional setup
 
         # LOAD DEFINITIONS
-        self.definitions = definitions
-        self._load_definitions()
+        # self.definitions = definitions # deprecated to allow saving of instance as pickle
+        self._load_definitions(definitions)
 
         # REPLACE DEFINTIONS WITH USER-INPUTS (FUNCTION LEVEL)
         self.output_general_prefix = output_general_prefix
         self.metaData_transformer = metaData_transformer
         self.var_list_filter = var_list_filter # list of variables to transform (subset of all input variables)
         self.removeNull = removeNull
+        self.sampling = sampling if sampling > 0.01 and sampling <= 1 else 1 # float to decide proportion of transformed samples to use (forced to 1 if invalid)
         self.conditionalSettings_dict = conditionalSettings_dict
 
         # LOAD DATA DICTIONARY
-        self.read_inputDict(sheetname=self.definitions.TRAINDICTXLSX_SHEETNAME)
+        self.read_inputDict(sheetname=definitions.TRAINDICTXLSX_SHEETNAME)
 
         # LOAD INPUT DATA
-        self.read_inputData(sheetname=self.definitions.TRAINXLSX_SHEETNAME)
+        self.read_inputData(sheetname=definitions.TRAINXLSX_SHEETNAME)
 
         # CREATE REQUIRED FOLDERS
         if not os.path.exists(self.syn_data_path):
             os.makedirs(self.syn_data_path)
 
+        if not os.path.exists(self.privacyMetrics_path):
+            os.makedirs(self.privacyMetrics_path)
+
         # CREATE OUTPUT FILENAMES AND STORAGE LOCATIONS
         self.build_filenames()
         self.build_storage()
 
-
-
-    def _update_defaults(self, var_to_update, new_value):
-        if hasattr(self.definitions, new_value):
-            attr = getattr(self.definitions, new_value)
+    def _update_defaults(self, var_to_update, new_value, definitions):
+        if hasattr(definitions, new_value):
+            attr = getattr(definitions, new_value)
             if attr is not None:
                 setattr(self, var_to_update, attr)
 
-    def _load_definitions(self):
+    def _load_definitions(self, definitions):
 
         # Updating defaults
-        self._update_defaults(var_to_update="folder_trainData", new_value="TRAIN_PATH")
-        self._update_defaults(var_to_update="folder_synData", new_value="SYN_PATH")
+        self._update_defaults(var_to_update="folder_trainData", new_value="TRAIN_PATH", definitions=definitions)
+        self._update_defaults(var_to_update="folder_synData", new_value="SYN_PATH", definitions=definitions)
+        self._update_defaults(var_to_update="folder_privacyMetrics", new_value="PRIV_PATH", definitions=definitions)
 
-        self._update_defaults(var_to_update="dict_var_varname", new_value="DICT_VAR_VARNAME")
-        self._update_defaults(var_to_update="dict_var_varcategory", new_value="DICT_VAR_VARCATEGORY")
-        self._update_defaults(var_to_update="dict_var_type", new_value="DICT_VAR_TYPE")
+        self._update_defaults(var_to_update="dict_var_varname", new_value="DICT_VAR_VARNAME", definitions=definitions)
+        self._update_defaults(var_to_update="dict_var_varcategory", new_value="DICT_VAR_VARCATEGORY", definitions=definitions)
+        self._update_defaults(var_to_update="dict_var_type", new_value="DICT_VAR_TYPE", definitions=definitions)
         
         # Updating defaults for OUTPUT TYPES
-        self._update_defaults(var_to_update="output_general_prefix", new_value="OUTPUT_GENERAL_PREFIX")
-        self._update_defaults(var_to_update="output_type_data", new_value="OUTPUT_TYPE_DATA")
-        self._update_defaults(var_to_update="output_type_dict", new_value="OUTPUT_TYPE_DICT")
+        self._update_defaults(var_to_update="output_general_prefix", new_value="OUTPUT_GENERAL_PREFIX", definitions=definitions)
+        self._update_defaults(var_to_update="output_type_data", new_value="OUTPUT_TYPE_DATA", definitions=definitions)
+        self._update_defaults(var_to_update="output_type_dict", new_value="OUTPUT_TYPE_DICT", definitions=definitions)
 
-        self.prefix_path = self.definitions.PREFIX_PATH
+        self.prefix_path = definitions.PREFIX_PATH
+
+        self.trainxlsx = definitions.TRAINXLSX
+        self.traindictxlsx = definitions.TRAINDICTXLSX
 
         self.train_data_path = self.prefix_path + self.folder_trainData + "\\"
-        self.train_data_filename = self.train_data_path + self.definitions.TRAINXLSX
-        self.train_data_dict_filename = self.train_data_path + self.definitions.TRAINDICTXLSX
+        self.train_data_filename = self.train_data_path + definitions.TRAINXLSX
+        self.train_data_dict_filename = self.train_data_path + definitions.TRAINDICTXLSX
 
         self.syn_data_path = self.prefix_path + self.folder_synData + "\\"
+        self.privacyMetrics_path = self.prefix_path + self.folder_privacyMetrics + "\\"
 
 
         self.train_df = None #initialise training data (dataframe)
         self.dict_df = None #initialise data dictionary (dataframe)
         self.var_list = None #list of all variables (column headers) found in input data
         self.processed_var_list = None #list of all variables (column headers) that have been transformed
-        self.transformed_df = None #initialise transformed training data (dataframe)
+        self.transformed_df = None #initialise transformed training data (dataframe) / replaced with transformed data after sampling (disjoint with self.control_df)
+        self.control_df = None # the dataframe that is not sampled for training (left as control for privacy leakage testing)
         self.curated_train_df = None #initialise curated data prior to transformation (dataframe)
         self.syn_samples_df = None #initialise synthetic samples (dataframe)
         self.syn_samples_conditional_df = None #initialise conditional synthetic samples (dataframe)
         self.reversed_df = None #initialise reversed synthetic samples (dataframe)
         self.reversed_conditional_df = None #initialise conditional reversed synthetic samples (dataframe)
+        self.reversed_control_df = None #initialise reversed control_df (dataframe)
+        self.reversed_transformed_df = None #initialise reversed transformed_df (dataframe)
+
+        self.privacyMetricEval = None #initialise privacy metric evaluator
+        self.privacyMetricEval_cond = None #initialise privacy metric evaluator for conditional copula
+        self.privacyMetricResults = {} #initialise privacy metric results dictionary
 
     
     def read_inputData(self, sheetname=None):
@@ -268,6 +293,10 @@ class TabulaCopula:
         return self.dict_df
 
     def transform(self, metaData=None, var_list=None):
+        """
+        Change log:
+            -MZ 07-09-2023: add sampling option to transformed data (form disjoint subsets for training and control)
+        """
 
         if metaData is None:
             metaData = deepcopy(self.metaData_transformer)
@@ -283,6 +312,13 @@ class TabulaCopula:
             debug = self.debug
         )
         self.transformed_df = transformer.transform(self.train_df)
+
+        # Sampling subset of transformed data for training, leaving the rest for control (7 Sept 2023-MZ)
+        if self.sampling != 1:
+            self.transformed_df, self.control_df = ut_.df_sampling(self.transformed_df, p=self.sampling)
+        else:
+            self.control_df = None
+
         self.processed_var_list = list(transformer.transformer_meta_dict.keys())
         self.curated_train_df = transformer.data_curated_df
 
@@ -292,6 +328,8 @@ class TabulaCopula:
         # Save transformed data (output to file)
         self._save_data_to_file(self.transformed_df, self.output_filenames['transformed'])
         self._save_data_to_file(self.curated_train_df, self.output_filenames['curated'])
+        if self.control_df is not None:
+            self._save_data_to_file(self.control_df, self.output_filenames["control"])
 
         return self.transformed_df
     
@@ -381,7 +419,11 @@ class TabulaCopula:
         return 0
 
     
-    def reverse_transform(self, transformed_df=None, conditional_transformed_df=None):
+    def reverse_transform(self, transformed_df=None, conditional_transformed_df=None, control_transformed_df=None):
+        """
+        Change log:
+            -MZ 07-09-2023: add reverse operation on control data
+        """
 
         # Get data to reverse
         if transformed_df is not None:
@@ -394,6 +436,11 @@ class TabulaCopula:
         else: 
             cond_df = self.syn_samples_conditional_df
 
+        if control_transformed_df is not None:
+            control_df = control_transformed_df
+        else:
+            control_df = self.control_df
+
         # Get saved transformer from storage
         transformer = self.storage['transformer']
 
@@ -405,10 +452,19 @@ class TabulaCopula:
         if cond_df is not None:
             self.reversed_conditional_df = transformer.reverse(cond_df)
 
+        # Reverse the control data transformation
+        if control_df is not None:
+            self.reversed_control_df = transformer.reverse(control_df)
+            self.reversed_transformed_df = transformer.reverse(self.transformed_df)
+
         # Output to file
         self._save_data_to_file(self.reversed_df, self.output_filenames["reversed_samples"])
         if cond_df is not None:
             self._save_data_to_file(self.reversed_conditional_df, self.output_filenames["conditional_reversed_samples"])
+
+        if control_df is not None:
+            self._save_data_to_file(self.reversed_control_df, self.output_filenames["controlReversed_samples"])
+            self._save_data_to_file(self.reversed_transformed_df, self.output_filenames["training_samples"])
 
         return self.reversed_df, self.reversed_conditional_df
     
@@ -465,7 +521,8 @@ class TabulaCopula:
                     transformed_filtered_conditional_filename = self.output_filenames['conditional_transformed'][set_no][merged_set_index]
                     transformed_filtered_conditional = pd.read_csv(transformed_filtered_conditional_filename)
 
-                    print(transformed_filtered_conditional)
+                    if (self.debug):
+                        print(transformed_filtered_conditional)
 
                     # Fit Gaussian Copula using given options
                     gaussian_copula_conditional = GaussianCopula(debug=self.debug, correlation_method=correlation_method)
@@ -502,7 +559,8 @@ class TabulaCopula:
 
                 # Get Corresponding Transformer
                 cond_transformer = self.storage['cond_transformer'][set_no]
-                pprint(cond_transformer.transformer_meta_dict)
+                if (self.debug):
+                    pprint(cond_transformer.transformer_meta_dict)
 
                 # Build Conditional Set-Index (build permutations)
                 full_list_set_index = self.set_index_permutations_dict[set_no]
@@ -648,7 +706,8 @@ class TabulaCopula:
                                 s_row_e = s_row[conditions_Array]
                                 conditions = s_row_e.to_dict()
 
-                            print(conditions)
+                            if (self.debug):
+                                print(conditions)
                             cond_samples = gaussian_copula_conditional.sample(size=1, conditions=conditions)
 
                             if (self.debug):
@@ -705,6 +764,165 @@ class TabulaCopula:
             raise ValueError('Error reversing transform: ' + str(e)) from None
         
         return True
+    
+    def build_privacyMetric(self):
+
+        ori = self.reversed_transformed_df
+        syn = self.reversed_df
+        syn_cond = self.reversed_conditional_df
+        control = self.reversed_control_df
+
+        ori = ut_.convert_datatypes(ori)
+        syn = ut_.convert_datatypes(syn)
+        syn_cond = ut_.convert_datatypes(syn_cond)
+        control = ut_.convert_datatypes(control)
+
+        privacyMetric = PM(ori=ori, syn=syn, control=control)
+        privacyMetric_conditional = PM(ori=ori, syn=syn_cond, control=control)
+
+        self.privacyMetricEval = privacyMetric
+        self.privacyMetricEval_cond = privacyMetric_conditional
+
+        return True
+    
+    def privacyMetric_singlingOut_Batch(self, n=3, mode='univariate', n_attacks='auto', print_results=True):
+
+        if (self.debug):
+            print(f"Running Singling Out Evaluator, batch process, n={n}, mode={mode}, Standard Copula...")
+
+        # Running batch wrapper for singling out
+        if mode == 'univariate':
+            pathDir = self.output_filenames["singlingOut_uni_samples"]
+        elif mode == 'multivariate':
+            pathDir = self.output_filenames["singlingOut_multi_samples"]
+        singlingOut_standard_filename = ut_.update_filename_with_suffix(pathDir, f'n={n}')
+
+        res = self.privacyMetricEval.singlingOut_batch(
+            outputcsv_filename=singlingOut_standard_filename,
+            n_attacks=n_attacks,
+            mode=mode,
+            print_results=print_results,
+            batch_n=n
+        )
+
+        # Save results
+        self.privacyMetricResults["singlingOut_standard"] = res
+
+        return res
+    
+    def privacyMetric_singlingOut_cond_Batch(self, n=3, mode='univariate', n_attacks='auto', print_results=True):
+
+        if (self.debug):
+            print(f"Running Singling Out Evaluator, batch process, n={n}, mode={mode}, Conditional Copula...")
+
+        # Running batch wrapper for singling out
+        if mode == 'univariate':
+            pathDir = self.output_filenames["conditional_singlingOut_uni_samples"]
+        elif mode == 'multivariate':
+            pathDir = self.output_filenames["conditional_singlingOut_multi_samples"]
+        singlingOut_conditional_filename = ut_.update_filename_with_suffix(pathDir, f'n={n}')
+
+        res_cond = self.privacyMetricEval_cond.singlingOut_batch(
+            outputcsv_filename=singlingOut_conditional_filename,
+            n_attacks=n_attacks,
+            mode=mode,
+            print_results=print_results,
+            batch_n=n
+        )
+
+        # Save results
+        self.privacyMetricResults["singlingOut_conditional"] = res_cond
+
+        return res_cond
+    
+    def privacyMetric_Linkability_Batch(self, aux_cols, n_neighbors=10, n=3, n_attacks='auto', print_results=True):
+
+        if (self.debug):
+            print(f"Running Linkability Evaluator, batch process, n={n}, Standard Copula...")
+        
+        # Running batch wrapper for linkability
+        pathDir = self.output_filenames["linkability_samples"]
+        linkability_standard_filename = ut_.update_filename_with_suffix(pathDir, f'n={n}-n_neighbors={n_neighbors}')
+
+        res = self.privacyMetricEval.linkability_batch(
+            aux_cols=aux_cols,
+            n_neighbors=n_neighbors,
+            outputcsv_filename=linkability_standard_filename,
+            n_attacks=n_attacks,
+            print_results=print_results,
+            batch_n=n
+        )
+
+        # Save results
+        self.privacyMetricResults["linkability_standard"] = res
+
+        return res
+    
+    def privacyBatch_Linkability_cond_Batch(self, aux_cols, n_neighbors=10, n=3, n_attacks='auto', print_results=True):
+
+        if (self.debug):
+            print(f"Running Linkability Evaluator, batch process, n={n}, Conditional Copula...")
+
+        # Running batch wrapper for linkability conditional
+        cond_pathDir = self.output_filenames["conditional_linkability_samples"]
+        linkability_conditional_filename = ut_.update_filename_with_suffix(cond_pathDir, f'n={n}-n_neighbors={n_neighbors}')
+
+        res_cond = self.privacyMetricEval_cond.linkability_batch(
+            aux_cols=aux_cols,
+            n_neighbors=n_neighbors,
+            outputcsv_filename=linkability_conditional_filename,
+            n_attacks=n_attacks,
+            print_results=print_results,
+            batch_n=n
+        )
+
+        # Save results
+        self.privacyMetricResults["linkability_conditional"] = res_cond
+
+        return res_cond
+
+    
+    def privacyMetric_Inference_Batch(self, n=3, n_attacks='auto', print_results=True):
+
+        if (self.debug):
+            print(f"Running Inference Evaluator, batch process, n={n}, Standard Copula...")
+        
+        # Running batch wrapper for inference
+        pathDir = self.output_filenames["inference_samples"]
+        inference_standard_filename = ut_.update_filename_with_suffix(pathDir, f"n={n}")
+        res = self.privacyMetricEval.inference_batch(
+            outputcsv_filename_prefix=inference_standard_filename,
+            n_attacks=n_attacks,
+            print_results=print_results,
+            batch_n = n
+        )
+
+        # Save results
+        self.privacyMetricResults["inference_standard"] = res
+
+        return res
+    
+    def privacyMetric_Inference_cond_Batch(self, n=3, n_attacks='auto', print_results=True):
+
+        if (self.debug):
+            print(f"Running Inference Evaluator, batch process, n={n}, Conditional Copula...")
+        
+        # Running batch wrapper for inference
+        cond_pathDir = self.output_filenames["conditional_inference_samples"]
+        inference_conditional_filename = ut_.update_filename_with_suffix(cond_pathDir, f"n={n}")
+        res_cond = self.privacyMetricEval_cond.inference_batch(
+            outputcsv_filename_prefix=inference_conditional_filename,
+            n_attacks=n_attacks,
+            print_results=print_results,
+            batch_n=n
+        )
+
+        # Save results
+        self.privacyMetricResults["inference_conditional"] = res_cond
+
+        return res_cond
+
+
 
     def build_storage(self):
         self.storage = {}
@@ -718,9 +936,23 @@ class TabulaCopula:
     def build_filenames(self):
 
         # Build Output Filename (with designated Prefix)
-        self.output_filename_withprefix = ut_.update_filename_with_suffix(self.definitions.TRAINXLSX, self.output_general_prefix)
+        self.output_filename_withprefix = ut_.update_filename_with_suffix(self.trainxlsx, self.output_general_prefix)
 
         self.output_filenames = {}
+
+        # For class instance
+        class_instance_filename_suffix = "CL"
+        class_instance_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, class_instance_filename_suffix)
+        class_instance_filename = ut_.change_extension(class_instance_filename, self.output_type_obj)
+        class_instance_filename = self.syn_data_path + class_instance_filename
+        self.output_filenames["tc-class-instance"] = class_instance_filename
+
+        # For class instance outputfilenames
+        class_outputfilenames_filename_suffix = "CL-OF"
+        class_outputfilenames_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, class_outputfilenames_filename_suffix)
+        class_outputfilenames_filename = ut_.change_extension(class_outputfilenames_filename, self.output_type_data)
+        class_outputfilenames_filename = self.syn_data_path + class_outputfilenames_filename
+        self.output_filenames["tc-class-outputfilenames"] = class_outputfilenames_filename
 
         # For Curated Data prior to Transformation
         curated_filename_suffix = "CURATED"
@@ -736,6 +968,13 @@ class TabulaCopula:
         transformed_filename = self.syn_data_path + transformed_filename
         self.output_filenames["transformed"] = transformed_filename
 
+        # For Control Data (for privacy leakage testing)
+        control_filename_suffix = "CONTROL"
+        control_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, control_filename_suffix)
+        control_filename = ut_.change_extension(control_filename, self.output_type_data)
+        control_filename = self.syn_data_path + control_filename
+        self.output_filenames["control"] = control_filename
+
         # For Synthetic Data (before reversal)
         synthetic_filename_suffix = "SYN"
         synthetic_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, synthetic_filename_suffix)
@@ -743,12 +982,55 @@ class TabulaCopula:
         synthetic_filename = self.syn_data_path + synthetic_filename
         self.output_filenames["synthetic_samples"] = synthetic_filename
 
-        # For Reversed Transformed Data
+        # For Reversed Transformed Data (synthetic data after reversal)
         reversed_filename_suffix = "REV"
         reversed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, reversed_filename_suffix)
         reversed_filename = ut_.change_extension(reversed_filename, self.output_type_data)
         reversed_filename = self.syn_data_path + reversed_filename
         self.output_filenames["reversed_samples"] = reversed_filename
+
+        # For Reversed Controlled Data (note: there's really no need to transform and then reverse control data, except for further experiments on control data's copula)
+        control_reversed_filename_suffix = "CONTROLREV"
+        control_reversed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, control_reversed_filename_suffix)
+        control_reversed_filename = ut_.change_extension(control_reversed_filename, self.output_type_data)
+        control_reversed_filename = self.syn_data_path + control_reversed_filename
+        self.output_filenames["controlReversed_samples"] = control_reversed_filename
+
+        # For Training data
+        training_filename_suffix = "TRAINING"
+        training_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, training_filename_suffix)
+        training_filename = ut_.change_extension(training_filename, self.output_type_data)
+        training_filename = self.syn_data_path + training_filename
+        self.output_filenames["training_samples"] = training_filename
+
+        # For Singling Out Privacy Leakage Test (Univariate)
+        singlingOut_suffix = "SINGLINGOUT_UNI"
+        singlingOut_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, singlingOut_suffix)
+        singlingOut_filename = ut_.change_extension(singlingOut_filename, 'csv')
+        singlingOut_filename = self.privacyMetrics_path + singlingOut_filename
+        self.output_filenames["singlingOut_uni_samples"] = singlingOut_filename
+
+        # For Singling Out Privacy Leakage Test (Multivariate)
+        singlingOut_multi_suffix = "SINGLINGOUT_MULTI"
+        singlingOut_multi_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, singlingOut_multi_suffix)
+        singlingOut_multi_filename = ut_.change_extension(singlingOut_multi_filename, 'csv')
+        singlingOut_multi_filename = self.privacyMetrics_path + singlingOut_multi_filename
+        self.output_filenames["singlingOut_multi_samples"] = singlingOut_multi_filename
+
+        # For Linkability Privacy Leakage Test
+        linkability_suffix = "LINKABILITY"
+        linkability_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, linkability_suffix)
+        linkability_filename = ut_.change_extension(linkability_filename, 'csv')
+        linkability_filename = self.privacyMetrics_path + linkability_filename
+        self.output_filenames["linkability_samples"] = linkability_filename
+
+        # For Inference Privacy Leakage Test
+        inference_suffix = "INFERENCE"
+        inference_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, inference_suffix)
+        inference_filename = ut_.change_extension(inference_filename, 'csv')
+        inference_filename = self.privacyMetrics_path + inference_filename
+        self.output_filenames["inference_samples"] = inference_filename
+        
 
         # Conditional Stuff
         self.set_index_permutations_dict = {}
@@ -781,17 +1063,58 @@ class TabulaCopula:
             conditional_synthetic_filename = self.syn_data_path + conditional_synthetic_filename
             self.output_filenames["conditional_synthetic_samples"] = conditional_synthetic_filename
 
-            # For Reversed Transformed Data
+            # For Reversed Transformed Data (conditional synthetic data reversal)
             conditional_reversed_filename_suffix = "COND_REV"
             conditional_reversed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_reversed_filename_suffix)
             conditional_reversed_filename = ut_.change_extension(conditional_reversed_filename, self.output_type_data)
             conditional_reversed_filename = self.syn_data_path + conditional_reversed_filename
             self.output_filenames["conditional_reversed_samples"] = conditional_reversed_filename
 
+            # For Singling Out Privacy Leakage Test (Univariate)
+            conditional_singlingOut_suffix = "COND_SINGLINGOUT_UNI"
+            conditional_singlingOut_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_singlingOut_suffix)
+            conditional_singlingOut_filename = ut_.change_extension(conditional_singlingOut_filename, 'csv')
+            conditional_singlingOut_filename = self.privacyMetrics_path + conditional_singlingOut_filename
+            self.output_filenames["conditional_singlingOut_uni_samples"] = conditional_singlingOut_filename
+
+            # For Singling Out Privacy Leakage Test (Multivariate)
+            conditional_singlingOut_multi_suffix = "COND_SINGLINGOUT_UNI"
+            conditional_singlingOut_multi_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_singlingOut_multi_suffix)
+            conditional_singlingOut_multi_filename = ut_.change_extension(conditional_singlingOut_multi_filename, 'csv')
+            conditional_singlingOut_multi_filename = self.privacyMetrics_path + conditional_singlingOut_multi_filename
+            self.output_filenames["conditional_singlingOut_multi_samples"] = conditional_singlingOut_multi_filename
+
+            # For Linkability Privacy Leakage Test
+            conditional_linkability_suffix = "COND_LINKABILITY"
+            conditional_linkability_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_linkability_suffix)
+            conditional_linkability_filename = ut_.change_extension(conditional_linkability_filename, 'csv')
+            conditional_linkability_filename = self.privacyMetrics_path + conditional_linkability_filename
+            self.output_filenames["conditional_linkability_samples"] = conditional_linkability_filename
+
+            # For Inference Privacy Leakage Test
+            conditional_inference_suffix = "COND_INFERENCE"
+            conditional_inference_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, conditional_inference_suffix)
+            conditional_inference_filename = ut_.change_extension(conditional_inference_filename, 'csv')
+            conditional_inference_filename = self.privacyMetrics_path + conditional_inference_filename
+            self.output_filenames["conditional_inference_samples"] = conditional_inference_filename
+
             self.conditional_set_bool = True
 
 
     def _save_data_to_file(self, df, filename, sheetname="Sheet1"):
+        """
+        Saves a dataframe to file based on the file extension of the given filename.
+        Inputs:
+            df (pandas.dataframe): a pandas dataframe to be saved to file.
+            filename (string): the name of the file to save the dataframe to.
+            sheetname (string, optional): The name of the sheet to save the dataframe on, only applicable for xlsx file extensions. Default is "Sheet1". 
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the file extension is not supported.
+        """
 
         file_ext = ut_.get_extension(filename)
 
@@ -808,6 +1131,77 @@ class TabulaCopula:
         else:
             raise ValueError(f"Not able to save data to file for extension type: {file_ext}")
         
+        return True
+        
+    def save(self):
+        """Saves the current class instance to a pickle file. Saves the output filenames dictionary to a csv file."""
+
+        b = self.save_instance()
+        c = self.save_outputFilenames()
+
+        if b and c:
+            return True
+
+        return False
+    
+    def save_instance(self):
+        """Saves the current class instance to a pickle file.
+        Inputs:
+            self: current class instance
+        Returns:
+            True if the class instance is successfully saved to the pickle file, False otherwise.
+        """
+
+        print(f"Saving class instance to filename: {self.output_filenames['tc-class-instance']}")
+
+        b = self._save_to_pickle(self, self.output_filenames['tc-class-instance'])
+        if b:
+            print(f"Saving class instance complete.")
+        else:
+            print(f"Saving class instance failed.")
+
+        return b
+    
+    def save_outputFilenames(self):
+        """Saves the output filenames dictionary to a csv file
+        """
+
+        print(f"Saving output filenames to csv: {self.output_filenames['tc-class-outputfilenames']}")
+        
+        # Convert output filenames dictionary to dataframe
+        df = pd.DataFrame.from_dict(self.output_filenames, orient='index', columns=['Object'])
+
+        # Save dataframe to csv file
+        b = self._save_data_to_file(df, self.output_filenames['tc-class-outputfilenames'])
+        if b:
+            print("Saving output filenames complete.")
+        else:
+            print("Saving output filenames failed.")
+
+        return True
+
+    def _save_to_pickle(self, toSave, filename):
+        """Saves the given object to a pickle file.
+        
+        Inputs:
+            toSave: Object to be saved to the pickle file
+            filename: name of the pickle file to be created
+
+        Returns:
+            True if the object is successfully saved to the pickle file. False otherwise.
+        """
+
+        try:
+            pk_filename = open(filename, "wb")
+            pickle.dump(toSave, pk_filename)
+            pk_filename.close()
+
+            return True
+        
+        except Exception as e:
+            print("Error saving pickle file: {}".format(e))
+
+        return False
 
     def _conditional_makeSetIndex(self, parent_conditions):
         """Build reference index set for parent conditions (used for conditional copula).

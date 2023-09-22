@@ -220,3 +220,18 @@ plt.show()
 
 #### Plot of Correlation Matrix of Original and Synthetic Data (normal + conditional)
 ![](../../assets/img/tabulaCopula_example_1_correlation_matrix.png)
+
+
+### Save instance for future use
+Instance will be saved as a pickle file, along with a dictionary of output filenames.
+```
+tc.save()
+```
+
+#### Sample Output
+```
+Saving class instance to filename: *\synData\simulation_2_m=02_m=05--CL.pkl
+Saving class instance complete.
+Saving output filenames to csv: *\synData\simulation_2_m=02_m=05--CL-OF.csv
+Saving output filenames complete.
+```

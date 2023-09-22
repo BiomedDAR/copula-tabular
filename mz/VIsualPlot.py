@@ -186,3 +186,62 @@ def scatterPlot_compare(real_data, syn_data, x_var, y_var, fig=None):
     ax_scatter, fig_scatter = scatterPlot(x_syn, y_syn, label="Synthetic", fig=fig_scatter, ax=ax_scatter, color='grey', marker='x', title=f"Scatterplot of {y_var} against {x_var}")
 
     return fig_scatter, ax_scatter
+
+def anony_inference_plot(results):
+    """This function creates a barplot of the inferred risk of each secret column.
+
+    Params: 
+        results : array pairs
+            An array of pairs containing the columns and associated inferred risk. 
+
+    Returns:
+        fig_scatter : matplotlib.figure.Figure
+            The figure containing the barplot.
+        ax_scatter : matplotlib.axes.Axes
+            The axes on which the barplot is shown.
+    """
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    risks = [res[1].risk().value for res in results]
+    columns = [res[0] for res in results]
+
+    ax.bar(x=columns, height=risks, alpha=0.5, ecolor='black', capsize=10)
+    plt.xticks(rotation=45, ha='right')
+    ax.set_ylabel("Measured Inference Risk")
+    _ = ax.set_xlabel("Secret Column")
+
+    return fig, ax
+
+def boxplot_scatter(data, xticks, title):
+    """This function creates a boxplot of the data for plotting variable values. 
+    
+    Params: 
+        data : list of lists or pandas.DataFrame
+            A list where each element is a list of values for a given variable. Used as input for plt boxplot fn.
+        xticks : list
+            A list of labels which will be associated with each boxplot.
+        title : string
+            A title for the graph. 
+            
+    Returns:
+        fig_scatter : matplotlib.figure.Figure
+            The figure containing the boxplot.
+        ax_scatter : matplotlib.axes.Axes
+            The axes on which the boxplot is shown.
+    """
+
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    # Creating plot
+    bp = ax.boxplot(data)
+    ax.set_title(title, fontsize=14, fontweight='bold')
+
+    x_tick_rotation = 45 if len(xticks) > 6 else 'horizontal'
+    x_tick_ha = 'right' if len(xticks) > 6 else 'center'
+    ax.set_xticks([i+1 for i in range(len(xticks))], labels=xticks, minor=False, ha=x_tick_ha, rotation=x_tick_rotation)
+    
+    return fig, ax
