@@ -168,9 +168,11 @@ def save_df_as_csv(df, filename, index=True):
     df.to_csv(filename, index=index, header=True)
 
 def save_df_as_excel(df, excel_file_name, sheet_name='Sheet1', index=True):
-    writer = pd.ExcelWriter(excel_file_name, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name=sheet_name, index=index)
-    writer.save()
+    try:
+        with pd.ExcelWriter(path=excel_file_name, engine='auto', mode='w') as writer:
+            df.to_excel(writer, sheet_name=sheet_name, index=index)
+    except Exception as e:
+        print(f"Error writing to Excel File: {e}")
 
 def strip_empty_spaces(dataframe):
     dataframe.columns = dataframe.columns.str.strip()
