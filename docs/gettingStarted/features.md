@@ -49,3 +49,4 @@ The GaussianCopula Class fits a Gaussian copula on a given multivariate dataset.
 Wrapper that fits conditional-copulas on a given multivariate dataset. Available methods include:
 *   conditional copula-fitting
 *   sampling from conditionally-fitted multivariate joint distribution
+*   privacy leakage tests using Anonymeter [link](https://github.com/statice/anonymeter)
