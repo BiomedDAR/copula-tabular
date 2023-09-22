@@ -162,7 +162,7 @@ class Transformer:
         transformed_column = deepcopy(df_col)
         for cat in df_col.unique():
             if type=='Fixed':
-                transformed_column[df_col==cat] = rep[cat]
+                transformed_column[df_col==cat] = str(rep[cat])
             elif type=='Gaussian':
                 mean = rep[cat]
                 std = cat_std[cat]
@@ -242,7 +242,7 @@ class Transformer:
                         'dtype': numeric_df[output_field_name].dtype  # update transformer_meta_dict with output pd dtype of field
                     }
                 }
-            elif (col_dtype_str=='datetime64[ns]'):
+            elif ('datetime64' in str(col_dtype_str)):
 
                 # Extract datetime_format from metaData
                 datetime_format = self._get_datetime_format_from_metaData(column=col)
