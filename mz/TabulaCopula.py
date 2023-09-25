@@ -55,11 +55,14 @@ class TabulaCopula:
     Change log:
         (MZ) 07-09-2023: add sampling option to transformed data (form disjoint subsets for training and control).
         (MZ) 21-09-2023: add functionality to save class as pickle, save output filenames dictionary to csv.
+        (MZ) 25-09-2023: add option indexTrue to function _save_data_to_file
+        (MZ) 25-09-2023: update save_outputFilenames to save dataframe index columsn
+        (MZ) 25-09-2023: fix bug which overwrites dictionary definition of output_general_prefix with ''
     """
 
     def __init__(self,
         definitions=None,
-        output_general_prefix='',
+        output_general_prefix=None,
         conditionalSettings_dict=None,
         metaData_transformer=None,
         var_list_filter=None,
@@ -92,7 +95,7 @@ class TabulaCopula:
         self._load_definitions(definitions)
 
         # REPLACE DEFINTIONS WITH USER-INPUTS (FUNCTION LEVEL)
-        self.output_general_prefix = output_general_prefix
+        self.output_general_prefix = output_general_prefix if output_general_prefix is not None else self.output_general_prefix 
         self.metaData_transformer = metaData_transformer
         self.var_list_filter = var_list_filter # list of variables to transform (subset of all input variables)
         self.removeNull = removeNull
@@ -1101,12 +1104,13 @@ class TabulaCopula:
             self.conditional_set_bool = True
 
 
-    def _save_data_to_file(self, df, filename, sheetname="Sheet1"):
+    def _save_data_to_file(self, df, filename, indexTrue=False, sheetname="Sheet1"):
         """
         Saves a dataframe to file based on the file extension of the given filename.
         Inputs:
             df (pandas.dataframe): a pandas dataframe to be saved to file.
             filename (string): the name of the file to save the dataframe to.
+            indexTrue (boolean): whether to save the index of the DF. Default is False
             sheetname (string, optional): The name of the sheet to save the dataframe on, only applicable for xlsx file extensions. Default is "Sheet1". 
 
         Returns:
@@ -1119,13 +1123,13 @@ class TabulaCopula:
         file_ext = ut_.get_extension(filename)
 
         if (file_ext=='csv'):
-            ut_.save_df_as_csv(df, filename, index=False)
+            ut_.save_df_as_csv(df, filename, index=indexTrue)
 
         elif (file_ext=='xlsx'):
             ut_.save_df_as_excel(df, 
                 excel_file_name = filename, 
                 sheet_name = sheetname,
-                index = False # not saving the index
+                index = indexTrue # not saving the index (if False)
             )
 
         else:
@@ -1170,9 +1174,10 @@ class TabulaCopula:
         
         # Convert output filenames dictionary to dataframe
         df = pd.DataFrame.from_dict(self.output_filenames, orient='index', columns=['Object'])
+        df['Type'] = df.index
 
         # Save dataframe to csv file
-        b = self._save_data_to_file(df, self.output_filenames['tc-class-outputfilenames'])
+        b = self._save_data_to_file(df, self.output_filenames['tc-class-outputfilenames'], indexTrue=False)
         if b:
             print("Saving output filenames complete.")
         else:
