@@ -144,12 +144,19 @@ class CleanData:
 
 
         self.prefix_path = self.definitions.PREFIX_PATH
+        self.prefix_path = self.prefix_path.replace("\\","/")
 
-        self.raw_data_path = self.prefix_path + self.folder_rawData + "\\"
+        self.raw_data_path = self.prefix_path + self.folder_rawData + "/"
+        self.raw_data_path = self.raw_data_path.replace("\\","/")
+
         self.raw_data_filename = self.raw_data_path + self.definitions.RAWXLSX
-        self.raw_data_dict_filename = self.raw_data_path + self.definitions.RAWDICTXLSX
+        self.raw_data_filename = self.raw_data_filename.replace("\\","/")
 
-        self.train_data_path = self.prefix_path + self.folder_trainData + "\\"
+        self.raw_data_dict_filename = self.raw_data_path + self.definitions.RAWDICTXLSX
+        self.raw_data_dict_filename = self.raw_data_dict_filename.replace("\\","/")
+
+        self.train_data_path = self.prefix_path + self.folder_trainData + "/"
+        self.train_data_path = self.train_data_path.replace("\\","/")
 
         # Initialise filename for reports
         self.initial_report_filename = self.train_data_path + self.initial_report_filename
