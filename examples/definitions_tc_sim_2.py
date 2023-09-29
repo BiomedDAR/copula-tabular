@@ -10,6 +10,7 @@ PREFIX_PATH = f"{dir_path}\\" # Define the root directory
 RAW_PATH = "rawData" # Set the folder name for all raw data files
 TRAIN_PATH = "trainData" # Set the folder name to store all the cleaned data files. If not specified, default is "trainData"
 SYN_PATH = "synData" #Set the folder name to store all the synthetic data files. If not specified, default is "synData"
+PRIV_PATH = "privacyMetrics" #Set the folder name to store all privacy leakage files. If not specified, default is "privacyMetrics"
 
 # TRAINING DATA FILES
 TRAINXLSX = "simulation_2_m=02_m=05.csv" # filename containing the raw data
@@ -27,3 +28,11 @@ DICT_VAR_TYPE = "TYPE" # column in data dictionary setting the type of the varia
 OUTPUT_GENERAL_PREFIX = "COND_SIM_2" # prefix used for all output files, e.g. EXPT_1. if not specified, set as ""
 OUTPUT_TYPE_DATA = 'csv' # the output file type for the clean data files. Available options: 'csv', 'xlsx'. If not specified, default is 'csv'
 OUTPUT_TYPE_DICT = 'xlsx' # the output file type fot the amended dictionary. Available options: 'csv', 'xlsx'. If not specified, default is 'xlsx'
+
+# SETTINGS FOR PRIVACY LEAKAGE TESTING
+SAMPLING = 0.8 # proportion of samples to keep for training (rest will be kept as control for privacy leakage testing)
+LINKABILITY = True # whether to run the linkability attack
+SINGLINGOUT_UNI = True # whether to run the singlingout (univariate) attack
+SINGLINGOUT_MULTI = False # whether to run the singlingout (multivariate) attack
+INFERENCE = True # whether to run the inference attack
+PRIVACY_BATCH_N = 10 # how many repetitions (batch process). If not specified, default is 3.

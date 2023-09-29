@@ -103,7 +103,8 @@ conditionalSettings_dict = {
 tc = TabulaCopula(
     definitions=defi, 
     conditionalSettings_dict=conditionalSettings_dict,
-    metaData_transformer=None #optional input to determine how to transform the inputs into numerical equivalents (see Transformer class)
+    metaData_transformer=None, #optional input to determine how to transform the inputs into numerical equivalents (see Transformer class)
+    # sampling=0.8 #proportion of samples to use for training, leaving the rest as control. Value here overwrites value in definitions
 )
 
 # GENERATE SYNTHETIC DATA USING (GAUSSIAN) COPULA (WITHOUT CONDITIONAL SETTINGS)

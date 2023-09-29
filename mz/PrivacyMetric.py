@@ -430,7 +430,7 @@ class PrivacyMetric:
             inf_results : dict
                 A dict containing the secret columns and associated inferred risk. 
             res_col : str
-                The column specifying the results to be plotted. Default: 'R'
+                The column specifying the results to be plotted. Default: 'R'. Options include 'R', 'main_value', 'naive_value', 'control_value'
             plot_title : str, optional 
                 The title of the plot. Default: 'Inference Evaluator (R)'.
 

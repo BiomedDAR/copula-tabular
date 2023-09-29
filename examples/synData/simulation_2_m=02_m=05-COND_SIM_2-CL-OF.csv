@@ -1,0 +1,21 @@
+Object,Type
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-CL.pkl,tc-class-instance
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-CL-OF.csv,tc-class-outputfilenames
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-CURATED.csv,curated
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-TRANSFORMED.csv,transformed
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-CONTROL.csv,control
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-SYN.csv,synthetic_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-REV.csv,reversed_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-CONTROLREV.csv,controlReversed_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-TRAINING.csv,training_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\privacyMetrics\simulation_2_m=02_m=05-COND_SIM_2-SINGLINGOUT_UNI.csv,singlingOut_uni_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\privacyMetrics\simulation_2_m=02_m=05-COND_SIM_2-SINGLINGOUT_MULTI.csv,singlingOut_multi_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\privacyMetrics\simulation_2_m=02_m=05-COND_SIM_2-LINKABILITY.csv,linkability_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\privacyMetrics\simulation_2_m=02_m=05-COND_SIM_2-INFERENCE.csv,inference_samples
+"{'set_1': {'1': 'C:\\Users\\tanmz\\OneDrive - A STAR\\DAR\\synData\\copula-tabular\\examples\\synData\\simulation_2_m=02_m=05-COND_SIM_2-set_1-1-TRANSFORMED.csv', '2': 'C:\\Users\\tanmz\\OneDrive - A STAR\\DAR\\synData\\copula-tabular\\examples\\synData\\simulation_2_m=02_m=05-COND_SIM_2-set_1-2-TRANSFORMED.csv'}}",conditional_transformed
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-COND_SYN.csv,conditional_synthetic_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\synData\simulation_2_m=02_m=05-COND_SIM_2-COND_REV.csv,conditional_reversed_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\privacyMetrics\simulation_2_m=02_m=05-COND_SIM_2-COND_SINGLINGOUT_UNI.csv,conditional_singlingOut_uni_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\privacyMetrics\simulation_2_m=02_m=05-COND_SIM_2-COND_SINGLINGOUT_UNI.csv,conditional_singlingOut_multi_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\privacyMetrics\simulation_2_m=02_m=05-COND_SIM_2-COND_LINKABILITY.csv,conditional_linkability_samples
+C:\Users\tanmz\OneDrive - A STAR\DAR\synData\copula-tabular\examples\privacyMetrics\simulation_2_m=02_m=05-COND_SIM_2-COND_INFERENCE.csv,conditional_inference_samples

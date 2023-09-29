@@ -1,12 +1,35 @@
 from mz import utils_ as ut_
 import pandas as pd
 from copy import deepcopy
-import os
+import os, sys
 import pickle
 from mz.Transformer import Transformer
 from mz.GaussianCopula import GaussianCopula
 from mz.PrivacyMetric import PrivacyMetric as PM
 from pprint import pprint
+
+def load_TC(defi):
+    """Function to load saved TC instance from definitions."""
+
+    # Get filename of spreadsheet of filenames
+    t = defi.TRAINXLSX.split('.')[0]
+    dir_path = os.path.dirname(sys.argv[0])
+    CLOF_filename = f"{dir_path}/{defi.SYN_PATH}/{t}-{defi.OUTPUT_GENERAL_PREFIX}-CL-OF.{defi.OUTPUT_TYPE_DATA}"
+
+    # read file
+    if (defi.OUTPUT_TYPE_DATA=='csv'):
+        CLOF_df = pd.read_csv(CLOF_filename)
+    elif (defi.OUTPUT_TYPE_DATA=='xlsx'):
+        CLOF_df = pd.read_excel(CLOF_filename, sheet_name="SHEET1")
+
+    # Get filename of pickle
+    tc_inst_filename = CLOF_df.loc[CLOF_df['Type'] == 'tc-class-instance', 'Object'].item()
+
+    # Load pickle
+    with open(tc_inst_filename, 'rb') as fl:
+        tc = pickle.load(fl)
+    
+    return tc
 
 class TabulaCopula:
     """
@@ -58,6 +81,7 @@ class TabulaCopula:
         (MZ) 25-09-2023: add option indexTrue to function _save_data_to_file
         (MZ) 25-09-2023: update save_outputFilenames to save dataframe index columsn
         (MZ) 25-09-2023: fix bug which overwrites dictionary definition of output_general_prefix with ''
+        (MZ) 29-09-2023: add privacy leakage functionalities
     """
 
     def __init__(self,
@@ -67,7 +91,7 @@ class TabulaCopula:
         metaData_transformer=None,
         var_list_filter=None,
         removeNull=False,
-        sampling = 1,
+        sampling = None,
         debug=True
     ):
         
@@ -79,6 +103,8 @@ class TabulaCopula:
         self.folder_privacyMetrics = "privacyMetrics"
 
         self.output_general_prefix = ''
+        self.sampling = 1
+        self.privacy_batch_n = 3
 
         self.output_type_data = 'csv'
         self.output_type_dict = 'xlsx'
@@ -99,7 +125,10 @@ class TabulaCopula:
         self.metaData_transformer = metaData_transformer
         self.var_list_filter = var_list_filter # list of variables to transform (subset of all input variables)
         self.removeNull = removeNull
-        self.sampling = sampling if sampling > 0.01 and sampling <= 1 else 1 # float to decide proportion of transformed samples to use (forced to 1 if invalid)
+
+        if sampling is not None:
+            self.sampling = sampling if sampling > 0.01 and sampling <= 1 else 1 # float to decide proportion of transformed samples to use (forced to 1 if invalid)
+
         self.conditionalSettings_dict = conditionalSettings_dict
 
         # LOAD DATA DICTIONARY
@@ -140,6 +169,10 @@ class TabulaCopula:
         self._update_defaults(var_to_update="output_general_prefix", new_value="OUTPUT_GENERAL_PREFIX", definitions=definitions)
         self._update_defaults(var_to_update="output_type_data", new_value="OUTPUT_TYPE_DATA", definitions=definitions)
         self._update_defaults(var_to_update="output_type_dict", new_value="OUTPUT_TYPE_DICT", definitions=definitions)
+
+        # Update defaults for privacy leakage testing
+        self._update_defaults(var_to_update="sampling", new_value="SAMPLING", definitions=definitions)
+        self._update_defaults(var_to_update="privacy_batch_n", new_value="PRIVACY_BATCH_N", definitions=definitions)
 
         self.prefix_path = definitions.PREFIX_PATH
 
@@ -788,7 +821,10 @@ class TabulaCopula:
 
         return True
     
-    def privacyMetric_singlingOut_Batch(self, n=3, mode='univariate', n_attacks='auto', print_results=True):
+    def privacyMetric_singlingOut_Batch(self, n=None, mode='univariate', n_attacks='auto', print_results=True):
+
+        if n is None:
+            n = self.privacy_batch_n
 
         if (self.debug):
             print(f"Running Singling Out Evaluator, batch process, n={n}, mode={mode}, Standard Copula...")
@@ -813,7 +849,10 @@ class TabulaCopula:
 
         return res
     
-    def privacyMetric_singlingOut_cond_Batch(self, n=3, mode='univariate', n_attacks='auto', print_results=True):
+    def privacyMetric_singlingOut_cond_Batch(self, n=None, mode='univariate', n_attacks='auto', print_results=True):
+
+        if n is None:
+            n = self.privacy_batch_n
 
         if (self.debug):
             print(f"Running Singling Out Evaluator, batch process, n={n}, mode={mode}, Conditional Copula...")
@@ -838,7 +877,10 @@ class TabulaCopula:
 
         return res_cond
     
-    def privacyMetric_Linkability_Batch(self, aux_cols, n_neighbors=10, n=3, n_attacks='auto', print_results=True):
+    def privacyMetric_Linkability_Batch(self, aux_cols, n_neighbors=10, n=None, n_attacks='auto', print_results=True):
+
+        if n is None:
+            n = self.privacy_batch_n
 
         if (self.debug):
             print(f"Running Linkability Evaluator, batch process, n={n}, Standard Copula...")
@@ -861,7 +903,10 @@ class TabulaCopula:
 
         return res
     
-    def privacyBatch_Linkability_cond_Batch(self, aux_cols, n_neighbors=10, n=3, n_attacks='auto', print_results=True):
+    def privacyBatch_Linkability_cond_Batch(self, aux_cols, n_neighbors=10, n=None, n_attacks='auto', print_results=True):
+
+        if n is None:
+            n = self.privacy_batch_n
 
         if (self.debug):
             print(f"Running Linkability Evaluator, batch process, n={n}, Conditional Copula...")
@@ -885,7 +930,10 @@ class TabulaCopula:
         return res_cond
 
     
-    def privacyMetric_Inference_Batch(self, n=3, n_attacks='auto', print_results=True):
+    def privacyMetric_Inference_Batch(self, n=None, n_attacks='auto', print_results=True):
+
+        if n is None:
+            n = self.privacy_batch_n
 
         if (self.debug):
             print(f"Running Inference Evaluator, batch process, n={n}, Standard Copula...")
@@ -905,7 +953,10 @@ class TabulaCopula:
 
         return res
     
-    def privacyMetric_Inference_cond_Batch(self, n=3, n_attacks='auto', print_results=True):
+    def privacyMetric_Inference_cond_Batch(self, n=None, n_attacks='auto', print_results=True):
+
+        if n is None:
+            n = self.privacy_batch_n
 
         if (self.debug):
             print(f"Running Inference Evaluator, batch process, n={n}, Conditional Copula...")
