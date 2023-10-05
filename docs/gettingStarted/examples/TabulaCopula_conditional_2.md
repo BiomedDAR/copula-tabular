@@ -186,7 +186,7 @@ tc = TabulaCopula(
 )
 ```
 
-### Generation Synthetic Data (without conditional-copula option)
+### Generation Synthetic Data (with conditional-copula option)
 And generate synthetic data:
 ```
 tc.syn_generate(cond_bool=True)
