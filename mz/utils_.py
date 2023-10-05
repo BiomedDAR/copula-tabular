@@ -5,6 +5,7 @@ import os
 import platform
 import contextlib
 import copy
+import math
 
 
 EPSILON = np.finfo(np.float32).eps
@@ -75,13 +76,41 @@ def gen_randomData(
     data_df = pd.DataFrame(columns)
     return data_df
 
+def gen_dict_range_interval(interval=10,min_num=0,max_num=100):
+    import math
+    
+    # initialise empty dict
+    a_dict = {}
+
+    # calc no. of intervals
+    num_intervals = math.ceil((max_num - min_num)/interval)
+    num_intervals = int(num_intervals)
+
+    # loop through each interval
+    for i in range(1, num_intervals+1):
+        # calculate the lower and upper bounds of the interval
+        lower_bound = min_num + (i-1)*interval
+        upper_bound = min(min_num + i*interval, max_num)
+
+        # create a list of the bounds as strings
+        if (lower_bound==min_num):
+            bounds_list = [">=" + str(lower_bound), "<=" + str(upper_bound)]
+        else:
+            bounds_list = [">" + str(lower_bound), "<=" + str(upper_bound)]
+
+        # add the interval number and bounds list to the dictionary
+        a_dict[i] = bounds_list
+
+    # return the dictionary
+    return a_dict
+
 # LINEAR FUNCTIONS
 def gen_linear_func(x, m=1, c=0, noise_factor=0):
     noise = stats.uniform.rvs(size=len(x))
     return m*x + c + noise*noise_factor
 
 # BUILD DATA DICTIONARY
-def build_basic_data_dictionary(varList, descr="No description available", type="numeric", codings=None, category=None, secondary=None, constraints=None):
+def build_basic_data_dictionary(varList, descr="No description available", type="numeric", specific_data_type="float", codings=None, frequency=None, category=None, secondary=None, constraints=None, remarks=None):
 
     if codings is None: codings = ""
     if category is None: category = ""
@@ -91,11 +120,14 @@ def build_basic_data_dictionary(varList, descr="No description available", type=
     default_dict = {
         "DESCRIPTION": descr,
         "TYPE": type,
+        "SPECIFIC DATA TYPE": specific_data_type,
         "CODINGS": codings,
+        "FREQUENCY": frequency,
         "CATEGORY": category,
         "COLUMN_NUMBER": 0,
         "SECONDARY": secondary,
-        "CONSTRAINTS": constraints
+        "CONSTRAINTS": constraints,
+        "REMARKS": remarks
     }
 
     # Initialise data_dict
@@ -377,3 +409,4 @@ def makePD(corr):
         new_corr = np.divide(new_corr,np.sqrt(Norm*Norm.transpose()))
 
         return new_corr
+    
