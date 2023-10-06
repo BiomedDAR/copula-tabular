@@ -71,7 +71,7 @@ class TabulaCopula:
                 }
             },
             "conditions_var": ["Age"], # the `Y` to keep constant while generating values of `X` in `P(X | Y)`. Can be a float, in which case it is a threshold to fix all variables with pairwise correlation (with X) above then said threshold.
-            "children": ['AgeMonths'] #variable for which to learn the joint conditional distributions on, the `X` in `P(X | Y)`.
+            "children": ['AgeMonths'] #variable for which to learn the joint conditional distributions on, the `X` in `P(X | Y)`. Can be a string: "allOthers".
         }
     }
 
