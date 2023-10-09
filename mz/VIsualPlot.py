@@ -204,7 +204,6 @@ def scatterPlot_multiple(data_df, n_plot_cols=2, ref=None, color='blue', marker=
 
     if ref == 'autopermute':
         n = len(ref_out)
-        print(n)
         en = ref_out
     else:
         n = len(data_df.columns)
@@ -309,7 +308,6 @@ def scatterPlot_multiple_compare(data_df, syn_data_df, n_plot_cols=2, ref=None):
 
     if ref == 'autopermute':
         n = len(ref_out)
-        print(n)
         en = ref_out
     else:
         n = len(data_df.columns)
