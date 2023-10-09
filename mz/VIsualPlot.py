@@ -100,8 +100,18 @@ def corrMatrix(data, fig=None, position=None, title=None, x_label_rot=None):
     im = ax.matshow(np_corr, interpolation='nearest', cmap='jet', vmin=-1, vmax=1)
 
     ax.set_title(title, fontsize=8)
-    ax.set_xticklabels(['']+list(corr.columns), rotation=x_label_rot)
-    ax.set_yticklabels(['']+list(corr.columns))
+    
+    # Fix label ticks
+    ytick_pos = ax.get_yticks().tolist()
+    del ytick_pos[0]
+    del ytick_pos[-1]
+    ax.set_yticks(ytick_pos)
+    xtick_pos = ax.get_xticks().tolist()
+    del xtick_pos[0]
+    del xtick_pos[-1]
+    ax.set_xticks(xtick_pos)
+    ax.set_xticklabels(list(corr.columns), rotation=x_label_rot)
+    ax.set_yticklabels(list(corr.columns))
 
     for (i, j), z in np.ndenumerate(np_corr):
         ax.text(j, i, '{:0.1f}'.format(z), ha='center', va='center')
