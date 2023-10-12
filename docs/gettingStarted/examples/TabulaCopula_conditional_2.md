@@ -39,9 +39,6 @@ par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
 from mz.TabulaCopula import TabulaCopula
-
-# LOAD DEFINITIONS
-import definitions_nhanes_1 as defi
 ```
 
 ### Load script containing definitions
@@ -63,7 +60,7 @@ var_list = ['SurveyYr', 'Age', 'AgeMonths']
 
 Additionally, if we wish to remove all the null values in the dataset prior to transformation, we may set the `removeNull` option to `True`. We will only show the results for the `False` option in this example (to experiment, simply set the option to `True` instead).
 
-Like before, we can the transformation of the variables to numerical equivalents of our liking using a `meteData_transformer` dict.
+Like before, we can initiate the transformation of the variables to numerical equivalents of our liking using a `meteData_transformer` dict.
 
 ```
 metaData_transformer = {
