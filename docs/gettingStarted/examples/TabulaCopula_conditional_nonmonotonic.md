@@ -185,5 +185,5 @@ if visual_bool:
 #### Plot of Scatterplot of Original and Synthetic Data
 ![](../../assets/img/tabulaCopula_example_socialdata_scatterplot.png)
 
-#### Plot of Scatterplot of Original and Synthetic Data
+#### Plot of Scatterplot of Original and Synthetic Data (conditional)
 ![](../../assets/img/tabulaCopula_example_socialdata_conditional_scatterplot.png)
