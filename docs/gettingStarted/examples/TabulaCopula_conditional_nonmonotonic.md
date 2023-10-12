@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Example for Multivariate Synthetic Data (multi-Linear, with missing values)
+title: Example for Multivariate Synthetic Data (multi, non-linear, non-monotonic)
 parent: Examples
 grand_parent: Getting Started
 nav_order: 11
