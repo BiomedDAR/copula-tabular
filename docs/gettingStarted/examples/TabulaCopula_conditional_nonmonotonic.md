@@ -57,10 +57,13 @@ For convenience, we set three flags, namely `run_syn`, `cond_bool`, and `visual`
 run_syn = True
 cond_bool = True
 visual = True
+output_general_prefix = 'TC3-C' # to label different runs
 ```
 
 We set three different sets of conditions, and will be running them in sequence, on top of a set of baseline synthetic data, generated without conditions. 
 The first set `set_1-0` is equivalent to a baseline set where the `Age` variable is split into intervals of `10` years each. Essentially, we will be splitting the dataset into different subject groups and learning their joint distributions `P_i(X,Y)` separately, before re-sampling the `children` variables `(X)` based on the new joint distributions, conditional on `conditions_var` variables `(Y)`, i.e. `P_i(X|Y)`.
+
+The second `set_1-1` and third `set_1-2` set of conditions are targeted at `Asset` and `Satisfaction`, which are the non-monotonic variables w.r.t. `Age`. The same reasoning applies, but with finer groupings of the underlying `Age` variable.
 ```
 if cond_bool:
     # LOAD CONDITIONAL SETTINGS
@@ -103,23 +106,84 @@ if cond_bool:
             },
             "conditions_var": ["Age"],
             "children": ["Satisfaction"]
-        },
-        "set_2-1": { #when AgeGroup is available
-            "bool": False,
-            "parent_conditions": {
-                "AgeGroup":{
-                    "condition": "set",
-                    "condition_value": {
-                        1: ["1"],
-                        2: ["2"],
-                        3: ["3"]
-                    }
-                }
-            },
-            "conditions_var": 0.5,
-            "children": "allOthers"
         }
     }
 else:
     conditionalSettings_dict = None
 ```
+
+We are now ready to initialise our `TabulaCopula` class:
+```
+tc = TabulaCopula(
+    definitions = defi,
+    output_general_prefix=output_general_prefix,
+    conditionalSettings_dict = conditionalSettings_dict,
+    metaData_transformer = metaData_transformer,
+    debug=True
+)
+```
+
+### Generation Synthetic Data (without conditional-copula option)
+And generate synthetic data:
+```
+tc.syn_generate(cond_bool=cond_bool)
+tc.save()
+```
+
+### Visualisation of Results
+```
+if visual_bool:
+    if not syn_data_bool: #Load saved TC
+
+        tc_filename = f"{dir_path}/synData/socialdata-{output_general_prefix}-CL.pkl"
+        with open(tc_filename, 'rb') as fl:
+            tc = pickle.load(fl)
+
+    data_df = tc.train_df
+    syn_samples_df = tc.reversed_df
+    syn_samples_conditional_df = tc.reversed_conditional_df
+    var_list = list(data_df.columns)
+
+    # Plot Histogram of Data Sample
+    if cond_bool:
+        ax_hist, fig_histogram = vp.hist_compare(data_df, syn_samples_df, var_list=var_list, no_cols=3)
+        ax_cond_hist, fig_cond_histogram = vp.hist_compare(data_df, syn_samples_conditional_df, var_list=var_list, no_cols=3)
+    else:
+        ax_hist, fig_histogram = vp.hist_compare(data_df, syn_samples_df, var_list=var_list, no_cols=2)
+
+    # Plot Correlation Plots
+    corr_options = {
+        "x_label_rot": 45
+    }
+    ax_corr_1, ax_corr_2, fig_corr = vp.corrMatrix_compare(data_df, syn_samples_df, options=corr_options)
+    if cond_bool:
+        ax_corr_cond_1, ax_corr_cond_2, fig_cond_corr = vp.corrMatrix_compare(data_df, syn_samples_conditional_df, options=corr_options)
+
+    # ScatterPlot
+    ax_scatter, fig_scatter = vp.scatterPlot_multiple_compare(data_df, syn_samples_df, n_plot_cols=3, ref='autopermute')
+    
+    if cond_bool:
+        ax_scatter_cond, fig_scatter_cond = vp.scatterPlot_multiple_compare(data_df, syn_samples_conditional_df, n_plot_cols=3, ref='autopermute')
+
+    plt.show()
+```
+
+### Sample Output
+
+#### Plot of Histograms of both Original and Synthetic Data
+![](../../assets/img/tabulaCopula_example_socialdata_histogram.png)
+
+#### Plot of Histograms of both Original and Synthetic Data (conditional)
+![](../../assets/img/tabulaCopula_example_socialdata_conditional_histogram.png)
+
+#### Plot of Correlation Matrix of Original and Synthetic Data
+![](../../assets/img/tabulaCopula_example_socialdata_correlation_matrix.png)
+
+#### Plot of Correlation Matrix of Original and Synthetic Data (conditional)
+![](../../assets/img/tabulaCopula_example_socialdata_conditional_correlation_matrix.png)
+
+#### Plot of Scatterplot of Original and Synthetic Data
+![](../../assets/img/tabulaCopula_example_socialdata_scatterplot.png)
+
+#### Plot of Scatterplot of Original and Synthetic Data
+![](../../assets/img/tabulaCopula_example_socialdata_conditional_scatterplot.png)
