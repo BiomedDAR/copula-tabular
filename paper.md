@@ -25,7 +25,7 @@ affiliations:
    index: 2
  - name: Independent Researcher, Country
    index: 3
-date: 13 August 2023
+date: 16 October 2023
 bibliography: paper.bib
 
 # Optional fields if submitting to a AAS journal too, see this blog post:
@@ -45,11 +45,11 @@ is now well-established, commonly taught, and frequently used in astronomy.
 Aside from toy problems and demonstrations, the majority of problems require
 efficient numerical tools, many of which require the same base code (e.g., for
 performing numerical orbit integration). -->
-Recent advancements in synthetic data generation have made it a viable solution for applications in various fields, such as finance, biomedical research [@dahmen2019synsys], and data science[@raghunathan2021synthetic]. Synthetic data is generated artificially, yet replicates the joint probability distribution of its real-world counterpart. Its ability to mimic the statistical behaviour of real data makes it a useful tool for testing algorithms, systems, and training machine learning models, and it can be used as an economical substitute for real data when it is not available, is too sensitive to release, or too costly to acquire. Copula-based data generation methods [@li2014differentially;@li2020sync;kamthe2021copula] have been demonstrated to produce reliable and accurate tabular data when generating synthetic data.
+Recent advancements in synthetic data generation have made it a viable solution for applications in various fields, such as finance, biomedical research [@dahmen2019synsys], and data science[@raghunathan2021synthetic]. Synthetic data is generated artificially, yet replicates the joint probability distribution of its real-world counterpart. Its ability to mimic the statistical behaviour of real data makes it a useful tool for testing algorithms, systems, and training machine learning models, and it can be used as an economical substitute for real data when it is not available, is too sensitive to release, or too costly to acquire. Copula-based data generation methods [@li2014differentially;@li2020sync;kamthe2021copula;@patki2016synthetic] have been demonstrated to produce reliable and accurate tabular data when generating synthetic data.
 
 # Statement of need
 
-In this software, we present an improved version of the Synthetic Data Vault (SDV) [@patki2016synthetic], a widely used tool for generating multivariate synthetic data through the implementation of a Gaussian copula. This enhanced model incorporates conditional joint distributions into its framework, allowing for the splitting of single variables into multiple component marginal distributions. The improved version of the SDV provides greater usability in the synthesis of  complex, non-linear sample distributions, allowing for the replication of a wider range of datasets.
+In this software, we present an improved version of the copula tools as seen in Synthetic Data Vault (SDV) [@patki2016synthetic], a widely used tool for generating multivariate synthetic data through Gaussian copulas. This enhanced model incorporates conditional joint distributions into its framework, allowing for the splitting of single variables into multiple component marginal distributions. The improved version of the SDV provides greater usability in the synthesis of complex, non-linear, non-monotonic sample distributions, allowing for the replication of a wider range of datasets.
 
 Our enhancement is written entirely in Python, builds on the existing infrastructure of SDV, and is designed to work with a data dictionary specifying the metadata of the input dataset. There are additional class-based implementations of data cleaning, visualisation tools, transformation tools, privacy leakage evaluation, and sample wrapper scripts for generating synthetic data from start to finish.
 
@@ -108,11 +108,11 @@ For a quick reference, the following citation commands can be used:
 # Figures
 
 Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
+![Caption for example figure.\label{fig:example}](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
 and referenced from text using \autoref{fig:example}.
 
 Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
+![Caption for example figure.](docs/assets/img/tabulaCopula_example_socialdata_conditional_scatterplot_lowsampling.png){ width=20% }
 
 # Acknowledgements
 
