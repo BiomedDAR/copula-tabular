@@ -12,7 +12,7 @@ Advancements in synthetic data generation have made it a viable solution for app
 
 In this package, we present a tool for generating multivariate synthetic data through the implementation of a Gaussian copula. This model incorporates conditional joint distributions into its framework, allowing for the splitting of single variables into multiple component marginal distributions. The conditional enhancements provides greater usability in the synthesis of complex, non-linear sample distributions, allowing for the replication of a wider range of datasets.
 
-The tool is designed to work with a data dictionary, or a file describing the metadata of the input dataset. There are additional class-based implementations of data cleaning, visualisation tools, transformation tools, and sample wrapper scripts for generating synthetic data from start to finish.
+The tool is designed to work with a data dictionary, or a file describing the metadata of the input dataset. There are additional class-based implementations of data cleaning, visualisation tools, transformation tools, privacy leakage evaluation, and sample wrapper scripts for generating synthetic data from start to finish.
 
 ## Documentation
 For installation instructions, getting started guides and tutorials, background information, and API reference summaries, please see the 
