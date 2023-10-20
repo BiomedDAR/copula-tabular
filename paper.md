@@ -107,7 +107,7 @@ For a quick reference, the following citation commands can be used:
 
 # Figures
 
-![Figure showing correlation plots of a simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships.{label="fig:correlationplots"}](docs/assets/img/tabulaCopula_example_socialdata_correlation_matrix_three.eps)
+![Figure showing correlation plots of a simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships. The left plot shows the original Pearson correlation between variables, while the middle and right plots show the correlation for synthetic data generated using standard copula and conditional copula respectively.{label="fig:correlationplots"}](docs/assets/img/tabulaCopula_example_socialdata_correlation_matrix_three.eps)
 
 ![Fig. 1](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
 
