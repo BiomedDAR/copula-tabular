@@ -49,7 +49,7 @@ Recent advancements in synthetic data generation have made it a viable solution 
 
 # Statement of need
 
-In this software, we present an improved version of the copula tools as seen in Synthetic Data Vault (SDV) [@patki2016synthetic], a widely used tool for generating multivariate synthetic data through Gaussian copulas. This enhanced model incorporates conditional joint distributions into its framework, allowing for the splitting of single variables into multiple component marginal distributions. The improved version of the SDV provides greater usability in the synthesis of complex, non-linear, non-monotonic sample distributions, allowing for the replication of a wider range of datasets.
+In this software, we present an improved version of the copula tools as seen in Synthetic Data Vault (SDV) [@patki2016synthetic], a widely used tool for generating multivariate synthetic data through Gaussian copulas. This enhanced model incorporates conditional joint distributions into its framework, allowing for the splitting of single variables into multiple component marginal distributions. The improved version of the SDV provides greater usability in the synthesis of complex, non-linear, non-monotonic sample distributions (see Fig.\autoref{fig:example}), and stronger replication of correlation between variables, allowing for the replication of a wider range of tabular datasets.
 
 Our enhancement is written entirely in Python, builds on the existing infrastructure of SDV, and is designed to work with a data dictionary specifying the metadata of the input dataset. There are additional class-based implementations of data cleaning, visualisation tools, transformation tools, privacy leakage evaluation, and sample wrapper scripts for generating synthetic data from start to finish.
 
@@ -91,7 +91,7 @@ You can also use plain \LaTeX for equations
 \end{equation}
 and refer to \autoref{eq:fourier} from text.
 
-# Citations
+<!-- # Citations
 
 Citations to entries in paper.bib should be in
 [rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
@@ -103,18 +103,17 @@ citation) then you can do it with the example BibTeX entry below for @fidgit.
 For a quick reference, the following citation commands can be used:
 - `@author:2001`  ->  "Author et al. (2001)"
 - `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
+- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)" -->
 
 # Figures
 
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
+![Figure showing simulated plots of generated synthetic data over the original data, using standard copulas. \label{fig:example}](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
 and referenced from text using \autoref{fig:example}.
 
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](docs/assets/img/tabulaCopula_example_socialdata_conditional_scatterplot_lowsampling.png){ width=20% }
+<!-- Figure sizes can be customized by adding an optional second parameter:
+![Caption for example figure.](docs/assets/img/tabulaCopula_example_socialdata_conditional_scatterplot_lowsampling.png){ width=20% } -->
 
-# Acknowledgements
+<!-- # Acknowledgements -->
 
 <!-- We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
 Oh, and support from Kathryn Johnston during the genesis of this project. -->
