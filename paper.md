@@ -49,7 +49,7 @@ Recent advancements in synthetic data generation have made it a viable solution 
 
 # Statement of need
 
-In this software, we present an improved version of the copula tools as seen in Synthetic Data Vault (SDV) [@patki2016synthetic], a widely used tool for generating multivariate synthetic data through Gaussian copulas. This enhanced model incorporates conditional joint distributions into its framework, allowing for the splitting of single variables into multiple component marginal distributions. The improved version of the SDV provides greater usability in the synthesis of complex, non-linear, non-monotonic sample distributions (see Fig.\autoref{fig:example}), and stronger replication of correlation between variables, allowing for the replication of a wider range of tabular datasets.
+In this software, we present an improved version of the copula tools as seen in Synthetic Data Vault (SDV) [@patki2016synthetic], a widely used tool for generating multivariate synthetic data through Gaussian copulas. This enhanced model incorporates conditional joint distributions into its framework, allowing for the splitting of single variables into multiple component marginal distributions. The improved version of the SDV provides greater usability in the synthesis of complex, non-linear, non-monotonic sample distributions (see Fig.\autoref{fig:example}), and stronger replication of correlation between variables (see Fig. \autoref{fig:correlationplots}), allowing for the replication of a wider range of tabular datasets.
 
 Our enhancement is written entirely in Python, builds on the existing infrastructure of SDV, and is designed to work with a data dictionary specifying the metadata of the input dataset. There are additional class-based implementations of data cleaning, visualisation tools, transformation tools, privacy leakage evaluation, and sample wrapper scripts for generating synthetic data from start to finish.
 
@@ -107,15 +107,13 @@ For a quick reference, the following citation commands can be used:
 
 # Figures
 
-![caption=Fig. 1](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
+![Figure showing correlation plots of a simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships.{label="fig:correlationplots"}](docs/assets/img/tabulaCopula_example_socialdata_correlation_matrix_three.eps)
 
 ![Fig. 1](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
 
 ![Fig. 1: Figure showing simulated plots of generated synthetic data over the original data, using standard copulas. []{label="fig:example"}](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
 
 and referenced from text using \autoref{fig:example}.
-
-and referenced from text using \autoref{fig:example2}.
 
 <!-- Figure sizes can be customized by adding an optional second parameter:
 ![Caption for example figure.](docs/assets/img/tabulaCopula_example_socialdata_conditional_scatterplot_lowsampling.png){ width=20% } -->
