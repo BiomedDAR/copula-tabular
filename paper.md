@@ -107,8 +107,15 @@ For a quick reference, the following citation commands can be used:
 
 # Figures
 
-![Figure showing simulated plots of generated synthetic data over the original data, using standard copulas. \label{fig:example}](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
+![caption=Fig. 1](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
+
+![Fig. 1](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
+
+![Fig. 1: Figure showing simulated plots of generated synthetic data over the original data, using standard copulas. []{label="fig:example"}](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling.png)
+
 and referenced from text using \autoref{fig:example}.
+
+and referenced from text using \autoref{fig:example2}.
 
 <!-- Figure sizes can be customized by adding an optional second parameter:
 ![Caption for example figure.](docs/assets/img/tabulaCopula_example_socialdata_conditional_scatterplot_lowsampling.png){ width=20% } -->
