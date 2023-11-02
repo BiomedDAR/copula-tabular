@@ -109,6 +109,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+copulaTabula_env/
 
 # Spyder project settings
 .spyderproject
@@ -127,3 +128,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# deprecated
+/old
+/tests

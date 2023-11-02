@@ -71,7 +71,7 @@ def hist_compare(real_data, syn_data, var_list, no_cols=2):
     return ax_hist, fig_histogram
 
 
-def corrMatrix(data, fig=None, position=None, title=None, x_label_rot=None):
+def corrMatrix(data, fig=None, position=None, title=None, x_label_rot=None, options={}):
     """Build single correlation matrix of data.
     
     Params:
@@ -84,6 +84,11 @@ def corrMatrix(data, fig=None, position=None, title=None, x_label_rot=None):
         ax (matplotlib Axis): axis for the plot
         fig (matplotlib Figure): figure with the plot
     """
+
+    if "title_fontsize" in options:
+        title_fontsize = options['title_fontsize']
+    else:
+        title_fontsize = 14
 
     fig = fig or plt.figure()
     position = position or 111
@@ -99,7 +104,7 @@ def corrMatrix(data, fig=None, position=None, title=None, x_label_rot=None):
 
     im = ax.matshow(np_corr, interpolation='nearest', cmap='jet', vmin=-1, vmax=1)
 
-    ax.set_title(title, fontsize=8)
+    ax.set_title(title, fontsize=title_fontsize)
     
     # Fix label ticks
     ytick_pos = ax.get_yticks().tolist()
@@ -110,7 +115,7 @@ def corrMatrix(data, fig=None, position=None, title=None, x_label_rot=None):
     del xtick_pos[0]
     del xtick_pos[-1]
     ax.set_xticks(xtick_pos)
-    ax.set_xticklabels(list(corr.columns), rotation=x_label_rot)
+    ax.set_xticklabels(list(corr.columns), rotation=x_label_rot, horizontalalignment='left', verticalalignment='baseline')
     ax.set_yticklabels(list(corr.columns))
 
     for (i, j), z in np.ndenumerate(np_corr):
@@ -129,13 +134,13 @@ def corrMatrix_compare(real_data, syn_data, options={}):
 
     fig_corr = plt.figure()
 
-    ax_corr_1, fig_corr = corrMatrix(real_data, fig=fig_corr, position=121, title='Plot of Correlation Matrix (REAL)', x_label_rot=x_label_rot)
-    ax_corr_2, fig_corr = corrMatrix(syn_data, fig=fig_corr, position=122, title='Plot of Correlation Matrix (SYN)', x_label_rot=x_label_rot)
+    ax_corr_1, fig_corr = corrMatrix(real_data, fig=fig_corr, position=121, title='Plot of Correlation Matrix (REAL)', x_label_rot=x_label_rot, options=options)
+    ax_corr_2, fig_corr = corrMatrix(syn_data, fig=fig_corr, position=122, title='Plot of Correlation Matrix (SYN)', x_label_rot=x_label_rot, options=options)
 
     return ax_corr_1, ax_corr_2, fig_corr
 
 
-def scatterPlot(x_data, y_data, label='', fig=None, ax=None, position=None, title=None, color='blue', marker='.',):
+def scatterPlot(x_data, y_data, label='', fig=None, ax=None, position=None, title=None, color='blue', marker='.', sampling=1):
     """This function creates a scatterplot of x_data vs. y_data, with optional formatting and labeling as provided.
     
     Params: 
@@ -157,6 +162,8 @@ def scatterPlot(x_data, y_data, label='', fig=None, ax=None, position=None, titl
             The color of the plotted points. Default: 'blue'.
         marker : str, optional
             The marker style to be used for the points. Default: '.'.
+        sampling: float ((0,1]), optional
+            The percentage of points to plot. Default: 1.
 
     Returns:
         ax : matplotlib.axes.Axes
@@ -172,13 +179,25 @@ def scatterPlot(x_data, y_data, label='', fig=None, ax=None, position=None, titl
     else:
         ax = ax or fig.add_subplot(position)
 
+    # sampling
+    if sampling is None:
+        sampling = 1
+    n = x_data.shape[0]
+    if sampling!=1:
+        n2 = min(int(n*sampling),800)
+    else:
+        n2 = int(n*sampling)
+    s = np.random.choice(n, n2, replace=False)
+    x_data = x_data.iloc[s]
+    y_data = y_data.iloc[s]
+
     ax.scatter(x_data, y_data, s=8, color=color, marker=marker, label=label)
     ax.legend()
     ax.set_title(title)
 
     return ax, fig
 
-def scatterPlot_multiple(data_df, n_plot_cols=2, ref=None, color='blue', marker='.'):
+def scatterPlot_multiple(data_df, n_plot_cols=2, ref=None, color='blue', marker='.', options={}):
     """This function creates a scatterplot of data_df[ref] vs. other columns in data_df, with optional formatting as provided.
 
     Params: 
@@ -194,6 +213,7 @@ def scatterPlot_multiple(data_df, n_plot_cols=2, ref=None, color='blue', marker=
             The color of the plotted points. Default: 'blue'.
         marker : str, optional
             The marker style to be used for the points. Default: '.'.
+        options: dict, optional
 
     Returns:
         ax : matplotlib.axes.Axes
@@ -202,6 +222,11 @@ def scatterPlot_multiple(data_df, n_plot_cols=2, ref=None, color='blue', marker=
             The figure on which the data was plotted.
     
     """
+
+    if "sampling" in options:
+        sampling = options["sampling"]
+    else:
+        sampling = None
 
     listOfVar = list(data_df.columns)
 
@@ -238,14 +263,14 @@ def scatterPlot_multiple(data_df, n_plot_cols=2, ref=None, color='blue', marker=
         if (index==0):
             fig = None
 
-        (axes_out, fig) = scatterPlot(x_data, y_data, title=plt_title, position=position_tuple, fig=fig, color=color, marker=marker)
+        (axes_out, fig) = scatterPlot(x_data, y_data, title=plt_title, position=position_tuple, fig=fig, color=color, marker=marker, sampling=sampling)
 
         axes_h.append(axes_out)
 
     fig.tight_layout()
     return axes_h, fig
 
-def scatterPlot_compare(real_data, syn_data, x_var, y_var, fig=None):
+def scatterPlot_compare(real_data, syn_data, x_var, y_var, fig=None, options={}):
     """This function creates a scatterplot of x_var vs. y_var for both real and synthetic data.
 
     Params: 
@@ -259,6 +284,7 @@ def scatterPlot_compare(real_data, syn_data, x_var, y_var, fig=None):
             The variable to plot on the y-axis.
         fig : matplotlib.figure.Figure, optional
             The figure on which the data should be plotted. Default: None.
+        options: scatterplot options
 
     Returns:
         fig_scatter : matplotlib.figure.Figure
@@ -275,13 +301,18 @@ def scatterPlot_compare(real_data, syn_data, x_var, y_var, fig=None):
     x_syn = syn_data[x_var]
     y_syn = syn_data[y_var]
 
-    ax_scatter, fig_scatter = scatterPlot(x_real, y_real, label="Real", fig=fig_scatter, color='blue', marker='.')
+    if "sampling" in options:
+        sampling = options["sampling"]
+    else:
+        sampling = None
+
+    ax_scatter, fig_scatter = scatterPlot(x_real, y_real, label="Real", fig=fig_scatter, color='blue', marker='.', sampling=sampling)
     
-    ax_scatter, fig_scatter = scatterPlot(x_syn, y_syn, label="Synthetic", fig=fig_scatter, ax=ax_scatter, color='grey', marker='x', title=f"Scatterplot of {y_var} against {x_var}")
+    ax_scatter, fig_scatter = scatterPlot(x_syn, y_syn, label="Synthetic", fig=fig_scatter, ax=ax_scatter, color='grey', marker='x', title=f"Scatterplot of {y_var} against {x_var}", sampling=sampling)
 
     return fig_scatter, ax_scatter
 
-def scatterPlot_multiple_compare(data_df, syn_data_df, n_plot_cols=2, ref=None):
+def scatterPlot_multiple_compare(data_df, syn_data_df, n_plot_cols=2, ref=None, options={}):
     """This function creates a superposition of two scatterplots:
      1: scatterplot of data_df[ref] vs. other columns in data_df;
      2: scatterplot of syn_data_df[ref] vs. other columns in syn_data_df;
@@ -326,6 +357,11 @@ def scatterPlot_multiple_compare(data_df, syn_data_df, n_plot_cols=2, ref=None):
     n_plot_cols = int(n_plot_cols)
     n_plot_rows = math.ceil(n/n_plot_cols)
 
+    if "sampling" in options:
+        sampling = options["sampling"]
+    else:
+        sampling = None
+
     axes_h = []
     # for index, var in enumerate(list(data_df.columns)):
     for index, var in enumerate(en):
@@ -347,9 +383,9 @@ def scatterPlot_multiple_compare(data_df, syn_data_df, n_plot_cols=2, ref=None):
         if (index==0):
             fig = None
 
-        (axes_out, fig) = scatterPlot(x_data_real, y_data_real, label="Real", position=position_tuple, fig=fig, color='blue', marker='.')
+        (axes_out, fig) = scatterPlot(x_data_real, y_data_real, label="Real", position=position_tuple, fig=fig, color='blue', marker='.', sampling=sampling)
 
-        (axes_out, fig) = scatterPlot(x_data_syn, y_data_syn, label="Synthetic", fig=fig, ax=axes_out, color='grey', marker='x', title=plt_title)
+        (axes_out, fig) = scatterPlot(x_data_syn, y_data_syn, label="Synthetic", fig=fig, ax=axes_out, color='grey', marker='x', title=plt_title, sampling=sampling)
 
         axes_h.append(axes_out)
 

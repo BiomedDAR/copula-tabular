@@ -250,7 +250,8 @@ class CleanData:
                     if (self.debug):
                         print(f"No sheetname given: sheetname assigned as {sheetname}.")
                 else:
-                    print(f"Sheetname is preassigned as {sheetname}.")
+                    if (self.debug):
+                        print(f"Sheetname is preassigned as {sheetname}.")
                 self.raw_data_sheetname = sheetname
             elif (extension=='csv'):
                 file_type = 'csv'
@@ -261,9 +262,11 @@ class CleanData:
         try:
             if file_type=='excel':
                 # Read file and output as dataframe
-                self.raw_df = pd.read_excel(self.raw_data_filename,
-                    sheet_name=sheetname
-                )
+                with open(self.raw_data_filename, "rb") as f:
+                    self.raw_df = pd.read_excel(f, sheet_name=sheetname)
+                # self.raw_df = pd.read_excel(self.raw_data_filename,
+                #     sheet_name=sheetname
+                # )
             elif file_type=='csv':
                 # Read file and output as dataframe
                 self.raw_df = pd.read_csv(self.raw_data_filename)
@@ -314,7 +317,8 @@ class CleanData:
                     if (self.debug):
                         print(f"No sheetname given: sheetname assigned as {sheetname}.")
                 else:
-                    print(f"Sheetname is preassigned as {sheetname}.")
+                    if (self.debug):
+                        print(f"Sheetname is preassigned as {sheetname}.")
                 self.raw_data_dict_sheetname = sheetname
                         
         except ValueError as e:
@@ -323,9 +327,11 @@ class CleanData:
         try:
             if file_type=='excel':
                 # Read file and output as dataframe
-                self.dict_df = pd.read_excel(self.raw_data_dict_filename,
-                    sheet_name=sheetname
-                )
+                with open(self.raw_data_dict_filename, "rb") as f:
+                    self.dict_df = pd.read_excel(f, sheet_name=sheetname)
+                # self.dict_df = pd.read_excel(self.raw_data_dict_filename,
+                #     sheet_name=sheetname
+                # )
         except ValueError as e:
             raise ValueError('Could not read sheet in excel file: ' + str(e)) from None
         
@@ -382,7 +388,8 @@ class CleanData:
 
         # Save to file
         try:
-            print(self.initial_report_filename)
+            if (self.debug):
+                print(self.initial_report_filename)
             self._save_df_to_file(report_df, self.initial_report_filename,sheetname='by Variable')
             if (self.debug):
                 print(f"Initial Report Generated: filename: {self.initial_report_filename}")
@@ -528,7 +535,8 @@ class CleanData:
 
             self._save_data_to_file()
 
-            print(f"Replacing the input data complete. new filename: {self.data_latest_filename}")
+            if (self.debug):
+                print(f"Replacing the input data complete. new filename: {self.data_latest_filename}")
         except:
             self.data_latest_filename = deepcopy(old_filename) # return
             self.clean_df = deepcopy(old_df) # return
