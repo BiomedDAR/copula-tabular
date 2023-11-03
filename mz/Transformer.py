@@ -217,7 +217,7 @@ class Transformer:
             
             # GET PANDAS dtype for column i
             col_dtype_str = data_curated_df[col].dtype
-            transformer_meta_dict[col]['original_dtype'] = col_dtype_str #update transformer_meta_dict with original pd dtype of field
+            transformer_meta_dict[col]['original_dtype'] = str(col_dtype_str) #update transformer_meta_dict with original pd dtype of field
 
             if (self.debug):
                 print(f"Transforming column {i}: {col} of type {col_dtype_str}")
@@ -447,8 +447,15 @@ class Transformer:
                 elif (field_meta['original_dtype']=='datetime64[ns]'):
                     if output_field_name == (f"{field}.value"):
                         revert_df_col = data[output_field_name] * field_meta['common_divider']
-                        revert_df_col = pd.to_datetime(revert_df_col)
+                        revert_df_col = pd.to_datetime(revert_df_col, unit="ns")
                         revert_df[field] = revert_df_col.dt.strftime(field_meta['datetime_format'])
+                elif (field_meta['original_dtype']=='datetime64[s]'):
+                    if output_field_name == (f"{field}.value"):
+                        revert_df_col = data[output_field_name] * field_meta['common_divider']
+                        revert_df_col = pd.to_datetime(revert_df_col, unit="s")
+                        revert_df[field] = revert_df_col.dt.strftime(field_meta['datetime_format'])
+
+
             # IF STRING
             if (field_meta['original_dtype']=='string'):
                 if (field_meta['transformer_type']=='One-Hot'):
@@ -485,4 +492,11 @@ class Transformer:
                 if (field_meta['null']['fix_null']):
                     revert_df.loc[isnull, field] = np.nan
 
-        return self.convert_2_dtypes(revert_df)
+        # cast back to original dtype
+        for field, field_meta in self.transformer_meta_dict.items():
+            revert_df.astype({field: field_meta['original_dtype']})
+            if 'datetime' in field_meta['original_dtype']:
+                revert_df[field] = pd.to_datetime(revert_df[field])
+
+        return revert_df
+        # return self.convert_2_dtypes(revert_df)
