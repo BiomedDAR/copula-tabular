@@ -61,7 +61,10 @@ def gen_randomData(
             datetimes = np.array([np.datetime64(baseline_date)] * size)
             column = datetimes + deltas
 
-        column = pd.Series(column)
+        if dtype == 'bool': #switch to nullable boolean to avoid future error
+            column = pd.Series(column).astype('boolean')
+        else:
+            column = pd.Series(column)
         
         # Add in NANs
         nan_index = np.random.choice(
