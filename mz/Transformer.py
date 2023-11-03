@@ -286,7 +286,7 @@ class Transformer:
                     # Create a dictionary to map each string to its corresponding column
                     dic = {}
                     for st in data_curated_df[col].unique().tolist():
-                        dic[st] = str(col) + "." + str(st)
+                        dic[str(st)] = str(col) + "." + str(st)
 
                     # Update meta_dict
                     transformer_meta_dict[col]['transformer_type'] = 'One-Hot'
