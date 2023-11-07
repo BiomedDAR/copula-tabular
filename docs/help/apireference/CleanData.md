@@ -15,8 +15,12 @@ For data cleaning.
 ### Parameters
 
 **definitions**: file (.py) containing global variables
+*   `PREFIX_PATH`: define the root directory
+*   `RAW_PATH`: set the folder name for all raw data files
+*   `TRAIN_PATH`: set the folder name to store all the cleaned data files. If not specified, default is "`trainData`"
 
 **debug**: boolean, default None
+
     If `True`, print intermediate outputs for debugging purposes
 
 ### Notes
