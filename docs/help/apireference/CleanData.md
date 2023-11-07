@@ -1,7 +1,7 @@
 ---
 layout: default
 title: CleanData Documentation
-parent: apireference
+parent: API Reference
 grand_parent: Help and Reference
 nav_order: 2
 ---
