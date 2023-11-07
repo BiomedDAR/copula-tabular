@@ -14,6 +14,12 @@ In this package, we present a tool for generating multivariate synthetic data th
 
 The tool is designed to work with a data dictionary, or a file describing the metadata of the input dataset. There are additional class-based implementations of data cleaning, visualisation tools, transformation tools, privacy leakage evaluation, and sample wrapper scripts for generating synthetic data from start to finish.
 
+### Example Result:
+![Figure showing correlation plots of a simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships. The left plot shows the original Pearson correlation between variables, while the middle and right plots show the correlation for synthetic data generated using standard copula and conditional copula respectively.](docs/assets/img/tabulaCopula_example_socialdata_correlation_matrix_three.svg)
+
+![Figure showing superimposed scatterplots of the same simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships. The training, synthetic (standard copula), synthetic (conditional copula) data points are in blue, grey, and red respectively.](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling_six.svg)
+
+
 ## Documentation
 For installation instructions, getting started guides and tutorials, background information, and API reference summaries, please see the 
 [website](https://biomeddar.github.io/copula-tabular/).
@@ -27,6 +33,6 @@ Thank you for considering contributing to Synthia. Please follow this [link](htt
 Please visit the [website](https://biomeddar.github.io/copula-tabular/help/developmentNotes.html) for more details.
 
 ## Copyright and license
-Copyright 2023 BiomedDAR, BII, A*STAR. Licensed under [MIT](LICENSE.txt).
+Copyright 2023 BiomedDAR, BII, A*STAR. Licensed under [MIT](https://biomeddar.github.io/copula-tabular/help/copyright.html).
 
 <!-- ## Acknowledgements -->
