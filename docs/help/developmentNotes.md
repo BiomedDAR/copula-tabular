@@ -19,7 +19,7 @@ Testing Transformer Class:
 python -m mz.tests.test_transformer -v
 ```
 
-Automated testing of the final output is difficult for synthetic data generation modules, due to the nature of random sampling. However, users can follow the detailed steps in the [Examples](../examples/) section to verify expected functionality of other features, including
+Automated testing of the final output is difficult for synthetic data generation modules, due to the nature of random sampling. However, users can follow the detailed steps in the [Examples](../gettingStarted/examples/) section to verify expected functionality of other features, including
 *   generating synthetic data for multivariate, non-monotonic, non-linear data
 *   generating synthetic data for univariate data
 *   checking privacy leakage
