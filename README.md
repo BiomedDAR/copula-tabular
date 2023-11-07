@@ -18,13 +18,15 @@ The tool is designed to work with a data dictionary, or a file describing the me
 For installation instructions, getting started guides and tutorials, background information, and API reference summaries, please see the 
 [website](https://biomeddar.github.io/copula-tabular/).
 
-## How to cite
+<!-- ## How to cite -->
 
 ## Contributing
+Thank you for considering contributing to Synthia. Please follow this [link](https://biomeddar.github.io/copula-tabular/help/contri.html) for more details.
 
 ## Development notes
+Please visit the [website](https://biomeddar.github.io/copula-tabular/help/developmentNotes.html) for more details.
 
 ## Copyright and license
 Copyright 2023 BiomedDAR, BII, A*STAR. Licensed under [MIT](LICENSE.txt).
 
-## Acknowledgements
+<!-- ## Acknowledgements -->

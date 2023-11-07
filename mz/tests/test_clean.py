@@ -162,11 +162,6 @@ class TestCleanDataMethods(unittest.TestCase):
                 for index, value in gdtruth_col.items():
                     self.assertEqual(value, cd_col[index])
 
-        # filename = "C:/Users/tanmz/OneDrive - A STAR/DAR/synData/copula-tabular/mz/tests/rawData/date_dataset_dict_definitions_gdtruth_dd_case.pkl"
-        # pk_filename = open(filename, "wb")
-        # pickle.dump(cd.clean_df, pk_filename)
-        # pk_filename.close()
-
     def test_cleanData_date_dict_definitions(self):
         cd = CleanData( #initialise class
             definitions=self.defi_date,
@@ -178,8 +173,6 @@ class TestCleanDataMethods(unittest.TestCase):
         for index, row in self.gdtruth_defi_dates.iterrows():
             for col in cols:
                 self.assertEqual(cd.clean_df[col][index], row[col])
-                # print(row[col])
-                # print(cd.clean_df[col][index])
 
     def test_cleanData_ascii_dict_definitions(self):
         cd = CleanData(
@@ -221,22 +214,6 @@ class TestCleanDataMethods(unittest.TestCase):
             for col in cols:
                 self.assertEqual(cd.clean_df[col][index], row[col])
 
-        
-
-    # def test_upper(self):
-    #     self.assertEqual('foo'.upper(), 'FOO')
-
-    # def test_isupper(self):
-    #     self.assertTrue('FOO'.isupper())
-    #     self.assertFalse('Foo'.isupper())
-
-    # def test_split(self):
-    #     s = 'hello world'
-    #     self.assertEqual(s.split(), ['hello', 'world'])
-    #     # check that s.split fails when the separator is not a string
-    #     with self.assertRaises(TypeError):
-    #         s.split(2)
-
     
 
 if __name__ == '__main__':
@@ -246,13 +223,10 @@ if __name__ == '__main__':
         test.test_cleanData_dd_dict_definitions()
         test.test_cleanData_con_dict_definitions()
         test.test_cleanData_case_dict_definitions()
-        # test.test_cleanData_date_dict_definitions()
-        # test.test_cleanData_ascii_dict_definitions()
-        # test.test_cleanData_date_ascii_dict_definitions()
-        # test.test_cleanData_date_manualSettings()
-        # test.test_upper()
-        # test.test_isupper()
-        # test.test_split()
+        test.test_cleanData_date_dict_definitions()
+        test.test_cleanData_ascii_dict_definitions()
+        test.test_cleanData_date_ascii_dict_definitions()
+        test.test_cleanData_date_manualSettings()
 
         test.tearDown()
     else:
