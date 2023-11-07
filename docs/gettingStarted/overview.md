@@ -13,6 +13,8 @@ In this package, we present a tool for generating multivariate synthetic data th
 The tool is designed to work with a data dictionary, or a file describing the metadata of the input dataset. There are additional class-based implementations of data cleaning, visualisation tools, transformation tools, and sample wrapper scripts for generating synthetic data from start to finish.
 
 ### Example Result:
-![Figure showing correlation plots of a simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships. The left plot shows the original Pearson correlation between variables, while the middle and right plots show the correlation for synthetic data generated using standard copula and conditional copula respectively.](docs/assets/img/tabulaCopula_example_socialdata_correlation_matrix_three.svg)
+![](../assets/img/tabulaCopula_example_socialdata_correlation_matrix_three.svg)
+*Figure showing correlation plots of a simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships. The left plot shows the original Pearson correlation between variables, while the middle and right plots show the correlation for synthetic data generated using standard copula and conditional copula respectively.*
 
-![Figure showing superimposed scatterplots of the same simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships. The training, synthetic (standard copula), synthetic (conditional copula) data points are in blue, grey, and red respectively.](docs/assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling_six.svg)
+![](../assets/img/tabulaCopula_example_socialdata_scatterplot_lowsampling_six.svg)
+*Figure showing superimposed scatterplots of the same simulated multivariate dataset, containing non-trivial, non-linear and non-monotonic relationships. The training, synthetic (standard copula), synthetic (conditional copula) data points are in blue, grey, and red respectively.*
