@@ -10,7 +10,7 @@ nav_order: 2
 
 `class CleanData(definitions=None, debug=True)`
 
-Module for data cleaning. Designed to work with a data dictionary (metadata). See [template](../../assets/datadict/Data%20Dictionary%20Documentation/template_dict_nhanes.xlsx) and [guide](../../assets/datadict/Data%20Dictionary%20Documentation/Data%20Dictionary%20Manual.docx) for more details.
+Module for data cleaning. Designed to work with a data dictionary (metadata). See data dictionary [template](../../assets/datadict/Data%20Dictionary%20Documentation/template_dict_nhanes.xlsx) and data dictionary [guide](../../assets/datadict/Data%20Dictionary%20Documentation/Data%20Dictionary%20Manual.docx) for more details.
 
 ### Parameters
 
@@ -54,7 +54,7 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 
 #### Settings for Date Standardisation
 *   `SUFFIX_STANDARDISE_DATE`: The filename suffix to use for intermediate outputs of cleaned data. If not specified, default is `DATE`.
-*   `OPTIONS_STANDARDISE_DATE_FORMAT`: the standard date format to use for all dates (if not specified, default is `yyyy-mm-dd`). Follows format used in ms-excel, see [ref](https://www.ablebits.com/office-addins-blog/change-date-format-excel/)Example: `ddd, dd mmmm yy`.
+*   `OPTIONS_STANDARDISE_DATE_FORMAT`: the standard date format to use for all dates (if not specified, default is `yyyy-mm-dd`). Follows format used in ms-excel, see [ref](https://www.ablebits.com/office-addins-blog/change-date-format-excel/). Example: `ddd, dd mmmm yy`.
 *   `OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME`: filename for storing list of failed date conversions (only csv). Default is `failed_date_conversions.csv`
 
 #### Settings for ASCII Conversion
