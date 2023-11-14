@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import pprint
 import os
+import logging
 from copy import deepcopy
 
 class CleanData:
@@ -31,12 +32,17 @@ class CleanData:
 
         self.initial_report_filename = 'initial_report.xlsx' #output file name to store the initial report prior to optional cleaning steps
 
+        self.logging = True
+        self.log_filename = "logfile.txt"
+
         self.dict_var_varname = "NAME" # column in data dictionary containing variable names in input data
         self.dict_var_varcategory = "CATEGORY" # column in data dictionary setting the category of the variable name
         self.dict_var_type = "TYPE" # column in data dictionary setting the type of variable (string, numeric, date, bool)
         self.dict_var_codings = "CODINGS" # column in data dictionary setting the codigns of variable (dataformat, categories)
         self.var_name_stripemptyspaces = False #If True, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary.
         self.longitudinal_variableMarker = None #column header which contains the list of categories stipulating a list of longitudinal markers
+
+                   
 
         # LOADING DEFAULTS FOR DUPLICATED ROWS
         self.dropped_duplicated_rows_filename = "rowsRemoved.xlsx"
@@ -105,6 +111,8 @@ class CleanData:
     def _load_definitions(self):
 
         # Updating defaults
+        self._update_defaults(var_to_update="logging", new_value="LOGGING")
+        self._update_defaults(var_to_update="log_filename", new_value="LOG_FILENAME")
         self._update_defaults(var_to_update="folder_rawData", new_value="RAW_PATH")
         self._update_defaults(var_to_update="folder_trainData", new_value="TRAIN_PATH")
         self._update_defaults(var_to_update="dict_var_varname", new_value="DICT_VAR_VARNAME")
@@ -158,6 +166,20 @@ class CleanData:
         self.train_data_path = self.prefix_path + self.folder_trainData + "/"
         self.train_data_path = self.train_data_path.replace("\\","/")
 
+        # LOADING DEFAULTS FOR LOG FILE
+        if (self.logging):
+            self.log_filepath = self.prefix_path + self.folder_trainData + "/" + self.log_filename
+            self.log_filepath = self.log_filepath.replace("\\","/")
+            
+            logging.basicConfig(filename=self.log_filepath, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+            self.logger = logging.getLogger(__name__)
+            self.logger.debug('CleanData initialising...')
+        else:
+            self.log_filepath = None
+            self.logger = None
+
+
         # Initialise filename for reports
         self.initial_report_filename = self.train_data_path + self.initial_report_filename
 
@@ -173,7 +195,6 @@ class CleanData:
         self._update_defaults(var_to_update="longitudinal_variableMarker", new_value="LONG_VAR_MARKER")
 
         self.longitudinal_marker_list = None #list of longitudinal markers
-
         
         self.raw_df = None #initialise raw data (dataframe)
         self.dict_df = None #initialise data dictionary (dataframe)
@@ -209,6 +230,8 @@ class CleanData:
         
         if (self.debug):
             print(f"Extracting list of longitudinal markers: {self.longitudinal_marker_list}")
+        if (self.logging):
+            self.logger.info(f"Extracting list of longitudinal markers: {self.longitudinal_marker_list}")
     
     def read_inputData(self, sheetname=None):
         """Reads raw data from input definitions and outputs it as a dataframe.
@@ -229,6 +252,8 @@ class CleanData:
 
         if (self.debug):
             print(f"Reading raw data from filename: {self.raw_data_filename}")
+        if (self.logging):
+            self.logger.info(f"Reading raw data from filename: {self.raw_data_filename}")
 
         # Check if file exists
         if not ut_.check_filename(self.raw_data_filename):
@@ -238,6 +263,8 @@ class CleanData:
         extension = ut_.get_extension(self.raw_data_filename)
         if (self.debug):
             print(f"File extension: {extension}")
+        if (self.logging):
+            self.logger.info(f"File extension: {extension}")
         
         # Get file_type
         try:
@@ -249,15 +276,22 @@ class CleanData:
 
                     if (self.debug):
                         print(f"No sheetname given: sheetname assigned as {sheetname}.")
+                    if (self.logging):
+                        self.logger.info(f"No sheetname given: sheetname assigned as {sheetname}.")
                 else:
                     if (self.debug):
                         print(f"Sheetname is preassigned as {sheetname}.")
+                    if (self.logging):
+                        self.logger.info(f"Sheetname is preassigned as {sheetname}.")
                 self.raw_data_sheetname = sheetname
             elif (extension=='csv'):
                 file_type = 'csv'
                         
         except ValueError as e:
+            if self.logging:
+                self.logger.error("Error in getting sheetname of file type xlsx: " + str(e))
             raise ValueError("Error in getting sheetname of file type xlsx: " + str(e)) from None
+            
 
         try:
             if file_type=='excel':
@@ -271,10 +305,14 @@ class CleanData:
                 # Read file and output as dataframe
                 self.raw_df = pd.read_csv(self.raw_data_filename)
         except ValueError as e:
+            if self.logging:
+                self.logger.error('Could not read sheet in excel file: ' + str(e))
             raise ValueError('Could not read sheet in excel file: ' + str(e)) from None
         
         if (self.debug):
             print(f"Input data loaded.")
+        if (self.logging):
+            self.logger.info(f"Input data loaded.")
 
         return self.raw_df
 
@@ -296,6 +334,8 @@ class CleanData:
 
         if (self.debug):
             print(f"Reading data dictionary from filename: {self.raw_data_dict_filename}")
+        if (self.logging):
+            self.logger.info(f"Reading data dictionary from filename: {self.raw_data_dict_filename}")
 
         # Check if file exists
         if not ut_.check_filename(self.raw_data_dict_filename):
@@ -305,6 +345,8 @@ class CleanData:
         extension = ut_.get_extension(self.raw_data_dict_filename)
         if (self.debug):
             print(f"File extension: {extension}")
+        if (self.logging):
+            self.logger.info(f"File extension: {extension}")
 
         # Get file_type
         try:
@@ -316,12 +358,18 @@ class CleanData:
 
                     if (self.debug):
                         print(f"No sheetname given: sheetname assigned as {sheetname}.")
+                    if (self.logging):
+                        self.logger.info(f"No sheetname given: sheetname assigned as {sheetname}.")
                 else:
                     if (self.debug):
                         print(f"Sheetname is preassigned as {sheetname}.")
+                    if (self.logging):
+                        self.logger.info(f"Sheetname is preassigned as {sheetname}.")
                 self.raw_data_dict_sheetname = sheetname
                         
         except ValueError as e:
+            if self.logging:
+                self.logger.error("Error in getting sheetname of file type xlsx: " + str(e))
             raise ValueError("Error in getting sheetname of file type xlsx: " + str(e)) from None
         
         try:
@@ -333,10 +381,14 @@ class CleanData:
                 #     sheet_name=sheetname
                 # )
         except ValueError as e:
+            if self.logging:
+                self.logger.error('Could not read sheet in excel file: ' + str(e))
             raise ValueError('Could not read sheet in excel file: ' + str(e)) from None
         
         if (self.debug):
             print(f"Data dictionary loaded.")
+        if (self.logging):
+            self.logger.info(f"Data dictionary loaded.")
 
         return self.dict_df
     
@@ -388,14 +440,16 @@ class CleanData:
 
         # Save to file
         try:
-            if (self.debug):
-                print(self.initial_report_filename)
             self._save_df_to_file(report_df, self.initial_report_filename,sheetname='by Variable')
             if (self.debug):
                 print(f"Initial Report Generated: filename: {self.initial_report_filename}")
+            if (self.logging):
+                self.logger.info(f"Initial Report Generated: filename: {self.initial_report_filename}")
         except:
             if (self.debug):
                 print(f"Initial Report Generation FAILED.")
+            if (self.logging):
+                self.logger.info(f"Initial Report Generation FAILED.")
             return 0
 
         return 1
@@ -444,8 +498,12 @@ class CleanData:
             self.var_list = var_clean_df_list
             if (self.debug):
                 print(f"No variable name mismatches found. Proceeding with next step of initialisation...")
+            if (self.logging):
+                self.logger.info(f"No variable name mismatches found. Proceeding with next step of initialisation...")
         else:
             print("There is a mismatch in the variable names extracted from the input data and the data dictionary. Use cleanData.var_diff_list to extract list of mismatched variable names.")
+            if (self.logging):
+                self.logger.info("There is a mismatch in the variable names extracted from the input data and the data dictionary. Use cleanData.var_diff_list to extract list of mismatched variable names.")
         
         return len(self.var_diff_list)==0
 
@@ -464,6 +522,8 @@ class CleanData:
             )
 
         else:
+            if self.logging:
+                self.logger.error(f"Not able to save data to file for extension type: {file_ext}")
             raise ValueError(f"Not able to save data to file for extension type: {file_ext}")
 
     def _save_data_to_file(self):
@@ -489,6 +549,8 @@ class CleanData:
             )
 
         else:
+            if self.logging:
+                self.logger.error(f"Not able to save data to file for extension type: {file_ext}")
             raise ValueError(f"Not able to save data to file for extension type: {file_ext}")
 
     def _save_dict_to_file(self):
@@ -507,6 +569,8 @@ class CleanData:
             )
 
         else:
+            if self.logging:
+                self.logger.error(f"Not able to save dictionary to file for extension type: {file_ext}")
             raise ValueError(f"Not able to save dictionary to file for extension type: {file_ext}")
         
     def update_data(self, new_df, filename_suffix=""):
@@ -522,6 +586,8 @@ class CleanData:
 
         if (self.debug):
             print(f"Replacing the input data...")
+        if (self.logging):
+            self.logger.info(f"Replacing the input data...")
         
         try:
             # Get new filename
@@ -537,10 +603,14 @@ class CleanData:
 
             if (self.debug):
                 print(f"Replacing the input data complete. new filename: {self.data_latest_filename}")
+            if (self.logging):
+                self.logger.info(f"Replacing the input data complete. new filename: {self.data_latest_filename}")
         except:
             self.data_latest_filename = deepcopy(old_filename) # return
             self.clean_df = deepcopy(old_df) # return
 
+            if self.logging:
+                self.logger.error(f"Not able to save data to file.")
             raise ValueError(f"Not able to save data to file.")
 
         
@@ -607,6 +677,8 @@ class CleanData:
 
         if (self.debug):
             print(f"Dropping duplicate rows in input data...")
+        if (self.logging):
+            self.logger.info(f"Dropping duplicate rows in input data...")
 
         # Exclude variables of the "Index"  category from the duplicate search
         subset_list = ut_.remove_items(self.cat_var_dict["Index"], self.var_list)
@@ -626,6 +698,8 @@ class CleanData:
         
         if (self.debug):
             print(f"No. of dropped rows: {no_dropped_rows}")
+        if (self.logging):
+            self.logger.info(f"No. of dropped rows: {no_dropped_rows}")
 
         # Save dropped rows as excel file
         ut_.save_df_as_excel(dropped_rows_df,
@@ -682,6 +756,8 @@ class CleanData:
 
         if (self.debug):
             print(f"Standardising text in input data...")
+        if (self.logging):
+            self.logger.info(f"Standardising text in input data...")
 
         # Load case_type
         def_case_type = self.options_standardise_text_case_type #set default case_type
@@ -739,6 +815,10 @@ class CleanData:
             print(f"Converting all characters to ASCII-compatible in input data...")
             print(f"List of Exclusions: \n{ascii_exclusion_list}")
 
+        if (self.logging):
+            self.logger.info(f"Converting all characters to ASCII-compatible in input data...")
+            self.logger.info(f"List of Exclusions: \n{ascii_exclusion_list}")
+
         # Get a working copy of latest data dataframe
         df = deepcopy(self.clean_df)
 
@@ -793,6 +873,8 @@ class CleanData:
 
         if (self.debug):
             print(f"Standardising date/time in input data...")
+        if (self.logging):
+            self.logger.info(f"Standardising date/time in input data...")
 
         # ExTRACT variables of the "Index"  category
         if 'Index' in self.cat_var_dict:
@@ -837,10 +919,14 @@ class CleanData:
                 if raw_dateColFieldFormat == '' or raw_dateColFieldFormat=='nan':
                     if (self.debug):
                         print(f'Standardise date: raw_dateCOlFieldFormat for variable {dateVar} is not valid.')
+                    if (self.logging):
+                        self.logger.info(f'Standardise date: raw_dateCOlFieldFormat for variable {dateVar} is not valid.')
 
                     raw_dateColFieldFormat = ut_.date_format_search(output_df[dateVar])
                     if (self.debug):
                         print(f"Using {raw_dateColFieldFormat} as date format.")
+                    if (self.logging):
+                        self.logger.info(f"Using {raw_dateColFieldFormat} as date format.")
 
                 # Conversion
                 output_df = ut_.strip_string_spaces(output_df, col=dateVar)

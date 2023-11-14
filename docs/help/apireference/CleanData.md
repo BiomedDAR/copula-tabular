@@ -25,6 +25,10 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 *   `RAWDICTXLSX`: filename containing the data dictionary
 *   `RAWDICTXLSX_SHEETNAME`: if RAWDICTXLSX is an excel file, assign the sheetname from which to load the dictionary. If not specified, will read the first sheet.
 
+#### Settings for Log Files
+*   `LOGGING`: A boolean. Whether to output logfile or not. If not specified, default is `True`.
+*   `LOG_FILENAME`: A string. Filename of log file. If not defined, default is "`logfile.txt`".
+
 #### Settings for Longitudinal data
 *   `LONG_VAR_MARKER`: (in preparation for longitudinal data) the variable name that indicates which longitudinal group that row belongs to. If not specified, default is `None`.
 
@@ -71,4 +75,12 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 
 ### Attributes
 
+| Attribute         | Description | 
+| ---:              |    :----   |
+| clean_df          | (dataframe) cleaned data       |
+| cat_var_dict      | (dict) with categories as keys and the respective variables as values, {cat: [list of variables]}       |
+
 ### Methods
+
+<!-- 'clean_dict_df', 'convert_2_dtypes', 'converting_ascii', 
+'data_latest_filename', 'debug', 'definitions', 'dict_df', 'dict_latest_filename', 'dict_var_codings', 'dict_var_type', 'dict_var_varcategory', 'dict_var_varname', 'drop_duplicate_rows', 'dropped_duplicated_rows_filename', 'folder_rawData', 'folder_trainData', 'gen_data_report', 'initial_report_filename', 'log_filename', 'log_filepath', 'logger', 'logging', 'longitudinal_marker_list', 'longitudinal_variableMarker', 'options_convert_ascii_exclusion_list', 'options_faileddate_conversions_filename', 'options_standardise_date_format', 'options_standardise_text_case_type', 'options_standardise_text_case_type_dict', 'options_standardise_text_exclude_list', 'output_type_data', 'output_type_dict', 'prefix_path', 'raw_data_dict_filename', 'raw_data_dict_sheetname', 'raw_data_filename', 'raw_data_path', 'raw_data_sheetname', 'raw_df', 'read_inputData', 'read_inputDict', 'report_df', 'standardise_date', 'standardise_text', 'standardise_text_case_conversion', 'suffix_constraints', 'suffix_convert_ascii', 'suffix_dropped_duplicated_rows', 'suffix_standardise_date', 'suffix_standardise_text', 'train_data_path', 'type_var_dict', 'update_data', 'var_diff_list', 'var_list', 'var_name_stripemptyspaces' -->

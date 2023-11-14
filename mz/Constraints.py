@@ -7,14 +7,33 @@ class Constraints:
     """
 
     def __init__(self,
-        debug=False
+        debug=False,
+        logging=True,
+        logger=None,
     ):
         self.debug = debug
+        self.logging = logging
+        self.logger = logger
         self.log = {}
 
     def init_log(self, var):
         if var not in self.log:
             self.log[var] = {}
+
+        if self.logging:
+            if self.logger is None:
+                import logging
+                logging.basicConfig(filename='contraints_logfile.txt', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+                self.logger = logging.getLogger(__name__)
+            self.logger.debug('CleanData-Constraints initialising...')
+
+    def output_log_to_file(self):
+        if self.logging:
+            for var,value in self.log.items():
+                self.logger.info(f"variable:{var}: constraints exerted: {value}")
+        else:
+            print('No logger is defined.')
+
 
     def multiparent_conditions(self, df, var_array, dict_conditions_values):
         """Function for replacement of values in a dataframe based on multiple conditions evaluated from multiple columns.
@@ -71,6 +90,8 @@ class Constraints:
 
             if self.debug:
                 print(f"For variable: {var}: {msg}")
+            if self.logging:
+                self.logger.info(f"For variable: {var}: {msg}")
 
         return df
 
@@ -152,6 +173,8 @@ class Constraints:
 
         if self.debug:
             print(f"For variable: {output_column_name}: {msg}")
+        if self.logging:
+            self.logger.info(f"For variable: {output_column_name}: {msg}")
 
         return df
 
@@ -216,6 +239,8 @@ class Constraints:
 
             if self.debug:
                 print(f"For variable: {v}: {msg}")
+            if self.logging:
+                self.logger.debug(f"For variable: {v}: {msg}")
 
         return df
     
@@ -269,5 +294,7 @@ class Constraints:
 
         if self.debug:
             print(f"For variable: {A}: {msg}")
+        if self.logging:
+            self.logger.debug(f"For variable: {A}: {msg}")
 
         return df

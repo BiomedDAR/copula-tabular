@@ -4,6 +4,14 @@
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
+from datetime import datetime
+
+current_dateTime = datetime.now()
+current_dateTime = str(current_dateTime).replace(' ','_').replace('.','_').replace(':','_')
+
+# print(current_dateTime)
+# # 2022-09-20 10:27:21.240752
+
 PREFIX_PATH = f"{dir_path}\\" # Define the root directory
 
 # SET GLOBAL VARIABLES FOR RAW DATA FILES
@@ -15,6 +23,10 @@ RAWXLSX_SHEETNAME = "Sheet1" # if RAWXLSX is an excel file, assign the sheetname
 
 RAWDICTXLSX = "nhanes_dict_2-1.xlsx" #filename containing the data dictionary
 RAWDICTXLSX_SHEETNAME = "Sheet1" # if RAWDICTXLSX is an excel file, assign the sheetname from which to load the dictionary. If not specified, will read the first sheet.
+
+# LOG SETTINGS
+LOGGING = True #whether to output logfile or not. If not specified, default is True.
+LOG_FILENAME = f"{current_dateTime}-logfile.txt" #filename of log file. If not defined, default is logfile.txt.
 
 # SETTINGS FOR LONGITUDINAL DATA
 LONG_VAR_MARKER = None # The variable name that indicates which longitudinal group that row belongs to. If not specified, default is None.
