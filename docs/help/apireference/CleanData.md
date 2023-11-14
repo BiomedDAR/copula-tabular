@@ -77,10 +77,57 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 
 | Attribute         | Description | 
 | ---:              |    :----   |
+| debug             | (boolean) whether to debug or not      |
+| definitions       | (obj) definitions in corresponding input `defintions.py`      |
+| dict_df           | (dataframe) data dictionary      |
+| raw_df            | (dataframe) raw data |
 | clean_df          | (dataframe) cleaned data       |
+| clean_dict_df     | (dataframe) cleaned data dictionary       |
+| report_df         | (dataframe) report
 | cat_var_dict      | (dict) with categories as keys and the respective variables as values, {cat: [list of variables]}       |
+| type_var_dict     | (dict) with the variable type as keys and the respective variables as values
+| longitudinal_marker_list | (list) list of longitudinal markers
+| longitudinal_variableMarker | (str) column header which contains the list of categories stipulating a list of longitudinal markers
+| dict_var_codings         | (str) column name in data dict. setting the codings of the variable e.g. `"CODINGS"`       |
+| dict_var_type         | (str) column name in data dict. setting the type of variable e.g. `"TYPE"`       |
+| dict_var_varcategory         | (str) column name in data dict. setting the category of the variable name e.g. `"CATEGORY"`       |
+| dict_var_varname         | (str) column name in data dict containing variable names in input data e.g. `"NAME"`       |
+| raw_data_dict_filename | (str) full path of original data dictionary |
+| raw_data_dict_sheetname | (str) sheet name of original data dictionary |
+| raw_data_filename | (str) full path of raw data |
+| raw_data_sheetname | (str) sheet name of raw data |
+| raw_data_path | (str) full path of folder storing raw data | 
+| train_data_path | (str) full path of folder storing training data | 
+| folder_rawData           | (str) folder storing raw data, e.g. `"rawData"`       |
+| folder_trainData         | (str) folder storing training data (outputs of cleaning modules), e.g. `"trainData"`       |
+| data_latest_filename     | (str) latest filename for cleaned data       |
+| dict_latest_filename     | (str) latest filename for cleaned data dictionary       |
+| dropped_duplicated_rows_filename     | (str) filename for storing dropped duplicate rows    |
+| initial_report_filename      | (str) filename for storing report    |
+| log_filename      | (str) filename for storing logs    |
+| log_filepath      | (str) full path of `log_filename`    |
+| logger            | (obj) logger to pass on for logging |
+| logging           | (boolean) whether to do logging or not |
+| options_convert_ascii_exclusion_list | (list) list of symbols to exclude from ASCII conversion |
+| options_faileddate_conversions_filename | (str) filename for storing list of failed date conversions |
+| options_standardise_date_format | (str) date standardisation format e.g. `"yyyy-mm-dd"` |
+| options_standardise_text_case_type | (str) option for standardising case format, e.g. `"uppercase"`|
+| options_standardise_text_case_type_dict | (dict) dictionary to customise case_type for specific variables. |
+| options_standardise_text_exclude_list | (list) variables to exclude from the conversion |
+| output_type_data | (str) the output file type for the clean data files |
+| output_type_dict | (str) the output file type fot the amended dictionary |
+| prefix_path | (str) prefix path as stipulated in dictionary |
+| suffix_constraints | (str) suffix to append to `data_latest_filename` after applying constraints |
+| suffix_convert_ascii | (str) suffix to append to `data_latest_filename` after converting ASCII symbols |
+| suffix_dropped_duplicated_rows | (str) suffix to append to `data_latest_filename` after dropping duplicate rows |
+| suffix_standardise_date | (str) suffix to append to `data_latest_filename` after standardising dates |
+| suffix_standardise_text | (str) suffix to append to `data_latest_filename` after standardising text case |
+| var_diff_list | (list) list of mismatched variable names between input data and data dictionary | 
+| var_list | (list) list of all variables (column headers) found in input data
+| var_name_stripemptyspaces | (boolean) if `True`, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary. |
+
+
 
 ### Methods
 
-<!-- 'clean_dict_df', 'convert_2_dtypes', 'converting_ascii', 
-'data_latest_filename', 'debug', 'definitions', 'dict_df', 'dict_latest_filename', 'dict_var_codings', 'dict_var_type', 'dict_var_varcategory', 'dict_var_varname', 'drop_duplicate_rows', 'dropped_duplicated_rows_filename', 'folder_rawData', 'folder_trainData', 'gen_data_report', 'initial_report_filename', 'log_filename', 'log_filepath', 'logger', 'logging', 'longitudinal_marker_list', 'longitudinal_variableMarker', 'options_convert_ascii_exclusion_list', 'options_faileddate_conversions_filename', 'options_standardise_date_format', 'options_standardise_text_case_type', 'options_standardise_text_case_type_dict', 'options_standardise_text_exclude_list', 'output_type_data', 'output_type_dict', 'prefix_path', 'raw_data_dict_filename', 'raw_data_dict_sheetname', 'raw_data_filename', 'raw_data_path', 'raw_data_sheetname', 'raw_df', 'read_inputData', 'read_inputDict', 'report_df', 'standardise_date', 'standardise_text', 'standardise_text_case_conversion', 'suffix_constraints', 'suffix_convert_ascii', 'suffix_dropped_duplicated_rows', 'suffix_standardise_date', 'suffix_standardise_text', 'train_data_path', 'type_var_dict', 'update_data', 'var_diff_list', 'var_list', 'var_name_stripemptyspaces' -->
+<!--'convert_2_dtypes', 'converting_ascii',  'drop_duplicate_rows', '',  'gen_data_report', , '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'read_inputData', 'read_inputDict', '', 'standardise_date', 'standardise_text', 'standardise_text_case_conversion', '', '', '', '', '', '', '', 'update_data', '', '', '' -->
