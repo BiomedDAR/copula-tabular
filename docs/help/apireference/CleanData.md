@@ -76,9 +76,9 @@ Please refer to the below pages for detailed examples:
 
 | Example         | Description | 
 | ---:              |    :----   |
-| [cleanData 1](../../gettingStarted/examples/CleanData.md) | Demonstrates use of `definitions.py`, dropping duplicate rows, and standardising text variables (capital/small letters) |
-| [CleanData 2](../../gettingStarted/examples/CleanData_StandardiseDates_ConvertCharacters.md) | Demonstrates use of `definitions.py`, standardising date formats, conversion of characters from international accents to ASCII-compatible symbols |
-| [CleanData 3](../../gettingStarted/examples/CleanDataWithConstraints.md) | Demonstrates use of customised constraints |
+| [cleanData 1](../../gettingStarted/examples/CleanData) | Demonstrates use of `definitions.py`, dropping duplicate rows, and standardising text variables (capital/small letters) |
+| [CleanData 2](../../gettingStarted/examples/CleanData_StandardiseDates_ConvertCharacters) | Demonstrates use of `definitions.py`, standardising date formats, conversion of characters from international accents to ASCII-compatible symbols |
+| [CleanData 3](../../gettingStarted/examples/CleanDataWithConstraints) | Demonstrates use of customised constraints |
 
 ### Attributes
 
