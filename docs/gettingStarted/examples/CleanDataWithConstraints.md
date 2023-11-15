@@ -9,6 +9,29 @@ nav_order: 3
 ## Example of CleanData with Constraints Class
 This example demonstrates the use of the CleanData class together with the Constraints class. It continues from the previous [example](CleanData).
 
+### Print Report
+Before we exert the constraints, we can take a look at the data report, which is automatically generated during initialisation.
+```
+cd = CleanData(definitions=defi)
+print(cd.report_df)
+```
+
+#### Sample Output
+```
+                data_type data_type_in_dict data_type_mismatch  count_missing_values  percentage_missing_values numeric_range                     unique_categories
+TESTID              int64           numeric            Matched                     0                     0.0000       1:10000                                  N.A.
+ID                  int64           numeric            Matched                     0                     0.0000   51624:71915                                  N.A.
+SurveyYr           object            string            Matched                     0                     0.0000           NaN                       2009_10,2011_12
+Gender             object            string            Matched                     0                     0.0000           NaN                           male,female
+Age                 int64           numeric            Matched                     0                     0.0000          0:80                                  N.A.
+...                   ...               ...                ...                   ...                        ...           ...                                   ...
+SexNumPartnLife   float64           numeric            Matched                  4275                     0.4275    0.0:2000.0                                  N.A.
+SexNumPartYear    float64           numeric            Matched                  5072                     0.5072      0.0:69.0                                  N.A.
+SameSex            object            string            Matched                  4232                     0.4232           NaN                            No,nan,Yes
+SexOrientation     object            string            Matched                  5158                     0.5158           NaN  Heterosexual,nan,Bisexual,Homosexual
+PregnantNow        object            string            Matched                  8304                     0.8304           NaN                    nan,No,Unknown,Yes
+```
+
 ### Import Libraries
 ```
 # LOAD DEPENDENCIES

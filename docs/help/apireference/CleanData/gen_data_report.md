@@ -34,7 +34,7 @@ Generates a report of `data`. Report include details such as
 *   currently, an initial report is automatically generated upon class initialisation.
 *   report is saved to path: `CleanData.initial_report_filename`. Filepath can be set using `dictionary.py`
 *   report is also saved as a dataframe as `CleanData.report_df`
-*   an unfortunate consequence is that using `CleanData.gen_data_report` on its own, forces an overwrite of the outputs (`CleanData.report_df` and output file). This ought to be fixed in a future update.
+*   an unfortunate consequence is that using `CleanData.gen_data_report` on its own, forces an overwrite of the outputs (`CleanData.report_df` and output file), and has some bugs w.r.t the data dictionary. This ought to be fixed in a future update.
 
 ### Examples
 
