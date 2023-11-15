@@ -40,6 +40,9 @@ cd = CleanData(definitions=defi)
 # The cleaned input data is stored under a filename *-<SUFFIX_DROPPED_DUPLICATED_ROWS>.xlsx.
 cd.drop_duplicate_rows()
 
+# PRINT REPORT
+print(cd.report_df)
+
 # LOAD DEPENDENCIES
 from mz.Constraints import Constraints
 
@@ -48,7 +51,11 @@ import eg_nhanes_constraints as n_con
 
 # USE CONSTRAINTS
 df = cd.clean_df
-con = Constraints(debug=True)
+con = Constraints(
+    debug=True,
+    logging=True, #whether to perform logging for constraints
+    logger=cd.logger #use same logfile as cleanData. If None, new logfile will be created in root
+)
 
 # The following are examples of constraints used on the variables of the NHANES dataset.
 df, con = n_con.con_ageDecade(df, con)
@@ -76,8 +83,15 @@ df, con = n_con.con_Pregnancies_2(df, con)
 # Check details of the constrained dataset
 pprint.pprint(con.log)
 
+# Output log variable to file
+con.output_log_to_file()
+
 # UPDATE CLEANDATA CLASS
 # Update the CleanData class with constrained data
 # The cleaned input data is stored under a filename *-<SUFFIX_CONSTRAINTS>.xlsx.
 
 cd.update_data(new_df = df, filename_suffix = cd.suffix_constraints)
+
+# PRINT REPORT
+cd.gen_data_report(cd.clean_df, dict=cd.clean_dict_df)
+print(cd.report_df)
