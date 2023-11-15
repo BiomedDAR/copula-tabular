@@ -73,6 +73,7 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 
 ### Examples
 Please refer to the below pages for detailed examples:
+
 | Example         | Description | 
 | ---:              |    :----   |
 | [cleanData 1](../../gettingStarted/examples/CleanData.md) | Demonstrates use of `definitions.py`, dropping duplicate rows, and standardising text variables (capital/small letters) |
@@ -134,6 +135,7 @@ Please refer to the below pages for detailed examples:
 
 
 ### Methods
+
 | Attribute         | Description | 
 | ---:              |    :----   |
 | convert_2_dtypes(data) | Convert data (df) into best possible dtypes. |
