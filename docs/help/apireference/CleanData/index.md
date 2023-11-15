@@ -2,7 +2,6 @@
 layout: default
 title: Clean Data
 parent: API Reference
-grand_parent: Help and Reference
 nav_order: 1
 has_children: true
 ---
