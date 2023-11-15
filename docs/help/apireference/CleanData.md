@@ -72,6 +72,12 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 ### Notes
 
 ### Examples
+Please refer to the below pages for detailed examples:
+| Example         | Description | 
+| ---:              |    :----   |
+| [cleanData 1](../../gettingStarted/examples/CleanData.md) | Demonstrates use of `definitions.py`, dropping duplicate rows, and standardising text variables (capital/small letters) |
+| [CleanData 2](../../gettingStarted/examples/CleanData_StandardiseDates_ConvertCharacters.md) | Demonstrates use of `definitions.py`, standardising date formats, conversion of characters from international accents to ASCII-compatible symbols |
+| [CleanData 3](../../gettingStarted/examples/CleanDataWithConstraints.md) | Demonstrates use of customised constraints |
 
 ### Attributes
 
@@ -127,7 +133,18 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 | var_name_stripemptyspaces | (boolean) if `True`, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary. |
 
 
-
 ### Methods
+| Attribute         | Description | 
+| ---:              |    :----   |
+| convert_2_dtypes(data) | Convert data (df) into best possible dtypes. |
+| gen_data_report(data, dict) | Generates a report of `data` |
+| drop_duplicate_rows() | Use to drop duplicate rows from the input dataframe. |
+| standardise_text_case_conversion(data, case_type) | Takes dataframe (cols) and one case type parameter as input and returns the text data converted as per the case type specified. |
+| standardise_text() | Standardises text case in input data. |
+| converting_ascii([ascii_exclusion_list, ]) | Converts all characters in input data to ASCII-compatible format. |
+| standardise_date([def_date_format, faileddate_conversions_filename]) | Standardises the date/time in input data. |
+
+
+
 
 <!--'convert_2_dtypes', 'converting_ascii',  'drop_duplicate_rows', '',  'gen_data_report', , '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'read_inputData', 'read_inputDict', '', 'standardise_date', 'standardise_text', 'standardise_text_case_conversion', '', '', '', '', '', '', '', 'update_data', '', '', '' -->
