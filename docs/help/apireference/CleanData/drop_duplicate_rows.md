@@ -26,7 +26,7 @@ None.
 None.
 
 ### Notes
-*   Update dataframe can be found as `CleanData.clean_df`.
+*   Updated dataframe can be found as `CleanData.clean_df`.
 *   A copy of the cleaned data can be found in the folder `CleanData.train_data_path`, with a suffix `CleanData.suffix_dropped_duplicated_rows`.
 *   A record of the dropped rows can be found in the folder `CleanData.train_data_path`, with the filename `CleanData.dropped_duplicated_rows_filename`.
 

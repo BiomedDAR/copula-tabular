@@ -28,7 +28,7 @@ It also stores the failed conversions in a csv file, as specified in `OPTIONS_FA
 None.
 
 ### Notes
-*   Update dataframe can be found as `CleanData.clean_df`.
+*   Updated dataframe can be found as `CleanData.clean_df`.
 *   A copy of the cleaned data can be found in the folder `CleanData.train_data_path`, with a suffix `CleanData.suffix_standardise_date`.
 *   Only `csv` file format allowed for `faileddate_conversions_filename`.
 *   The `CODINGS` in the data dictionary is used to specify the date format of the raw dataset, NOT the desired date format. The desired date format is specified using the `OPTIONS_STANDARDISE_DATE_FORMAT` global variable. When the specified date format under `CODINGS` causes an error in a specific row, the output will be `NaN`.

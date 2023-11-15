@@ -21,7 +21,7 @@ Standardises text case in input data.
 None.
 
 ### Notes
-*   Update dataframe can be found as `CleanData.clean_df`.
+*   Updated dataframe can be found as `CleanData.clean_df`.
 *   A copy of the cleaned data can be found in the folder `CleanData.train_data_path`, with a suffix `CleanData.suffix_convert_ascii`.
 
 #### Relevant Definitions Settings
