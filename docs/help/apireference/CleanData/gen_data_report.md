@@ -10,7 +10,14 @@ nav_order: 2
 
 **CleanData.gen_data_report(*data*, *dict*)**
 
-Generates a report of `data`.
+Generates a report of `data`. Report include details such as
+*   data_type
+*   data_type_in_dict
+*   data_type_mismatch
+*   count_missing_values
+*   percentage_missing_values
+*   numeric_range
+*   unique_categories
 
 **Parameters**
 - *data*: (dataframe)
@@ -24,8 +31,10 @@ Generates a report of `data`.
 
 ### Notes
 
+*   currently, an initial report is automatically generated upon class initialisation.
 *   report is saved to path: `CleanData.initial_report_filename`. Filepath can be set using `dictionary.py`
 *   report is also saved as a dataframe as `CleanData.report_df`
+*   an unfortunate consequence is that using `CleanData.gen_data_report` on its own, forces an overwrite of the outputs (`CleanData.report_df` and output file). This ought to be fixed in a future update.
 
 ### Examples
 
@@ -49,6 +58,8 @@ SexOrientation     object            string            Matched                  
 PregnantNow        object            string            Matched                  8304                     0.8304           NaN                    nan,No,Unknown,Yes
 ```
 
+The function can also be used to generate reports after the cleaning is done. 
+
 ```
 cd.gen_data_report(cd.clean_df, dict=cd.clean_dict_df)
 print(cd.report_df)
@@ -56,7 +67,7 @@ print(cd.report_df)
 
 #### Sample Output
 ```
-Initial Report Generated: filename: C:/Users/tanmz/OneDrive - A STAR/DAR/synData/copula-tabular/examples/trainData/initialisation_report.xlsx
+Initial Report Generated: filename: */examples/trainData/initialisation_report.xlsx
                 data_type data_type_in_dict data_type_mismatch  count_missing_values  percentage_missing_values numeric_range                          unique_categories
 TESTID              int64           numeric            Matched                     0                   0.000000       1:10000                                       N.A.
 ID                  int64           numeric            Matched                     0                   0.000000   51624:71915                                       N.A.

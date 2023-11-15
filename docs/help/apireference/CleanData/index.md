@@ -139,14 +139,10 @@ Please refer to the below pages for detailed examples:
 | Method         | Description | 
 | ---:              |    :----   |
 | convert_2_dtypes(data) | Convert data (df) into best possible dtypes. |
-| gen_data_report(data, dict) | Generates a report of `data` |
+| [gen_data_report(data, dict)](gen_data_report) | Generates a report of `data` |
 | drop_duplicate_rows() | Use to drop duplicate rows from the input dataframe. |
 | standardise_text_case_conversion(data, case_type) | Takes dataframe (cols) and one case type parameter as input and returns the text data converted as per the case type specified. |
 | standardise_text() | Standardises text case in input data. |
 | converting_ascii([ascii_exclusion_list, ]) | Converts all characters in input data to ASCII-compatible format. |
 | standardise_date([def_date_format, faileddate_conversions_filename]) | Standardises the date/time in input data. |
 
-
-
-
-<!--'convert_2_dtypes', 'converting_ascii',  'drop_duplicate_rows', '',  'gen_data_report', , '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'read_inputData', 'read_inputDict', '', 'standardise_date', 'standardise_text', 'standardise_text_case_conversion', '', '', '', '', '', '', '', 'update_data', '', '', '' -->
