@@ -1,9 +1,9 @@
 ---
 layout: default
-title: CleanData
+title: Clean Data
 parent: API Reference
 grand_parent: Help and Reference
-nav_order: 2
+nav_order: 1
 ---
 
 # CleanData
