@@ -10,8 +10,7 @@ has_children: true
 # CleanData
 
 `class CleanData(definitions=None, debug=True)`
-
-Module for data cleaning. Designed to work with a data dictionary (metadata). See data dictionary [template](../../assets/datadict/Data%20Dictionary%20Documentation/template_dict_nhanes.xlsx) and data dictionary [guide](../../assets/datadict/Data%20Dictionary%20Documentation/Data%20Dictionary%20Manual.docx) for more details.
+Module for data cleaning. Designed to work with a data dictionary (metadata). See data dictionary [template](../../../assets/datadict/Data%20Dictionary%20Documentation/template_dict_nhanes.xlsx) and data dictionary [guide](../../../assets/datadict/Data%20Dictionary%20Documentation/Data%20Dictionary%20Manual.docx) for more details.
 
 ### Parameters
 
@@ -77,9 +76,9 @@ Please refer to the below pages for detailed examples:
 
 | Example         | Description | 
 | ---:              |    :----   |
-| [cleanData 1](../../gettingStarted/examples/CleanData) | Demonstrates use of `definitions.py`, dropping duplicate rows, and standardising text variables (capital/small letters) |
-| [CleanData 2](../../gettingStarted/examples/CleanData_StandardiseDates_ConvertCharacters) | Demonstrates use of `definitions.py`, standardising date formats, conversion of characters from international accents to ASCII-compatible symbols |
-| [CleanData 3](../../gettingStarted/examples/CleanDataWithConstraints) | Demonstrates use of customised constraints |
+| [cleanData 1](../../../gettingStarted/examples/CleanData) | Demonstrates use of `definitions.py`, dropping duplicate rows, and standardising text variables (capital/small letters) |
+| [CleanData 2](../../../gettingStarted/examples/CleanData_StandardiseDates_ConvertCharacters) | Demonstrates use of `definitions.py`, standardising date formats, conversion of characters from international accents to ASCII-compatible symbols |
+| [CleanData 3](../../../gettingStarted/examples/CleanDataWithConstraints) | Demonstrates use of customised constraints |
 
 ### Attributes
 
