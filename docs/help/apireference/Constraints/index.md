@@ -65,7 +65,7 @@ Please refer to the below pages for detailed examples:
 | Method         | Description | 
 | ---:              |    :----   |
 | output_log_to_file() | Output the collected information in Constraints.log to log file. |
-| multiparent_conditions(df, var_array, dict_conditions_values) | Function for replacement of values in a dataframe based on multiple conditions evaluated from multiple columns.|
-| evaluate_df_column(df, column_names, [dict_conditions_values, func, output_column_name]) | This function takes a dataframe and column name(s) and evaluates the column based on the given conditions and values, creating a new column in the dataframe with the evaluated values. Optionally, a function can be passed in to evaluate the column.|
-| convertBlankstoValue(df, [var_array, value]) | This function is used to convert missing values in a dataframe column to a specified value.|
-| compare_columns_A_B(df, A, B) | A function to compare two columns A and B of a dataframe and modify column A to B's value if A is greater than B |
+| [multiparent_conditions(df, var_array, dict_conditions_values)](multiparent_conditions) | Function for replacement of values in a dataframe based on multiple conditions evaluated from multiple columns.|
+| [evaluate_df_column(df, column_names, [dict_conditions_values, func, output_column_name])](evaluate_df_column) | This function takes a dataframe and column name(s) and evaluates the column based on the given conditions and values, creating a new column in the dataframe with the evaluated values. Optionally, a function can be passed in to evaluate the column.|
+| [convertBlankstoValue(df, [var_array, value])](convertBlankstoValue) | This function is used to convert missing values in a dataframe column to a specified value.|
+| [compare_columns_A_B(df, A, B)](compare_columns_A_B) | A function to compare two columns A and B of a dataframe and modify column A to B's value if A is greater than B |

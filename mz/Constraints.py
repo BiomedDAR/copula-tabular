@@ -49,14 +49,14 @@ class Constraints:
         Example usage: 
             df = multiparent_conditions(df, ["column1", "column2"], 
                 {0: {"conditions": {"parent1": {"parent": "parent1_column", "condition": "> 5"}, 
-                                    {"parent2": {"parent": "parent2_column", "condition": "< 10"}}, 
+                                    "parent2": {"parent": "parent2_column", "condition": "< 10"}}, 
                         "value": 0}, 
                 1: {"conditions": {"parent3": {"parent": "parent3_column", "condition": "== 'Yes'"}}, 
                     "value": 1 #note that assigned value must match the dtype of column
                     }
                 })
         
-            This example updates the dataframe with the values 0 and 1 in "column1" and "column2" columns respectively, according to the conditions given. In particular, the value 0 is inserted when "parent1_column" is greater than 5 AND "parent2_column" is less than 10. The value 1 is inserted when "parent3_column" is equal to "Yes".
+            This example updates the dataframe with the values 0 and 1 in "column1" and "column2" columns, according to the conditions given. In particular, the value 0 is inserted when "parent1_column" is greater than 5 AND "parent2_column" is less than 10. The value 1 is inserted when "parent3_column" is equal to "Yes".
         """
 
         # Initialise log

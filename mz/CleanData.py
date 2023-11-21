@@ -33,7 +33,7 @@ class CleanData:
         self.initial_report_filename = 'initial_report.xlsx' #output file name to store the initial report prior to optional cleaning steps
 
         self.logging = True
-        self.log_filename = "logfile.txt"
+        self.log_filename = "logfile.txt" #output file name to store logs
 
         self.dict_var_varname = "NAME" # column in data dictionary containing variable names in input data
         self.dict_var_varcategory = "CATEGORY" # column in data dictionary setting the category of the variable name
@@ -745,13 +745,9 @@ class CleanData:
         ----------
         self: Module object
             Module object containing all the attributes and methods.
-        df: DataFrame
-            Dataframe containing data for standardisation.
             
         Returns
         -------
-        output_df: DataFrame
-            DataFrame with standardised case types for string and object values.
         """
 
         if (self.debug):
