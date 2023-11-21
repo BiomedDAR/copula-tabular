@@ -65,7 +65,7 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 *   `SUFFIX_CONVERT_ASCII`: The filename suffix to use for intermediate outputs of cleaned data. If not specified, default is `ASCII`.
 *   `OPTIONS_CONVERT_ASCII_EXCLUSION_LIST`: List of characters to exclude from conversion. Eg. `['€','$','Ò']`
 
-**debug**: boolean, default None
+**debug**: boolean, default `None`.
 
 &emsp;If `True`, print intermediate outputs for debugging purposes
 
