@@ -65,14 +65,14 @@ Please refer to the below pages for detailed examples:
 | gaussian_kde_model | (obj) `stats.gaussian_kde` instance used.   |
 | fitted | (boolean) Set to `True` if successfully fitted.  |
 | params | (dict) List of parameters for fitted marginal distribution   |
-| sample_cdf | () CDF of samples used to fit the distribution   |
-| sample_pdf | () PDF of samples used to fit the distribution  |
-| samples | ()  x-values (samples) generated based on parameters (fitted or given) |
-| cdf | ()  cumulative probability of new data input based on parameters (either fitted or given) |
-| pdf | ()  probability of new data input based on parameters (either fitted or given) |
-| ppf | ()  x-value of cumulative probability of new data input |
-| parametric | ()  List of parametric distributions: `["beta", "laplace", "loglaplace", "gamma", "gaussian", "student_t", "uniform"]` |
-| nonparametric | ()  List of non-parametric distributions: `["emp", "gaussian_kde"]` |
+| sample_cdf | (array) CDF of samples used to fit the distribution   |
+| sample_pdf | (array) PDF of samples used to fit the distribution  |
+| samples | (array)  x-values (samples) generated based on parameters (fitted or given) |
+| cdf | (array)  cumulative probability of new data input based on parameters (either fitted or given) |
+| pdf | (array)  probability of new data input based on parameters (either fitted or given) |
+| ppf | (array)  x-value of cumulative probability of new data input |
+| parametric | (list)  List of parametric distributions: `["beta", "laplace", "loglaplace", "gamma", "gaussian", "student_t", "uniform"]` |
+| nonparametric | (list)  List of non-parametric distributions: `["emp", "gaussian_kde"]` |
 
 ### Methods
 
