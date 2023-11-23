@@ -64,7 +64,7 @@ Please refer to the below pages for detailed examples:
 
 | Example         | Description | 
 | ---:              |    :----   |
-| [Transformer](../../../gettingStarted/examples/Transformer) | Demonstrates use of customised constraints |
+| [Transformer](../../../gettingStarted/examples/Transformer) | Demonstrates use of Transformer to transform data into its numerical equivalents. |
 
 ### Attributes
 
@@ -87,6 +87,3 @@ Please refer to the below pages for detailed examples:
 | ---:              |    :----   |
 | transform(data_df) | Perform a numerical transformation on input `data_df`. Transformation details are stored in `Transformer.transformer_meta_dict`. |
 | reverse(data) | Perform the reverse transform on the input `data` (dataframe) using `Transformer.transformer_meta_dict` learned during the forward transform |
-
-
-<!-- ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '', '', '', '', '', '_reverse_categorical_transformer', 'convert_2_dtypes', '', '', '', '', '', '', '', '', 'transform', '', ''] -->
