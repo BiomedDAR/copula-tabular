@@ -26,7 +26,9 @@ from scipy import stats
 ```
 
 ### Build Plot Area
+```
 fig, (ax1, ax2) = plt.subplots(1,2)
+```
 
 ### Generate random data
 In this example, we use the scipy stats package to generate a fictitious sample, based on a gamma distribution.
@@ -106,7 +108,7 @@ plt.show()
 ![](../../assets/img/univariate_example_1.png)
 
 ## Example 2 of MarginalDist Class
-In this example, we demonstrate the use of the MarginalDist class to generate synthetic data for a univariate dataset, when the dataset
+In this example, we demonstrate the use of the MarginalDist class to generate synthetic data for a univariate dataset, when the dataset does not follow a known distribution.
 
 ### Generate random data
 In this example, we use the scipy stats package to generate a fictitious sample, based on a mixed gamma and Gaussian distribution.
