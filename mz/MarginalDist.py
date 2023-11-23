@@ -551,7 +551,7 @@ class MarginalDist:
 
 
     def gamma_dist(self, data=None, operation="fit", new_params={"loc":None, "scale":None, "a":None}, sample_size=None):
-        """Compute Beta Distribution related operations"""
+        """Compute Gamma Distribution related operations"""
 
         self.marginal_dist = "gamma"
 
