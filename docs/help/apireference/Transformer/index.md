@@ -18,9 +18,9 @@ Module for transformation of data into numerical equivalents for further process
 
 **definitions**:  file (.py), optional, default `None`. containing global variables
 
-**default_transformer_type_4_string**:  str (.py), optional, default `One-Hot`. Specify the default `transformer_type` for `dtype='string'`. Options include `One-Hot`, `LabelEncoding`, `Cat1`.
+**default_transformer_type_4_string**:  str, optional, default `One-Hot`. Specify the default `transformer_type` for `dtype='string'`. Options include `One-Hot`, `LabelEncoding`, `Cat1`.
 
-**default_datetime_format**:  str (.py), optional, default `%Y-%m-%d %H:%M:%S`. Specify the default datetime format to use.
+**default_datetime_format**:  str, optional, default `%Y-%m-%d %H:%M:%S`. Specify the default datetime format to use.
 
 **var_list**: list, optional, default `None`. List of variables to transform, to limit the number of transformed variables to a subset of the given inputs. If `None`, all variables will be transformed.
 
