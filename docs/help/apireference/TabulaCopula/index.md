@@ -66,10 +66,10 @@ Please refer to the below pages for detailed examples:
 
 | Example         | Description | 
 | ---:              |    :----   |
-| [Multivariate Synthetic Data (multi-Linear)](../../../gettingStarted/examples/TabulaCopula_conditional.md) | Demonstrates the use of the TabulaCopula class to generate synthetic data for a multivariate dataset. |
-| [Multivariate Synthetic Data (multi-Linear, with missing values)](../../../gettingStarted/examples/TabulaCopula_conditional_2.md) | Demonstrates use of the TabulaCopula class to generate synthetic data for a multivariate real dataset (NHANES), between variables of known linear relationship. |
-| [Multivariate Synthetic Data (multi-Linear, Privacy Leakage Assessment)](../../../gettingStarted/examples/TabulaCopula_conditional_privacyLeakage.md) | Demonstrates use of the TabulaCopula class to quantitatively assess the privacy leakage risks of generated synthetic data.  |
-| [Multivariate Synthetic Data (multi, non-linear, non-monotonic)](../../../gettingStarted/examples/TabulaCopula_conditional_nonmonotonic.md) | Demonstrates use of the TabulaCopula class to generate synthetic data for a multivariate simulated dataset (socialdata), between variables of known non-linear, non-monotonic relationships. |
+| [Multivariate Synthetic Data (multi-Linear)](../../../gettingStarted/examples/TabulaCopula_conditional) | Demonstrates the use of the TabulaCopula class to generate synthetic data for a multivariate dataset. |
+| [Multivariate Synthetic Data (multi-Linear, with missing values)](../../../gettingStarted/examples/TabulaCopula_conditional_2) | Demonstrates use of the TabulaCopula class to generate synthetic data for a multivariate real dataset (NHANES), between variables of known linear relationship. |
+| [Multivariate Synthetic Data (multi-Linear, Privacy Leakage Assessment)](../../../gettingStarted/examples/TabulaCopula_conditional_privacyLeakage) | Demonstrates use of the TabulaCopula class to quantitatively assess the privacy leakage risks of generated synthetic data.  |
+| [Multivariate Synthetic Data (multi, non-linear, non-monotonic)](../../../gettingStarted/examples/TabulaCopula_conditional_nonmonotonic) | Demonstrates use of the TabulaCopula class to generate synthetic data for a multivariate simulated dataset (socialdata), between variables of known non-linear, non-monotonic relationships. |
 
 ### Attributes
 
