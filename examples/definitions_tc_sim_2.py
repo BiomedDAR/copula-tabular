@@ -27,7 +27,7 @@ DICT_VAR_TYPE = "TYPE" # column in data dictionary setting the type of the varia
 
 OUTPUT_GENERAL_PREFIX = "COND_SIM_2" # prefix used for all output files, e.g. EXPT_1. if not specified, set as ""
 OUTPUT_TYPE_DATA = 'csv' # the output file type for the clean data files. Available options: 'csv', 'xlsx'. If not specified, default is 'csv'
-OUTPUT_TYPE_DICT = 'xlsx' # the output file type fot the amended dictionary. Available options: 'csv', 'xlsx'. If not specified, default is 'xlsx'
+OUTPUT_TYPE_DICT = 'xlsx' # the output file type for the amended dictionary. Available options: 'csv', 'xlsx'. If not specified, default is 'xlsx'
 
 # SETTINGS FOR PRIVACY LEAKAGE TESTING
 SAMPLING = 0.8 # proportion of samples to keep for training (rest will be kept as control for privacy leakage testing)

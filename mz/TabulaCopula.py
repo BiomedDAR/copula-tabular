@@ -39,6 +39,8 @@ class TabulaCopula:
 
         conditionalSettings_dict (dict): dictionary of inputs for using conditional-copula
 
+        output_general_prefix (str): Prefix used for all output files, e.g. "EXPT_1". If not None, replaces settings in definitions. Default is None.
+
         metaData_transformer (dict): dictionary of inputs for the Transformer class initialisation (ref Transformer metaData(dict))
     
         var_list_filter (list): List of variables to transform. Default is None (all will be transformed)
@@ -51,29 +53,29 @@ class TabulaCopula:
 
     Example inputs:
         conditionalSettings_dict = {
-        "set_1": {
-            "bool": True,
-            "parent_conditions": { # 2 parents, the `Y` in `P(X | Y)`.
-                "SurveyYr": { # split variable into 2 sets
-                    "condition": "set",
-                    "condition_value": {
-                        1: ["2009_10"],
-                        2: ["2011_12"]
+            "set_1": {
+                "bool": True,
+                "parent_conditions": { # 2 parents, the `Y` in `P(X | Y)`.
+                    "SurveyYr": { # split variable into 2 sets
+                        "condition": "set",
+                        "condition_value": {
+                            1: ["2009_10"],
+                            2: ["2011_12"]
+                        }
+                    },
+                    "Age": { # split variable into 3 sets based on range
+                        "condition": "range",
+                        "condition_value": {
+                            1: [">=3", "<79"],
+                            2: ["<3"],
+                            3: [">=79"]
+                        }
                     }
                 },
-                "Age": { # split variable into 3 sets based on range
-                    "condition": "range",
-                    "condition_value": {
-                        1: [">=3", "<79"],
-                        2: ["<3"],
-                        3: [">=79"]
-                    }
-                }
-            },
-            "conditions_var": ["Age"], # the `Y` to keep constant while generating values of `X` in `P(X | Y)`. Can be a float, in which case it is a threshold to fix all variables with pairwise correlation (with X) above then said threshold.
-            "children": ['AgeMonths'] #variable for which to learn the joint conditional distributions on, the `X` in `P(X | Y)`. Can be a string: "allOthers".
+                "conditions_var": ["Age"], # the `Y` to keep constant while generating values of `X` in `P(X | Y)`. Can be a float, in which case it is a threshold to fix all variables with pairwise correlation (with X) above then said threshold.
+                "children": ['AgeMonths'] #variable for which to learn the joint conditional distributions on, the `X` in `P(X | Y)`. Can be a string: "allOthers".
+            }
         }
-    }
 
     Change log:
         (MZ) 07-09-2023: add sampling option to transformed data (form disjoint subsets for training and control).

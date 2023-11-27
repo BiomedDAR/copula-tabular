@@ -33,8 +33,32 @@ class GaussianCopula:
             print(f"Learned marginal distribution for {var_name}: {var_univariate.fitted_marginal_dist}")
 
     def compute_correlation(self, data, method='kendall', transform_to_normal=False):
-        """Compute the (pairwise) correlation matrix using input data
-        method (str): options available: 'kendall' (default)
+        """
+        
+            Computes the (pairwise) correlation matrix for a given set of data. 
+            The method used to compute the correlation can be chosen from the available options (kendall, spearman, pearson).
+
+            Args:
+            data (dataframe): training data
+            method (str): The method used to compute the correlation. Available  options are 'kendall' (default), 'spearman', and 'pearson'.
+            transform_to_normal (bool): If True, the data is first transformed to a normal distribution before computing the correlation.
+
+            Returns:
+            corr_matrix_df (pd.DataFrame): A square DataFrame with the variable names as indexes and columns, and the correlations as values. 
+
+            Example:
+            var1 = np.random.randint(low=1, high=100, size=10)
+            var2 = np.random.randint(low=1, high=100, size=10)
+            var3 = np.random.randint(low=1, high=100, size=10)
+            data = pd.DataFrame({'var1': var1, 'var2': var2, 'var3': var3})
+            method = 'spearman'
+            transform_to_normal = True
+            corr_matrix_df = compute_correlation(data, method, transform_to_normal)
+            print(corr_matrix_df)
+                  var1      var2      var3
+            var1  1.000000  0.774597  0.548821
+            var2  0.774597  1.000000  0.970860
+            var3  0.548821  0.970860  1.000000
         """
 
         if (self.debug):
@@ -73,7 +97,15 @@ class GaussianCopula:
 
 
     def fit(self, data, marginal_dist_dict=None):
-        """Compute the distribution for each variable and then its covariance matrix
+        """
+        Compute the distribution for each variable and then its covariance matrix
+
+        Args:
+            data (dataframe): training data
+            marginal_dist_dict (dict, optional): A dictionary where keys are variable names and values are lists of candidate marginal distributions. Defaults to None.
+
+        Returns:
+            None
         """
 
         var_names = []
@@ -138,7 +170,15 @@ class GaussianCopula:
 
     def sample(self, size=1, conditions=None):
         """
-            conditions (dict)
+        Generates synthetic data from a fitted Gaussian Copula Model.
+        Args:
+            size (int): The number of synthetic samples to generate.
+            conditions (dict): A dictionary containing values for conditional variables in the form of {variable_name: value}. 
+            If no conditions are specified, the full joint Gaussian distribution will be used.
+        Returns:
+            syn_samples_df (pd.DataFrame): A dataframe containing the synthetic samples.
+        Raises:
+            Error: If the model has not been fitted yet.
         """
 
         # check fit

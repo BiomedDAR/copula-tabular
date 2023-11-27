@@ -20,6 +20,9 @@ import definitions_tc_sim_3 as defi
 # SCRIPT SETTINGS
 syn_data_bool = True # generate synthetic data
 visual_bool = True # generate plots
+visual_corr_three = True # plot three correlation matrices in one figure
+visual_scatter_ref_single = False # use single reference variable for scatterplot
+visual_scatter_ref_permute = False # permute all possible 2-d plots for scatterplot
 cond_bool = True # generate synthetic data using conditional copula
 output_general_prefix = 'TC3-C' # to label different runs
 
@@ -114,16 +117,54 @@ if visual_bool:
 
     # Plot Correlation Plots
     corr_options = {
-        "x_label_rot": 45
+        "x_label_rot": 45,
+        "title_fontsize": 14
     }
     ax_corr_1, ax_corr_2, fig_corr = vp.corrMatrix_compare(data_df, syn_samples_df, options=corr_options)
     if cond_bool:
         ax_corr_cond_1, ax_corr_cond_2, fig_cond_corr = vp.corrMatrix_compare(data_df, syn_samples_conditional_df, options=corr_options)
 
+    if visual_corr_three:
+        fig_corr_three = plt.figure()
+        ax_corr_three_1, fig_corr_three = vp.corrMatrix(data_df, fig=fig_corr_three, position=131, title='Plot of Correlation Matrix (Real)', x_label_rot=45)
+        ax_corr_three_2, fig_corr_three = vp.corrMatrix(syn_samples_df, fig=fig_corr_three, position=132, title='Plot of Correlation Matrix (SYN)', x_label_rot=45)
+        ax_corr_three_3, fig_corr_three = vp.corrMatrix(syn_samples_conditional_df, fig=fig_corr_three, position=133, title='Plot of Correlation Matrix (SYN, COND)', x_label_rot=45)
+
+
     # ScatterPlot
-    ax_scatter, fig_scatter = vp.scatterPlot_multiple_compare(data_df, syn_samples_df, n_plot_cols=3, ref='autopermute')
+    scatterplot_options={
+        "sampling":0.1
+    }
     
-    if cond_bool:
-        ax_scatter_cond, fig_scatter_cond = vp.scatterPlot_multiple_compare(data_df, syn_samples_conditional_df, n_plot_cols=3, ref='autopermute')
+    if visual_scatter_ref_single:
+        ref = 'Age'
+    elif visual_scatter_ref_permute:
+        ref = 'autopermute'
+
+    if visual_scatter_ref_single or visual_scatter_ref_permute:
+        ax_scatter, fig_scatter = vp.scatterPlot_multiple_compare(data_df, syn_samples_df, n_plot_cols=3, ref=ref, options=scatterplot_options)
+        
+        if cond_bool:
+            ax_scatter_cond, fig_scatter_cond = vp.scatterPlot_multiple_compare(data_df, syn_samples_conditional_df, n_plot_cols=3, ref=ref, options=scatterplot_options)
+
+    # Customised ScatterPlots
+    import math
+    scatterPlot_cus_fig = plt.figure()
+
+    var_tuple = [('Age','Asset'), ('Satisfaction', 'Asset'), ('DiastolicBP', 'Satisfaction'), ('DiastolicBP','Height'), ('Weight', 'Satisfaction'), ('Weight', 'Age')]
+    
+    for i, var_tuple_i in enumerate(var_tuple):
+        var1 = var_tuple_i[0]
+        var2 = var_tuple_i[1]
+        plt_title = f'Plot of {var1} against {var2}'
+        n_plot_cols = 3
+        n_plot_rows = math.ceil(len(var_tuple)/n_plot_cols)
+        position_tuple = (int(n_plot_rows), int(n_plot_cols), int(i+1))
+
+        (scatterPlot_cus_ax_1, scatterPlot_cus_fig) = vp.scatterPlot(data_df[var1], data_df[var2], label="Real", position=position_tuple, fig=scatterPlot_cus_fig, color='blue', marker='x', sampling = 0.1)
+
+        (scatterPlot_cus_ax_1, scatterPlot_cus_fig) = vp.scatterPlot(syn_samples_df[var1], syn_samples_df[var2], label="Syn with Copula", position=scatterPlot_cus_ax_1, fig=scatterPlot_cus_fig, color='grey', marker='x', sampling = 0.1, title=plt_title)
+
+        (scatterPlot_cus_ax_1, scatterPlot_cus_fig) = vp.scatterPlot(syn_samples_conditional_df[var1], syn_samples_conditional_df[var2], label="Syn with Cond. Copula", position=scatterPlot_cus_ax_1, fig=scatterPlot_cus_fig, color='red', marker='x', sampling = 0.1, title=plt_title)
 
     plt.show()
