@@ -9,9 +9,10 @@ setup(
     version='0.1.0',    
     description='A Python package for tabular synthetic data',
     url='https://biomeddar.github.io/copula-tabular/',
-    author='MZ',
+    author='MZ Tan',
     author_email='tan_ming_zhen@bii.a-star.edu.sg',
     license='MIT',
+    keywords='synthetic data copula',
     packages=find_packages(include=['bdarpack', 'bdarpack.*']),
     install_requires=[
         'pandas',
@@ -23,12 +24,12 @@ setup(
         'xlrd',
         'Unidecode'
     ],
+    python_requires='>=3',
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',  
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
     ],
 )
