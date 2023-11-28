@@ -1,4 +1,5 @@
 # This example demonstrates the use of the TabulaCopula class to generate risk leakage statistics.
+# Third-party package: Anonymeter is required. To install, use 'pip install anonymeter'
 
 # LOAD DEPENDENCIES
 import sys, os

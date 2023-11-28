@@ -12,7 +12,7 @@ This example demonstrates the use of the TabulaCopula class to quantitatively as
 One important pre-requisite of running the Privacy Leakage assessment is the approportion of control data prior to synthetic data generation. This step is automatically done in the TabulaCopula setup, by the `SAMPLING' variable in the definitions script (Under SETTINGS FOR PRIVACY LEAKAGE TESTING). If this value is set to '1', no control data will be available for Privacy Leakage assessments, and the TC class will not be able to build the Privacy Leakage evaluator.
 
 ### Additional Library
-The privacy leakage uses a third-party library Anonymeter. To install Anonymeter, please follow instructions [here](https://github.com/statice/anonymeter).
+The privacy leakage uses a third-party library Anonymeter. To install Anonymeter, please follow instructions [here](https://github.com/statice/anonymeter) ('pip install anonymeter').
 
 ### Import Libraries
 ```

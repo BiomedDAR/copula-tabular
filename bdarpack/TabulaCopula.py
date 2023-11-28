@@ -5,8 +5,13 @@ import os, sys
 import pickle
 from bdarpack.Transformer import Transformer
 from bdarpack.GaussianCopula import GaussianCopula
-from bdarpack.PrivacyMetric import PrivacyMetric as PM
 from pprint import pprint
+
+try:
+    from bdarpack.PrivacyMetric import PrivacyMetric as PM
+    HAVE_PM = True
+except ImportError:
+    HAVE_PM = False
 
 def load_TC(defi):
     """Function to load saved TC instance from definitions."""
@@ -815,11 +820,14 @@ class TabulaCopula:
         syn_cond = ut_.convert_datatypes(syn_cond)
         control = ut_.convert_datatypes(control)
 
-        privacyMetric = PM(ori=ori, syn=syn, control=control)
-        privacyMetric_conditional = PM(ori=ori, syn=syn_cond, control=control)
+        if HAVE_PM:
+            privacyMetric = PM(ori=ori, syn=syn, control=control)
+            privacyMetric_conditional = PM(ori=ori, syn=syn_cond, control=control)
 
-        self.privacyMetricEval = privacyMetric
-        self.privacyMetricEval_cond = privacyMetric_conditional
+            self.privacyMetricEval = privacyMetric
+            self.privacyMetricEval_cond = privacyMetric_conditional
+        else: 
+            return False
 
         return True
     
