@@ -29,6 +29,10 @@ VAR_NAME_STRIPEMPTYSPACES = True # option. If True, empty spaces will be strippe
 OUTPUT_TYPE_DATA = 'csv' # the output file type for the clean data files. Available options: 'csv', 'xlsx'. If not specified, default is 'csv'
 OUTPUT_TYPE_DICT = 'xlsx' # the output file type fot the amended dictionary. Available options: 'csv', 'xlsx'. If not specified, default is 'xlsx'
 
+# SETTINGS FOR REPORT GENERATION
+INITIAL_REPORT_FILENAME = 'initialisation_report.xlsx' #output file name to store the initial report prior to optional cleaning steps
+
+
 # SETTINGS FOR DROP DUPLICATES
 OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME = 'rowsRemoved.xlsx' # output file name to store the duplicated rows which have been dropped
 SUFFIX_DROPPED_DUPLICATED_ROWS = "DD"
@@ -40,4 +44,4 @@ SUFFIX_CONSTRAINTS = "CON"
 SUFFIX_STANDARDISE_TEXT = "ST"
 OPTIONS_STANDARDISE_TEXT_CASE_TYPE = "uppercase" # default case type to convert strings into: "uppercase", "lowercase", "capitalise"
 OPTIONS_STANDARDISE_TEXT_EXCLUDE_LIST = ["Gender", "Work"] # variables to exclude from the conversion.
-OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT = {"Race1": "capitalise"}
+OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT = {"Race1": "capitalise"} # dictionary to customise case_type for specific variables, overwriting default

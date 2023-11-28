@@ -13,8 +13,8 @@ if __name__ == '__main__':
         sys.path.insert(0, head+sep) # adding par_dir to system path
 
 
-from mz.Transformer import Transformer
-from mz import utils_ as ut_
+from bdarpack.Transformer import Transformer
+from bdarpack import utils_ as ut_
 
 class TestTransformerMethods(unittest.TestCase):
 

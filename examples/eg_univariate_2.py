@@ -10,7 +10,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.MarginalDist import MarginalDist
+from bdarpack.MarginalDist import MarginalDist
 from scipy import stats
 
 # BUILD PLOT AREA

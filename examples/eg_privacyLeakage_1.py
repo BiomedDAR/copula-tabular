@@ -9,7 +9,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.TabulaCopula import load_TC
+from bdarpack.TabulaCopula import load_TC
 
 # LOAD THE SAVED TabulaCopula instance from 'eg_TabulaCopula_1.py'
 import definitions_tc_sim_2 as defi #this is the same definitions script as the one used in 'eg_TabulaCopula_1.py'

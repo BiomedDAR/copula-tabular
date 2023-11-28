@@ -1,5 +1,5 @@
-from mz.MarginalDist import MarginalDist
-from mz import utils_ as ut_
+from bdarpack.MarginalDist import MarginalDist
+from bdarpack import utils_ as ut_
 import pandas as pd
 import numpy as np
 from scipy import stats

@@ -12,7 +12,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.TabulaCopula import TabulaCopula
+from bdarpack.TabulaCopula import TabulaCopula
 
 # LOAD DEFINITIONS
 import definitions_nhanes_1 as defi
@@ -83,7 +83,7 @@ if syn_data_bool:
 # VISUALISATION
 if visual_bool:
 
-    from mz import VIsualPlot as vp
+    from bdarpack import VIsualPlot as vp
 
     data_df_filename = f"{dir_path}/synData/nhanes_raw-DD-CON-ST-{output_general_prefix}-CURATED.csv"
     syn_samples_df_filename = f"{dir_path}/synData/nhanes_raw-DD-CON-ST-{output_general_prefix}-REV.csv"

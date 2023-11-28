@@ -10,9 +10,9 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.TabulaCopula import TabulaCopula
-from mz import VIsualPlot as vp
-from mz import utils_ as ut_
+from bdarpack.TabulaCopula import TabulaCopula
+from bdarpack import VIsualPlot as vp
+from bdarpack import utils_ as ut_
 
 # LOAD DEFINITIONS
 import definitions_tc_sim_3 as defi

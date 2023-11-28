@@ -12,17 +12,17 @@ if __name__ == '__main__':
         head, sep, tail = dir_path.partition('copula-tabular')
         sys.path.insert(0, head+sep) # adding par_dir to system path
 
-        from mz.CleanData import CleanData
-        from mz.Constraints import Constraints
+        from bdarpack.CleanData import CleanData
+        from bdarpack.Constraints import Constraints
         import definitions as defi
         import definitions_date as defi_date
         import script_nhanes_constraints as n_con
     else: #run cmd python -m mz.tests.test_clean -v
-        from mz.CleanData import CleanData
-        from mz.Constraints import Constraints
-        from mz.tests import definitions as defi
-        from mz.tests import definitions_date as defi_date
-        from mz.tests import script_nhanes_constraints as n_con
+        from bdarpack.CleanData import CleanData
+        from bdarpack.Constraints import Constraints
+        from bdarpack.tests import definitions as defi
+        from bdarpack.tests import definitions_date as defi_date
+        from bdarpack.tests import script_nhanes_constraints as n_con
 
 class TestCleanDataMethods(unittest.TestCase):
 

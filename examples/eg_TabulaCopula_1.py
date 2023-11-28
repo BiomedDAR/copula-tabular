@@ -12,8 +12,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.TabulaCopula import TabulaCopula
-from mz import utils_ as ut_
+from bdarpack.TabulaCopula import TabulaCopula
+from bdarpack import utils_ as ut_
 
 # GENERATE A "FICTIONAL" DATA SAMPLE USING SCIPY
 # In the first Gaussian Copula example, we simulated a simple linear relationship between variables x and y, such that y = 0.2x, with uniform noise.
@@ -111,7 +111,7 @@ tc = TabulaCopula(
 tc.syn_generate(cond_bool=False)
 
 # VISUALISATION
-from mz import VIsualPlot as vp
+from bdarpack import VIsualPlot as vp
 data_df = tc.train_df
 syn_samples_df = tc.reversed_df
 

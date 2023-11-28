@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import numpy as np
 
-from mz import utils_ as ut_
+from bdarpack import utils_ as ut_
 
 class Transformer:
     """

@@ -10,7 +10,7 @@ sys.path.insert(0, par_dir)
 head, sep, tail = dir_path.partition('copula-tabular')
 sys.path.insert(0, head+sep) # adding par_dir to system path
 
-from mz.Constraints import Constraints
+from bdarpack.Constraints import Constraints
 
 con = Constraints(debug=True)
 

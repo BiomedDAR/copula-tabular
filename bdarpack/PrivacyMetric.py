@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from mz import utils_ as ut_
-from mz import VIsualPlot as vp
+from bdarpack import utils_ as ut_
+from bdarpack import VIsualPlot as vp
 
 from anonymeter.evaluators import SinglingOutEvaluator
 from anonymeter.evaluators import LinkabilityEvaluator

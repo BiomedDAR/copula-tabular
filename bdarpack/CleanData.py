@@ -1,4 +1,4 @@
-from mz import utils_ as ut_
+from bdarpack import utils_ as ut_
 import pandas as pd
 import numpy as np
 import pprint

@@ -5,7 +5,7 @@ import numpy as np
 from scipy import stats
 from scipy.interpolate import interp1d
 
-from mz import utils_ as ut_
+from bdarpack import utils_ as ut_
 
 DIST_MAP = {
     "beta": "beta_dist",

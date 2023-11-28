@@ -1,11 +1,11 @@
-from mz import utils_ as ut_
+from bdarpack import utils_ as ut_
 import pandas as pd
 from copy import deepcopy
 import os, sys
 import pickle
-from mz.Transformer import Transformer
-from mz.GaussianCopula import GaussianCopula
-from mz.PrivacyMetric import PrivacyMetric as PM
+from bdarpack.Transformer import Transformer
+from bdarpack.GaussianCopula import GaussianCopula
+from bdarpack.PrivacyMetric import PrivacyMetric as PM
 from pprint import pprint
 
 def load_TC(defi):
