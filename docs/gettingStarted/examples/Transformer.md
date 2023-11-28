@@ -18,6 +18,9 @@ import pprint, sys, os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
+
+from bdarpack.Transformer import Transformer #import Transformer class
+from bdarpack.utils_ import gen_randomData #import random data generator
 ```
 
 ### Generate random data

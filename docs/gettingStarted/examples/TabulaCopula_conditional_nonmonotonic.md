@@ -26,9 +26,9 @@ sys.path.insert(0, par_dir)
 head, sep, tail = dir_path.partition('copula-tabular')
 sys.path.insert(0, head+sep) # adding par_dir to system path
 
-from mz.TabulaCopula import TabulaCopula
-from mz import VIsualPlot as vp
-from mz import utils_ as ut_
+from bdarpack.TabulaCopula import TabulaCopula
+from bdarpack import VIsualPlot as vp
+from bdarpack import utils_ as ut_
 ```
 
 ### Load script containing definitions

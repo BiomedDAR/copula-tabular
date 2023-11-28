@@ -23,10 +23,10 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.MarginalDist import MarginalDist
-from mz.GaussianCopula import GaussianCopula
-from mz.Transformer import Transformer
-from mz import utils_ as ut_
+from bdarpack.MarginalDist import MarginalDist
+from bdarpack.GaussianCopula import GaussianCopula
+from bdarpack.Transformer import Transformer
+from bdarpack import utils_ as ut_
 ```
 
 ### Generate random data
@@ -145,7 +145,7 @@ syn_samples_df = gaussian_copula.sample(size=2000)
 ### Visualisation
 
 ```
-from mz import VIsualPlot as vp
+from bdarpack import VIsualPlot as vp
 
 # Plot Histogram of Data Sample
 ax_hist_1, fig_histogram = vp.hist(data_df['cat2_x'], position=131, title='Histogram Plot', label=f"Original: cat2_x, n={len(data_df['cat2_x'])}")

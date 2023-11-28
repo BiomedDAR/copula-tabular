@@ -38,7 +38,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.TabulaCopula import TabulaCopula
+from bdarpack.TabulaCopula import TabulaCopula
 ```
 
 ### Load script containing definitions
@@ -99,7 +99,7 @@ tc.syn_generate(cond_bool=False)
 
 ### Visualisation of Results
 ```
-from mz import VIsualPlot as vp
+from bdarpack import VIsualPlot as vp
 
 data_df_filename = f"{dir_path}/synData/nhanes_raw-DD-CON-ST-{output_general_prefix}-CURATED.csv"
 syn_samples_df_filename = f"{dir_path}/synData/nhanes_raw-DD-CON-ST-{output_general_prefix}-REV.csv"
@@ -215,7 +215,7 @@ tc.print_details_copula()
 
 ### Visualisation of Results
 ```
-from mz import VIsualPlot as vp
+from bdarpack import VIsualPlot as vp
 
 data_df_filename = f"{dir_path}/synData/nhanes_raw-DD-CON-ST-{output_general_prefix}-CURATED.csv"
 syn_samples_conditional_df_filename = f"{dir_path}/synData/nhanes_raw-DD-CON-ST-{output_general_prefix}-COND_REV.csv"

@@ -20,8 +20,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.TabulaCopula import TabulaCopula
-from mz import utils_ as ut_
+from bdarpack.TabulaCopula import TabulaCopula
+from bdarpack import utils_ as ut_
 ```
 
 ### Generate a 'fictional' data sample

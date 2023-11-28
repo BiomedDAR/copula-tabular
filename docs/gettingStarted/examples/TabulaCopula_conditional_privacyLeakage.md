@@ -21,7 +21,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 par_dir = os.path.dirname(dir_path)
 sys.path.insert(0, par_dir)
 
-from mz.TabulaCopula import load_TC
+from bdarpack.TabulaCopula import load_TC
 ```
 
 ### Load Script Containing Definitions

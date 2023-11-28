@@ -11,12 +11,12 @@ Automated testing is available for `CleanData` and `Transformer`
 
 Testing CleanData Class:
 ```
-python -m mz.tests.test_clean -v
+python -m bdarpack.tests.test_clean -v
 ```
 
 Testing Transformer Class:
 ```
-python -m mz.tests.test_transformer -v
+python -m bdarpack.tests.test_transformer -v
 ```
 
 Automated testing of the final output is difficult for synthetic data generation modules, due to the nature of random sampling. However, users can follow the detailed steps in the [Examples](../gettingStarted/examples/) section to verify expected functionality of other features, including

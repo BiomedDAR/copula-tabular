@@ -35,7 +35,7 @@ PregnantNow        object            string            Matched                  
 ### Import Libraries
 ```
 # LOAD DEPENDENCIES
-from mz.Constraints import Constraints
+from bdarpack.Constraints import Constraints
 ```
 
 eg_nhanes_constraints is a script where the constraints specific to the nhanes have been stored. They consists of functions which take in a dataframe from the CleanData class and an object of the Constraints class, and returns a constrained dataframe and an updated Constraints class that captured the details of the transformation.
