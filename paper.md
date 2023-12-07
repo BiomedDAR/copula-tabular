@@ -11,13 +11,14 @@ authors:
     orcid: 0000-0003-3200-8341
     corresponding: true # (This is how to denote the corresponding author)
     equal-contrib: true
-    affiliation: "1, 2" # (Multiple affiliations must be quoted)
+    affiliation: 1
+    # affiliation: "1, 2" # (Multiple affiliations must be quoted)
   - name: Wing-Cheong Wong
     orcid: 0000-0003-1247-6279
     equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
-    affiliation: 2
-  - name: Author with no affiliation
-    affiliation: 3
+    affiliation: 1
+  # - name: Author with no affiliation
+  #   affiliation: 3
 affiliations:
  - name: Bioinformatics Institute, A*STAR
    index: 1
