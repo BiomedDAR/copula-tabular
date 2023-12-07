@@ -7,6 +7,11 @@ nav_order: 3
 
 # Installation
 
+## Instructions
+```
+pip install bdarpack
+```
+
 ## Required dependencies
 
 Tested on Python (3.9.*)

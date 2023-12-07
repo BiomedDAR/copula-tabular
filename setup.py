@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bdarpack',
-    version='0.1.2',    
+    version='0.1.3',    
     description='A Python package for tabular synthetic data',
     url='https://biomeddar.github.io/copula-tabular/',
     author='MZ Tan',
@@ -14,16 +14,16 @@ setup(
     license='MIT',
     keywords='synthetic data copula',
     packages=find_packages(include=['bdarpack', 'bdarpack.*']),
-    # install_requires=[ #comment out when uploading in testpypi
-    #     'pandas',
-    #     'numpy',
-    #     'matplotlib',
-    #     'scipy',
-    #     'openpyxl',
-    #     'scikit-learn',
-    #     'xlrd',
-    #     'Unidecode'
-    # ],
+    install_requires=[ #comment out when uploading in testpypi
+        'pandas',
+        'numpy',
+        'matplotlib',
+        'scipy',
+        'openpyxl',
+        'scikit-learn',
+        'xlrd',
+        'Unidecode'
+    ],
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     python_requires='>=3',
