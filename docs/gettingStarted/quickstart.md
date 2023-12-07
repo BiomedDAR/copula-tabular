@@ -14,4 +14,4 @@ pip install bdarpack
 
 Download `examples` folder, put in `root`.
 
-Run any of the examples, referencing detailed [explanations](/examples/index).
+Run any of the examples, referencing detailed [explanations](../gettingStarted/examples/index).
