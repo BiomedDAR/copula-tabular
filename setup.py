@@ -3,6 +3,11 @@ from setuptools import setup, find_packages
 # PyPA packaging instructions: https://packaging.python.org/tutorials/distributing-packages
 # The setuptools command reference: https://setuptools.readthedocs.io/en/latest/setuptools.html#command-reference
 # PyPI classifiers list: https://pypi.python.org/pypi?%3Aaction=list_classifiers 
+# create source dist: py -m build --sdist
+# create wheel: py -m build --wheel
+# upload distribution to testpypi: twine upload --repository-url https://test.pypy.org/legacy/ dist/<pyexample-0.1.0.tar.gz> or *
+# upload distribution: twine upload dist/*
+# username = __token__, password = <token>
 
 setup(
     name='bdarpack',
