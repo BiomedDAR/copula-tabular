@@ -275,8 +275,16 @@ def read_data(filename, options={}):
     delimiter = ','
     if "delimiter" in options:
         delimiter = options['delimiter']
+
+    na_values = None
+    if "na_values" in options:
+        na_values = options['na_values']
+
+    keep_default_na = False
+    if "keep_default_na" in options:
+        keep_default_na = options['keep_default_na']
     
-    data = pd.read_csv(filename, delimiter=delimiter)
+    data = pd.read_csv(filename, delimiter=delimiter, na_values=na_values, keep_default_na = keep_default_na)
 
     return data
 
@@ -284,7 +292,9 @@ def conversionFromTIMSTxtToCSV(filename, delimiter='|', output_filename=None, op
     """This function reads TIMS output .txt and converts to .csv format"""
 
     read_data_options = {
-        'delimiter': delimiter
+        'delimiter': delimiter,
+        'na_values': None,
+        'keep_default_na': False
     }
     data_df = read_data(filename,options=read_data_options)
 
