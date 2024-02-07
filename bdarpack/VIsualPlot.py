@@ -183,6 +183,7 @@ def scatterPlot(x_data, y_data, label='', fig=None, ax=None, position=None, titl
     if sampling is None:
         sampling = 1
     n = x_data.shape[0]
+    
     if sampling!=1:
         n2 = min(int(n*sampling),800)
     else:

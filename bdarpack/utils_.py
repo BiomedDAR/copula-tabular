@@ -112,6 +112,74 @@ def gen_linear_func(x, m=1, c=0, noise_factor=0):
     noise = stats.uniform.rvs(size=len(x))
     return m*x + c + noise*noise_factor
 
+# INTERPOLATION
+def gen_interpolation(x1, x2, x1new, type="linear", options={}):
+    """This function is used to create new datapoints via interpolation.
+    
+    Parameters:
+        x1 (array): 1-D array containing values of the independent variable. Values must be real, finite and in strictly increasing order.
+        x2 (array): Array containing values of the dependent variable. It can have arbitrary number of dimensions, but the length along axis (see below) must match the length of x. Values must be finite.
+        x1new (array): 1-D array containing new values of independent variable.
+        type (str): default is "linear", options include "linear", "cubic_spline", "akima1d", "pchip"
+        options (dict): options based on specified `type`
+            "linear" options:
+                'extrapolate' (boolean) default is False
+                'left' (float) default is NaN; extrapolation values for left side if extrapolate is TRUE
+                'right' (float) default is NaN; extrapolation values for right side if extrapolate is TRUE
+            "cubic_spline" options: 
+                'bc_type': (str) not-a-knot, periodic, clamped, natural
+                'extrapolate' (boolean); default is True
+            "p_chip" options:
+                'extrapolate' (boolean); default is True
+
+    Returns:
+        array with interpolated data from x1new
+
+    """
+    from scipy.interpolate import CubicSpline, PchipInterpolator, Akima1DInterpolator
+
+    if (type == "linear"):
+        extrapolate = False
+        if 'extrapolate' in options:
+            extrapolate = options['extrapolate']
+
+        extra_v_left = float("nan")
+        extra_v_right = float("nan")
+        if extrapolate:
+            if 'left' in options:
+                extra_v_left = options['left']
+            if 'right' in options:
+                extra_v_right = options['right']
+
+        x2new = np.interp(x1new, x1, x2, left=extra_v_left, right=extra_v_right)
+    elif (type == "cubic_spline"):
+        from scipy.interpolate import CubicSpline
+
+        bc_type = 'not-a-knot' #not-a-knot, periodic, clamped, natural
+        extrapolate = True
+        if 'bc_type' in options:
+            bc_type = options['bc_type']
+        if 'extrapolate' in options:
+            extrapolate = options['extrapolate']
+
+        spl = CubicSpline(x1, x2, bc_type=bc_type, extrapolate=extrapolate)
+        x2new = spl(x1new)
+    elif (type == "pchip"):
+        from scipy.interpolate import PchipInterpolator
+
+        extrapolate = True
+        if 'extrapolate' in options:
+            extrapolate = options['extrapolate']
+        pchip = PchipInterpolator(x1, x2, extrapolate=extrapolate)
+        x2new = pchip(x1new)
+    elif (type == "akima1d"):
+        from scipy.interpolate import Akima1DInterpolator
+
+        akima = Akima1DInterpolator(x1, x2)
+        x2new = akima(x1new)
+
+    return x2new
+
 # BUILD DATA DICTIONARY
 def build_basic_data_dictionary(varList, descr="No description available", type="numeric", specific_data_type="float", codings=None, frequency=None, category=None, secondary=None, constraints=None, remarks=None):
 
@@ -196,6 +264,39 @@ def get_worksheet_names(file_name):
     
     # Return the sheet names
     return xl_file.sheet_names
+
+def read_data(filename, options={}):
+    '''
+    This function reads a data file with special delimiters. 
+    options: 
+        delimiter: str, default ','
+    '''
+
+    delimiter = ','
+    if "delimiter" in options:
+        delimiter = options['delimiter']
+    
+    data = pd.read_csv(filename, delimiter=delimiter)
+
+    return data
+
+def conversionFromTIMSTxtToCSV(filename, delimiter='|', output_filename=None, options={}):
+    """This function reads TIMS output .txt and converts to .csv format"""
+
+    read_data_options = {
+        'delimiter': delimiter
+    }
+    data_df = read_data(filename,options=read_data_options)
+
+    if output_filename is None:
+        output_filename = change_extension(filename=filename, ext='csv')
+
+    try:
+        save_df_as_csv(df=data_df, filename=output_filename, index=False)
+        return True
+    except Exception as e:
+        print(f"Error writing to csv File: {e}")
+        return False
 
 
 # GENERAL FUNCTIONS FOR DATAFRAME
