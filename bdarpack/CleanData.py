@@ -393,6 +393,7 @@ class CleanData:
         return self.dict_df
     
     def gen_data_report(self, data, dict):
+        # (MZ): 17-08-2023: added fix to strip trailing spaces in data_type_in_dict column
 
         report_cols = ['data_type','data_type_in_dict','data_type_mismatch', 'count_missing_values', 'percentage_missing_values']
         report_df = pd.DataFrame(columns=report_cols, index=data.columns) #initialise dataframe B (not efficient)
@@ -402,13 +403,17 @@ class CleanData:
 
         for datatype_dict, data_type_set_var in self.type_var_dict.items():
             for set_var in data_type_set_var:
-                report_df.loc[set_var, 'data_type_in_dict'] = str(datatype_dict)
+                report_df.loc[set_var, 'data_type_in_dict'] = str(datatype_dict).strip()
         
         # Check for possible datatype mismatch
         report_df['data_type_mismatch'] = "Possible mismatch"
         report_df.loc[(report_df['data_type_in_dict'] == 'numeric') & 
               (report_df['data_type'].isin(['int64', 'float64', 'timedelta[ns]'])),'data_type_mismatch'] = 'Matched'
+        report_df.loc[(report_df['data_type_in_dict'] == 'Numerical') & 
+              (report_df['data_type'].isin(['int64', 'float64', 'timedelta[ns]'])),'data_type_mismatch'] = 'Matched'
         report_df.loc[(report_df['data_type_in_dict'] == 'string') & 
+              (report_df['data_type'].isin(['category', 'object'])),'data_type_mismatch'] = 'Matched'
+        report_df.loc[(report_df['data_type_in_dict'] == 'String') & 
               (report_df['data_type'].isin(['category', 'object'])),'data_type_mismatch'] = 'Matched'
         report_df.loc[(report_df['data_type_in_dict'] == 'date') & 
               (report_df['data_type'].isin(['datetime64', 'object'])),'data_type_mismatch'] = 'Matched'
