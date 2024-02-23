@@ -250,6 +250,8 @@ class CleanData:
             Dataframe containing the raw data.
         """
 
+        # (MZ): 23-02-2024: fix undefined self.raw_data_sheetname if input not xlsx
+
         if (self.debug):
             print(f"Reading raw data from filename: {self.raw_data_filename}")
         if (self.logging):
@@ -283,9 +285,11 @@ class CleanData:
                         print(f"Sheetname is preassigned as {sheetname}.")
                     if (self.logging):
                         self.logger.info(f"Sheetname is preassigned as {sheetname}.")
-                self.raw_data_sheetname = sheetname
+                
             elif (extension=='csv'):
                 file_type = 'csv'
+
+            self.raw_data_sheetname = sheetname
                         
         except ValueError as e:
             if self.logging:
@@ -332,6 +336,8 @@ class CleanData:
         
         """
 
+        # (MZ): 23-02-2024: fix undefined self.raw_data_dict_sheetname if input not xlsx
+
         if (self.debug):
             print(f"Reading data dictionary from filename: {self.raw_data_dict_filename}")
         if (self.logging):
@@ -365,7 +371,8 @@ class CleanData:
                         print(f"Sheetname is preassigned as {sheetname}.")
                     if (self.logging):
                         self.logger.info(f"Sheetname is preassigned as {sheetname}.")
-                self.raw_data_dict_sheetname = sheetname
+            
+            self.raw_data_dict_sheetname = sheetname
                         
         except ValueError as e:
             if self.logging:
@@ -393,7 +400,9 @@ class CleanData:
         return self.dict_df
     
     def gen_data_report(self, data, dict):
-        # (MZ): 17-08-2023: added fix to strip trailing spaces in data_type_in_dict column
+        # (MZ): 23-02-2024: added fix to strip trailing spaces in data_type_in_dict column
+        # (MZ): 23-02-2024: added fix to check if col exists in `data` in Populate data list for objects
+        # (MZ): 23-02-2024: updated function to allow varying data_types in dictionary
 
         report_cols = ['data_type','data_type_in_dict','data_type_mismatch', 'count_missing_values', 'percentage_missing_values']
         report_df = pd.DataFrame(columns=report_cols, index=data.columns) #initialise dataframe B (not efficient)
@@ -407,17 +416,25 @@ class CleanData:
         
         # Check for possible datatype mismatch
         report_df['data_type_mismatch'] = "Possible mismatch"
-        report_df.loc[(report_df['data_type_in_dict'] == 'numeric') & 
-              (report_df['data_type'].isin(['int64', 'float64', 'timedelta[ns]'])),'data_type_mismatch'] = 'Matched'
-        report_df.loc[(report_df['data_type_in_dict'] == 'Numerical') & 
-              (report_df['data_type'].isin(['int64', 'float64', 'timedelta[ns]'])),'data_type_mismatch'] = 'Matched'
-        report_df.loc[(report_df['data_type_in_dict'] == 'string') & 
+
+        numerical_type_list = ["numeric", "Numeric", "Numerical", "numerical"]
+        for i in numerical_type_list:
+            report_df.loc[(report_df['data_type_in_dict'] == i) & 
+                (report_df['data_type'].isin(['int64', 'float64', 'timedelta[ns]'])),'data_type_mismatch'] = 'Matched'
+        
+        string_type_list = ["string", "String"]
+        for i in string_type_list:
+            report_df.loc[(report_df['data_type_in_dict'] == i) & 
               (report_df['data_type'].isin(['category', 'object'])),'data_type_mismatch'] = 'Matched'
-        report_df.loc[(report_df['data_type_in_dict'] == 'String') & 
-              (report_df['data_type'].isin(['category', 'object'])),'data_type_mismatch'] = 'Matched'
-        report_df.loc[(report_df['data_type_in_dict'] == 'date') & 
+        
+        date_type_list = ["Date", "date"]
+        for i in date_type_list:
+            report_df.loc[(report_df['data_type_in_dict'] == i) & 
               (report_df['data_type'].isin(['datetime64', 'object'])),'data_type_mismatch'] = 'Matched'
-        report_df.loc[(report_df['data_type_in_dict'] == 'bool') & 
+        
+        bool_type_list = ["bool", "Bool", "Boolean", "boolean"]
+        for i in bool_type_list:
+            report_df.loc[(report_df['data_type_in_dict'] == i) & 
               (report_df['data_type'].isin(['bool'])),'data_type_mismatch'] = 'Matched'
         
         # Check for number of missing values
@@ -427,18 +444,31 @@ class CleanData:
         report_df = report_df.assign(percentage_missing_values=percentage_missing_values)
 
         # Populate data range
-        f = lambda row: str(data[str(row.name)].min()) + ":" + str(data[str(row.name)].max()) if row['data_type_in_dict'] == 'numeric' else np.nan
-        report_df['numeric_range'] = report_df.apply(f, axis=1)
+        def f_range(col_name):
+            if col_name in data:
+                mini = str(data[str(col_name)].min())
+                maxi = str(data[str(col_name)].max())
+                return mini + ":" + maxi
+            else:
+                return np.nan
+        for i in numerical_type_list:
+            f = lambda row: f_range(row.name) if (row['data_type'] in (['int64','float64'])) else np.nan
+            report_df['numeric_range'] = report_df.apply(f, axis=1)
 
         # Populate data list for objects
         def f2(col_name):
-            list_unqiue = data[str(col_name)].unique()
-            if len(list_unqiue)<20:
-                return ','.join(str(v) for v in list_unqiue)
+            if col_name in data:
+                list_unqiue = data[str(col_name)].unique()
+                if len(list_unqiue)<20:
+                    return ','.join(str(v) for v in list_unqiue)
+                else:
+                    return 'Too many'
             else:
-                return 'Too many'
-        f3 = lambda row: f2(row.name) if row['data_type_in_dict'] == 'string' else "N.A."
-        report_df['unique_categories'] = report_df.apply(f3, axis=1)
+                return 'N.A.'
+            
+        for i in string_type_list:
+            f3 = lambda row: f2(row.name) if (row['data_type_in_dict'] == i) else "N.A."
+            report_df['unique_categories'] = report_df.apply(f3, axis=1)
 
         # Save to class
         self.report_df = report_df
