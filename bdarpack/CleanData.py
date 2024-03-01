@@ -4,6 +4,8 @@ import numpy as np
 import pprint
 import os
 import logging
+import re
+import math
 from copy import deepcopy
 
 class CleanData:
@@ -23,9 +25,12 @@ class CleanData:
         
         self.debug = debug
 
+        self.nanList = ["","#N/A","#N/A N/A", "#NA", "-1.#IND", "-1.#QNAN", "-NaN", "-nan", "1.#IND", "1.#QNAN", "<NA>", "N/A", "NA", "NULL", "NaN", "None", "n/a", "nan", "null "] #(MZ): 28-02-2024
+
         # LOADING DEFAULTS
         self.folder_rawData = "rawData"
         self.folder_trainData = "trainData"
+        self.read_na = False #(MZ): 28-02-2024
 
         self.output_type_data = 'csv'
         self.output_type_dict = 'xlsx'
@@ -94,6 +99,10 @@ class CleanData:
         # GET TYPE: FIELD DICTIONARY
         self._get_dataType_from_dict()
 
+        # CLEAN NUMERIC NANS
+        if self.read_na:
+            self._clean_numeric_na() #(MZ): 28-02-2024 need to clean numeric fields if na strings are loaded
+
         # SAVE NEW DATA AND DICTIONARY IN TRAINDATA PATH
         self._save_data_to_file()
         self._save_dict_to_file()
@@ -115,6 +124,7 @@ class CleanData:
         self._update_defaults(var_to_update="log_filename", new_value="LOG_FILENAME")
         self._update_defaults(var_to_update="folder_rawData", new_value="RAW_PATH")
         self._update_defaults(var_to_update="folder_trainData", new_value="TRAIN_PATH")
+        self._update_defaults(var_to_update="read_na", new_value="READ_NA") #(MZ): 28-02-2024
         self._update_defaults(var_to_update="dict_var_varname", new_value="DICT_VAR_VARNAME")
         self._update_defaults(var_to_update="dict_var_varcategory", new_value="DICT_VAR_VARCATEGORY")
         self._update_defaults(var_to_update="dict_var_type", new_value="DICT_VAR_TYPE")
@@ -307,7 +317,11 @@ class CleanData:
                 # )
             elif file_type=='csv':
                 # Read file and output as dataframe
-                self.raw_df = pd.read_csv(self.raw_data_filename)
+                if self.read_na:
+                    self.raw_df = pd.read_csv(self.raw_data_filename, na_values=None, keep_default_na=False) #(MZ): 27022024: switch to preserve user defined 'na'
+                else:
+                    self.raw_df = pd.read_csv(self.raw_data_filename)
+                
         except ValueError as e:
             if self.logging:
                 self.logger.error('Could not read sheet in excel file: ' + str(e))
@@ -399,6 +413,46 @@ class CleanData:
 
         return self.dict_df
     
+    def _clean_numeric_na(self):
+        # (MZ): 28-02-2024: for var classed as numeric/bool (in dict), remove str type def of 'nan' based on self.nanList. Then cast column to its best possible dtype.
+
+        if self.type_var_dict is None:
+            self._get_field_category_from_dict()
+
+        if (self.debug):
+            print("Cleaning up str-type 'nan' in numeric/bool columns.")
+        if (self.logging):
+            self.logger.info("Cleaning up str-type 'nan' in numeric/bool columns.")
+
+        df = deepcopy(self.clean_df)
+
+        for col_name in self.type_var_dict['numeric']:
+            df[col_name] = df[col_name].replace(self.nanList, value = np.nan)
+            try:
+                df[col_name] = df[col_name].astype(float)
+                df[col_name] = df[col_name].convert_dtypes()
+            except:
+                if (self.debug):
+                    print(f"{col_name} set as numeric, but could not be converted to float/int datatype.")
+                if (self.logging):
+                    self.logger.info(f"{col_name} set as numeric, but could not be converted to float/int datatype.")
+
+        for col_name in self.type_var_dict['bool']:
+            df[col_name] = df[col_name].replace(self.nanList, value = np.nan)
+            try:
+                df[col_name] = df[col_name].astype(float)
+                df[col_name] = df[col_name].convert_dtypes()
+            except:
+                if (self.debug):
+                    print(f"{col_name} set as numeric, but could not be converted to float/int datatype.")
+                if (self.logging):
+                    self.logger.info(f"{col_name} set as numeric, but could not be converted to float/int datatype.")
+
+        self.clean_df = deepcopy(df)
+
+        return self.clean_df
+
+    
     def gen_data_report(self, data, dict):
         # (MZ): 23-02-2024: added fix to strip trailing spaces in data_type_in_dict column
         # (MZ): 23-02-2024: added fix to check if col exists in `data` in Populate data list for objects
@@ -420,7 +474,7 @@ class CleanData:
         numerical_type_list = ["numeric", "Numeric", "Numerical", "numerical"]
         for i in numerical_type_list:
             report_df.loc[(report_df['data_type_in_dict'] == i) & 
-                (report_df['data_type'].isin(['int64', 'float64', 'timedelta[ns]'])),'data_type_mismatch'] = 'Matched'
+                (report_df['data_type'].isin(['int32', 'Int32', 'int64', 'Int64', 'float64', 'Float64', 'timedelta[ns]'])),'data_type_mismatch'] = 'Matched'
         
         string_type_list = ["string", "String"]
         for i in string_type_list:
@@ -448,19 +502,19 @@ class CleanData:
             if col_name in data:
                 mini = str(data[str(col_name)].min())
                 maxi = str(data[str(col_name)].max())
-                return mini + ":" + maxi
+                return "[" + mini + "," + maxi + "]"
             else:
                 return np.nan
-        for i in numerical_type_list:
-            f = lambda row: f_range(row.name) if (row['data_type'] in (['int64','float64'])) else np.nan
-            report_df['numeric_range'] = report_df.apply(f, axis=1)
+        # for i in numerical_type_list:
+        f = lambda row: f_range(row.name) if (row['data_type'] in (['Int32', 'Int64', 'Float64', 'int32', 'int64','float64'])) else np.nan
+        report_df['numeric_range'] = report_df.apply(f, axis=1)
 
         # Populate data list for objects
         def f2(col_name):
             if col_name in data:
                 list_unqiue = data[str(col_name)].unique()
                 if len(list_unqiue)<20:
-                    return ','.join(str(v) for v in list_unqiue)
+                    return '; '.join(str(v) for v in list_unqiue)
                 else:
                     return 'Too many'
             else:
@@ -469,6 +523,107 @@ class CleanData:
         for i in string_type_list:
             f3 = lambda row: f2(row.name) if (row['data_type_in_dict'] == i) else "N.A."
             report_df['unique_categories'] = report_df.apply(f3, axis=1)
+
+        # Inspect data range (MZ): 27-02-2024
+        # create "codings_in_dict" column in report_df
+        report_df["codings_in_dict"] = [dict[dict["NAME"] == name][self.dict_var_codings].values[0] for name in report_df.index]
+        
+        #check for CODINGS format type: [number,number] and (number,number)
+        pattern = r"\(|\[([\d]+),\s*([\d]+)\)|\(|\[([\d]+),\s*([\d]+)\]|\(|\[([\d]+),\s*([\d]+)\]"
+        fn_numeric_range_check_bool = lambda row: "check_true" if (re.match(pattern, str(row['codings_in_dict']))) else "check_false"
+        report_df['numeric_range_check_bool'] = report_df.apply(fn_numeric_range_check_bool, axis=1)
+
+        # check for CODINGS format type: delimited by '; '
+        def fn_str_list_check_bool(col_coding):
+            if (';' in str(col_coding)):
+                return "check_true"
+            else:
+                return "check_false"
+        f_str_code = lambda row: fn_str_list_check_bool(row.codings_in_dict) if (row['numeric_range_check_bool']=="check_false") else "check_false"
+        report_df['str_list_check_bool'] = report_df.apply(f_str_code, axis=1)
+
+        # check for out-of-range numerical values
+        def fn_build_numeric_range_error_list(col_name, col_coding):
+            lower = ""
+            higher = ""
+            if col_name in data:
+                # build max, min condition from dict_coding
+                if ("[" in col_coding):
+                    lower = "<="
+                elif ("(" in col_coding):
+                    lower = "<"
+                if ("]" in col_coding):
+                    higher = "<="
+                elif (")" in col_coding):
+                    higher = "<"
+                temp_col_coding = str(col_coding).replace("[", "").replace("]", "").replace("(", "").replace(")", "")
+                split_temp_col_coding = temp_col_coding.split(",")
+                max_col_coding = higher + str(split_temp_col_coding[1])
+                min_col_coding = str(split_temp_col_coding[0]) + lower
+
+                def conv(x):
+                    if isinstance(x, (int, float)):
+                        ouput = str(x)
+                        if type(x) == float:
+                            x_temp = float(x)
+                            if math.isnan(x_temp): #if nan, return ouput within range so that it is not flagged out as out-of-range.
+                                ouput = str(int(split_temp_col_coding[0]) + 1)
+                    elif isinstance(x, str):
+                        try:
+                            x_float = float(x)
+                            ouput = str(x_float)
+                        except:
+                            ouput = str(int(split_temp_col_coding[0]) + 1)
+                    else:
+                        ouput = str(int(split_temp_col_coding[1]) + 1)
+                    return ouput
+
+                if 'subject_id' in self.var_list: #works for TIMS ETL
+                    subject_ids = data[data[col_name].apply(lambda x:  not eval(min_col_coding + conv(x) + max_col_coding))]['subject_id'].tolist()
+                else: #if subject_id does not exist, save index
+                    subject_ids = data[data[col_name].apply(lambda x:  not eval(min_col_coding + conv(x) + max_col_coding))].index.tolist()
+
+                return ','.join(str(x) for x in subject_ids)
+            else:
+                return "col_name not in data"
+
+        f4 = lambda row: fn_build_numeric_range_error_list(row.name, row.codings_in_dict) if (row['numeric_range_check_bool']=="check_true") else "N.A."
+        report_df['numeric_range_error_list'] = report_df.apply(f4, axis=1)
+
+        def fn_build_str_list_error_list(col_name, col_coding):
+
+            if col_name in data:
+                col_coding_list = col_coding.split(";")
+                col_coding_list = list(map(str.strip, col_coding_list))
+
+                def ss(x):
+                    if isinstance(x,str):
+                        if (x in col_coding_list):
+                            return False
+                        else: 
+                            return True
+                    elif isinstance(x, (int, float)):
+                        if ((x*10 % 10) == 0):
+                            num = int(x)
+                        else: num = x
+                        if (str(num) in col_coding_list):
+                            return False
+                        else:
+                            return True
+                    else:
+                        return True
+
+                if 'subject_id' in self.var_list: #works for TIMS ETL
+                    subject_ids = data[data[col_name].apply(lambda x: ss(x) )]['subject_id'].tolist()
+                else: #if subject_id does not exist, save index
+                    subject_ids = data[data[col_name].apply(lambda x: ss(x) )].index.tolist()
+
+                return ','.join(str(x) for x in subject_ids)
+            else: 
+                return "col_name not in data"
+
+        f5 = lambda row: fn_build_str_list_error_list(row.name, row.codings_in_dict) if (row['str_list_check_bool']=="check_true") else "N.A."
+        report_df['str_list_error_list'] = report_df.apply(f5, axis=1)
 
         # Save to class
         self.report_df = report_df
@@ -536,6 +691,7 @@ class CleanData:
             if (self.logging):
                 self.logger.info(f"No variable name mismatches found. Proceeding with next step of initialisation...")
         else:
+            self.var_list = var_clean_df_list #(MZ): 28-02-2024: list is still saved despite discrepancies
             print("There is a mismatch in the variable names extracted from the input data and the data dictionary. Use cleanData.var_diff_list to extract list of mismatched variable names.")
             if (self.logging):
                 self.logger.info("There is a mismatch in the variable names extracted from the input data and the data dictionary. Use cleanData.var_diff_list to extract list of mismatched variable names.")
@@ -688,6 +844,7 @@ class CleanData:
         type_var_dict : dictionary
             dictionary with the variable type as keys and the respective variables as values.
         """
+        # (MZ): 27022024: update to clean up varying categories
 
         # Extract dataframe columns with variable name and variable category
         A = self.dict_var_varname
@@ -695,8 +852,37 @@ class CleanData:
         cat_df = self.clean_dict_df[[A, B]]
 
         # Create a dictionary
-        self.type_var_dict = {key: list(cat_df[A][cat_df[B] == key]) for key in cat_df[B].unique()}
+        temp_dict = {key: list(cat_df[A][cat_df[B] == key]) for key in cat_df[B].unique()}
 
+        # Merge categories
+        numerical_type_list = ["numeric", "Numeric", "Numerical", "numerical"]
+        string_type_list = ["string", "String"]
+        date_type_list = ["date", "Date"]
+        bool_type_list = ["bool", "Bool", "Boolean", "boolean"]
+
+        final_dict = {}
+        numeric = []
+        string = []
+        date_type = []
+        bool_type = []
+        for key, value in temp_dict.items():
+            key_str = key.strip()
+            if key_str in numerical_type_list:
+                numeric = numeric + value
+            elif key_str in string_type_list:
+                string = string + value
+            elif key_str in date_type_list:
+                date_type = date_type + value
+            elif key_str in bool_type_list:
+                bool_type = bool_type + value
+            else:
+                final_dict[key_str] = value
+        final_dict['numeric'] = numeric
+        final_dict['string'] = string
+        final_dict['date'] = date_type
+        final_dict['bool'] = bool_type
+
+        self.type_var_dict = final_dict
 
 
     # DROP DUPLICATES
