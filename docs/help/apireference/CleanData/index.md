@@ -20,6 +20,7 @@ Module for data cleaning. Designed to work with a data dictionary (metadata). Se
 *   `PREFIX_PATH`: define the root directory
 *   `RAW_PATH`: set the folder name for all raw data files
 *   `TRAIN_PATH`: set the folder name to store all the cleaned data files. If not specified, default is "`trainData`"
+*   `READ_NA`: option for loading csvs. If `False`, csv entries that can be found in nanList (see [detailed nanList under Attributes](#attributes)) will be converted to `NaN`. if `True`, above entries will be preserved as they are. Default is `False`.
 *   `RAWXLSX`: filename containing the raw data
 *   `RAWXLSX_SHEETNAME`: if RAWXLSX is an excel file, assign the sheetname from which to load the data. If not specified, will read the first sheet.
 *   `RAWDICTXLSX`: filename containing the data dictionary
@@ -86,6 +87,7 @@ Please refer to the below pages for detailed examples:
 | ---:              |    :----   |
 | debug             | (boolean) whether to debug or not      |
 | definitions       | (obj) definitions in corresponding input `defintions.py`      |
+| nanList           | (list) list of values interpreted as NaN. Values: `["","#N/A","#N/A N/A", "#NA", "-1.#IND", "-1.#QNAN", "-NaN", "-nan", "1.#IND", "1.#QNAN", "<NA>", "N/A", "NA", "NULL", "NaN", "None", "n/a", "nan", "null "]`. |
 | dict_df           | (dataframe) data dictionary      |
 | raw_df            | (dataframe) raw data |
 | clean_df          | (dataframe) cleaned data       |
