@@ -17,6 +17,7 @@ PREFIX_PATH = f"{dir_path}\\" # Define the root directory
 # SET GLOBAL VARIABLES FOR RAW DATA FILES
 RAW_PATH = "rawData" # Set the folder name for all raw data files
 TRAIN_PATH = "trainData" # Set the folder name to store all the cleaned data files. If not specified, default is "trainData"
+READ_NA = False # option for loading csvs. If False, csv entries that can be found in nanList will be converted to nan. If True, above entries will be preserved as they are. Default is False.
 
 RAWXLSX = "nhanes_raw.xlsx" # filename containing the raw data
 RAWXLSX_SHEETNAME = "Sheet1" # if RAWXLSX is an excel file, assign the sheetname from which to load the data. If not specified, will read the first sheet.
