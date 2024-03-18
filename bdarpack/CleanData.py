@@ -89,10 +89,6 @@ class CleanData:
         # GET LIST OF LONGITUDINAL MARKERS.
         self._get_longitudinal_marker_list()
 
-        # CREATE REQUIRED FOLDERS
-        if not os.path.exists(self.train_data_path):
-            os.makedirs(self.train_data_path)
-
         # GET CATEGORY: FIELD DICTIONARY
         self._get_field_category_from_dict()
         
@@ -175,6 +171,11 @@ class CleanData:
 
         self.train_data_path = self.prefix_path + self.folder_trainData + "/"
         self.train_data_path = self.train_data_path.replace("\\","/")
+
+        # CREATE REQUIRED FOLDERS
+        # (MZ): 18-03-2024: fix bug where required folders not available prior to logging
+        if not os.path.exists(self.train_data_path):
+            os.makedirs(self.train_data_path)
 
         # LOADING DEFAULTS FOR LOG FILE
         if (self.logging):
@@ -526,7 +527,8 @@ class CleanData:
 
         # Inspect data range (MZ): 27-02-2024
         # create "codings_in_dict" column in report_df
-        report_df["codings_in_dict"] = [dict[dict["NAME"] == name][self.dict_var_codings].values[0] for name in report_df.index]
+        # report_df["codings_in_dict"] = [dict[dict["NAME"] == name][self.dict_var_codings].values[0] for name in report_df.index]
+        report_df["codings_in_dict"] = [dict[dict["NAME"] == name][self.dict_var_codings].values[0] if dict[dict["NAME"] == name][self.dict_var_codings].values else "" for name in report_df.index]
         
         #check for CODINGS format type: [number,number] and (number,number)
         pattern = r"\(|\[([\d]+),\s*([\d]+)\)|\(|\[([\d]+),\s*([\d]+)\]|\(|\[([\d]+),\s*([\d]+)\]"
