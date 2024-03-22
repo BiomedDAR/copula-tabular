@@ -219,7 +219,14 @@ def build_basic_data_dictionary(varList, descr="No description available", type=
 
     return df
 
-
+# GENERAL FUNCTIONS FOR DATATYPE
+# check if string is numerical
+def is_numerical(x):
+    try:
+        float(x)
+        return True
+    except:
+        return False
 
 # GENERAL FUNCTIONS FOR FILES
 def get_extension(filename):
@@ -456,6 +463,40 @@ def count_date_format_errors(data, format):
 
     return num_NaT
 
+def extract_year_month_day(data, format=None):
+    """
+    Function that extracts the year, month, and day from a given date using the specified format.
+
+    Parameters:
+        data (df['col']): The date to extract the year, month, and day from.
+        format (str): The format of the date. If not specified, the function will try to infer the format from the given date.
+
+    Returns:
+        df (pandas.DataFrame): A dataframe containing the extracted year, month, and day from the given date.
+    """
+    
+    if format is None:
+        format = date_format_search(data)
+
+    if isinstance(data, str):
+        datestr = pd.to_datetime(data, format=format)
+        di = {
+            "date": datestr,
+            "year": datestr.year,
+            "month": datestr.month,
+            "day": datestr.day
+        }
+        df = pd.DataFrame(di, index=[0])
+    else:
+        df = pd.DataFrame(columns=[])
+        df["date"] = pd.to_datetime(data, format=format)
+        df["year"] = df["date"].dt.year
+        df["month"] = df["date"].dt.month
+        df["day"] = df["date"].dt.day
+
+    return df
+
+
 # ASCII-compatible
 def convert_to_ascii(data):
     """
@@ -470,7 +511,9 @@ def convert_to_ascii(data):
             # Select only string/object columns
             if data[col].dtype == object or data[col].dtype == "string":
                 # Remove international accents from the column and assign it back to the same column
-                data[col] = data[col].apply(unidecode)
+                # (MZ): 22032024: update to skip <NA> values
+                data[col] = data[col].apply(lambda x: x if pd.isnull(x) else unidecode(x))
+                # data[col] = data[col].apply(unidecode)
                 # data[col] = data[col].str.replace("€", r"\€", regex=True).apply(unidecode)
     elif type(data) == str:
         data = unidecode(data)

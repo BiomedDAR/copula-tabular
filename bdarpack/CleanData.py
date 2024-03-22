@@ -40,6 +40,10 @@ class CleanData:
         self.logging = True
         self.log_filename = "logfile.txt" #output file name to store logs
 
+        self.create_unique_index = False #whether to create a unique index for clean_df
+        self.unique_index_composition_list = []
+        self.unique_index_delimiter = "_"
+
         self.dict_var_varname = "NAME" # column in data dictionary containing variable names in input data
         self.dict_var_varcategory = "CATEGORY" # column in data dictionary setting the category of the variable name
         self.dict_var_type = "TYPE" # column in data dictionary setting the type of variable (string, numeric, date, bool)
@@ -99,6 +103,11 @@ class CleanData:
         if self.read_na:
             self._clean_numeric_na() #(MZ): 28-02-2024 need to clean numeric fields if na strings are loaded
 
+        # CREATE UNIQUE INDEX #(MZ): 20-03-2024: add option to customise unique row index
+        if self.create_unique_index:
+            self.fn_create_unique_index()
+        
+
         # SAVE NEW DATA AND DICTIONARY IN TRAINDATA PATH
         self._save_data_to_file()
         self._save_dict_to_file()
@@ -107,6 +116,27 @@ class CleanData:
         self.gen_data_report(data=self.clean_df, dict=self.clean_dict_df)
 
         
+    def fn_create_unique_index(self): #(MZ): 20-03-2024: add function to customise unique row index from existing columns
+        df = deepcopy(self.clean_df)
+        uic_list = self.unique_index_composition_list
+        delimiter = self.unique_index_delimiter
+
+        for col in uic_list:
+            if (col not in df.columns):
+                raise ValueError("Dataframe does not contain column " + col)
+
+        df['new_index'] = df.apply(
+            lambda row: delimiter.join(
+                [str(row[col]) for col in uic_list] + [str(row.name)]
+            ),
+            axis=1
+        )
+        df.set_index('new_index', drop=True, inplace=True)
+
+        self.clean_df = deepcopy(df)
+
+        return self.clean_df
+
     def _update_defaults(self, var_to_update, new_value):
         if hasattr(self.definitions, new_value):
             attr = getattr(self.definitions, new_value)
@@ -125,6 +155,10 @@ class CleanData:
         self._update_defaults(var_to_update="dict_var_varcategory", new_value="DICT_VAR_VARCATEGORY")
         self._update_defaults(var_to_update="dict_var_type", new_value="DICT_VAR_TYPE")
         self._update_defaults(var_to_update="dict_var_codings", new_value="DICT_VAR_CODINGS")
+
+        self._update_defaults(var_to_update="create_unique_index", new_value="CREATE_UNIQUE_INDEX")
+        self._update_defaults(var_to_update="unique_index_composition_list", new_value="UNIQUE_INDEX_COMPOSITION_LIST")
+        self._update_defaults(var_to_update="unique_index_delimiter", new_value="UNIQUE_INDEX_DELIMITER")
         
         self._update_defaults(var_to_update="var_name_stripemptyspaces", new_value="VAR_NAME_STRIPEMPTYSPACES")
         
@@ -220,6 +254,18 @@ class CleanData:
     def convert_2_dtypes(self, data):
         """Convert data (df) into best possible dtypes"""
         return data.convert_dtypes()
+    
+    def add_dictionary_row(self, row_attributes):
+        """Add a new entry to the data dictionary."""
+        
+        dict_temp = deepcopy(self.clean_dict_df)
+        new_df = pd.DataFrame(row_attributes, index=[0])
+        dict_temp = pd.concat([dict_temp, new_df], ignore_index=True)
+
+        self.clean_dict_df = deepcopy(dict_temp)
+        self._save_dict_to_file()
+
+        return
 
     def _get_longitudinal_marker_list(self):
         """
@@ -580,7 +626,9 @@ class CleanData:
                         ouput = str(int(split_temp_col_coding[1]) + 1)
                     return ouput
 
-                if 'subject_id' in self.var_list: #works for TIMS ETL
+                if self.create_unique_index: #(MZ): 20-03-2024
+                    subject_ids = data[data[col_name].apply(lambda x:  not eval(min_col_coding + conv(x) + max_col_coding))].index.tolist()
+                elif 'subject_id' in self.var_list: #works for TIMS ETL
                     subject_ids = data[data[col_name].apply(lambda x:  not eval(min_col_coding + conv(x) + max_col_coding))]['subject_id'].tolist()
                 else: #if subject_id does not exist, save index
                     subject_ids = data[data[col_name].apply(lambda x:  not eval(min_col_coding + conv(x) + max_col_coding))].index.tolist()
@@ -615,7 +663,9 @@ class CleanData:
                     else:
                         return True
 
-                if 'subject_id' in self.var_list: #works for TIMS ETL
+                if self.create_unique_index: #(MZ): 20-03-2024
+                    subject_ids = data[data[col_name].apply(lambda x: ss(x) )].index.tolist()
+                elif 'subject_id' in self.var_list: #works for TIMS ETL
                     subject_ids = data[data[col_name].apply(lambda x: ss(x) )]['subject_id'].tolist()
                 else: #if subject_id does not exist, save index
                     subject_ids = data[data[col_name].apply(lambda x: ss(x) )].index.tolist()
@@ -1049,7 +1099,7 @@ class CleanData:
         for col in output_df.columns:
             if output_df[col].dtype == object or output_df[col].dtype == "string":
                 for ex_char in ascii_exclusion_list:
-                    if any(ex_char in s for s in output_df[col]):
+                    if any(ex_char in s for s in output_df[col] if not pd.isnull(s)): # (MZ): 22032024: to skip null values which are not iterable
                         replace_str = f"-~*{ex_char}*~-"
                         output_df[col] = output_df[col].str.replace(ex_char, replace_str, regex=False)
                         list_of_cols_with_ex_char.append(col)

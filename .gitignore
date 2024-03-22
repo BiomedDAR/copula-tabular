@@ -134,3 +134,6 @@ dmypy.json
 # deprecated
 /old
 /tests
+
+# others
+/docs/assets/issues
