@@ -18,7 +18,10 @@ nav_order: 5
 | RAWDICTXLSX       | Defines filename containing the data dictionary. E.g. "xx.xlsx", "xx.csv" | Data loading |
 | RAWDICTXLSX_SHEETNAME | if RAWDICTXLSX is an excel file, assign the sheetname from which to load the dictionary. If not specified, will read the first sheet. E.g. "Sheet1" | Data loading |
 | LOGGING           | Option to output logfile. If `True`, logfile will be built. If not specified, default is `True`. | Log | 
-| LOG_FILENAME      | Defines filename of logfile. If not defined, default is `logfile.txt`. |
+| LOG_FILENAME      | Defines filename of logfile. If not defined, default is `logfile.txt`. | Log |
+| CREATE_UNIQUE_INDEX  | Option to create unique row index from existing columns. If `True`, new index will be created. If not specified, default is `False`.  | Indexing |
+| UNIQUE_INDEX_COMPOSITION_LIST  | List of column names to create new index from. If not specified, default is `[]`. E.g.: `["subject_id", "visit"]`  | Indexing |
+| UNIQUE_INDEX_DELIMITER  | Delimiter to separate values from composition list. If not specified, default is `_` | Indexing |
 | LONG_VAR_MARKER   | Defines the variable name that indicates which longitudinal group that row belongs to. If not specified, default is `None`. | Longitudinal data |
 | DICT_VAR_VARNAME  | Column in data dictionary containing variable names in input data. If not specified, set as "`NAME`". | Data Dictionary settings |
 | DICT_VAR_VARCATEGORY | Column in data dictionary setting the category of the variable name. If not specified, set as "`CATEGORY`" | Data Dictionary settings |

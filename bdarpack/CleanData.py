@@ -840,7 +840,8 @@ class CleanData:
             # Update latest clean df to output_df
             old_df = deepcopy(self.clean_df)
             self.clean_df = deepcopy(new_df)
-            self.clean_df.reset_index(drop=True, inplace=True) #reset the index
+            if not self.create_unique_index:
+                self.clean_df.reset_index(drop=True, inplace=True) #reset the index
 
             self._save_data_to_file()
 

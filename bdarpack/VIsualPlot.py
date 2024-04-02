@@ -14,7 +14,7 @@ except RuntimeError as e:
 
 
 
-def hist(data_1d, fig=None, ax=None, position=None, title=None, alpha=0.8, color='blue', label=''):
+def hist(data_1d, fig=None, ax=None, position=None, title=None, alpha=0.8, color='blue', label='', bins='auto'):
     """Function to generate a histogram plot.
 
     Parameters:
@@ -41,14 +41,14 @@ def hist(data_1d, fig=None, ax=None, position=None, title=None, alpha=0.8, color
 
     data_dropped_na = data_1d.dropna()
 
-    ax.hist(data_dropped_na, density=True, bins='auto', alpha=alpha, color=color, label=label)
+    (n, bins, patches) = ax.hist(data_dropped_na, density=True, bins=bins, alpha=alpha, color=color, label=label)
 
     ax.legend(loc='best', frameon=False)
     ax.set_title(title, fontsize=8)
 
     return ax, fig
 
-def hist_compare(real_data, syn_data, var_list, no_cols=2):
+def hist_compare(real_data, syn_data, var_list, no_cols=2, bins='auto'):
 
     no_rows = len(var_list) // no_cols + math.ceil(len(var_list) % no_cols)
     ax_hist = []
@@ -60,13 +60,13 @@ def hist_compare(real_data, syn_data, var_list, no_cols=2):
         position_tuple = (int(no_rows), int(no_cols), int(index+1))
 
         if (index == 0):
-            (ax_hist_out, fig_histogram) = hist(x_real, position = position_tuple, label=f"Original: n = {len(x_real)}")
+            (ax_hist_out, fig_histogram) = hist(x_real, position = position_tuple, bins=bins, label=f"Original: n = {len(x_real)}")
             ax_hist.append(ax_hist_out)
-            (ax_hist[index], fig_histogram) = hist(x_syn, ax=ax_hist[index], fig=fig_histogram, color='grey', title=f'Histogram Plot for {var}', label=f"Synthetic: n={len(x_syn)}")
+            (ax_hist[index], fig_histogram) = hist(x_syn, ax=ax_hist[index], fig=fig_histogram, color='grey', title=f'Histogram Plot for {var}', bins=bins, label=f"Synthetic: n={len(x_syn)}")
         else:
-            (ax_hist_out, fig_histogram) = hist(x_real, fig=fig_histogram, position = position_tuple, label=f"Original: n = {len(x_real)}")
+            (ax_hist_out, fig_histogram) = hist(x_real, fig=fig_histogram, position = position_tuple, bins=bins, label=f"Original: n = {len(x_real)}")
             ax_hist.append(ax_hist_out)
-            (ax_hist[index], fig_histogram) = hist(x_syn, ax=ax_hist[index], fig=fig_histogram, color='grey', title=f'Histogram Plot for {var}', label=f"Synthetic: n={len(x_syn)}")
+            (ax_hist[index], fig_histogram) = hist(x_syn, ax=ax_hist[index], fig=fig_histogram, color='grey', title=f'Histogram Plot for {var}', bins=bins, label=f"Synthetic: n={len(x_syn)}")
 
     return ax_hist, fig_histogram
 

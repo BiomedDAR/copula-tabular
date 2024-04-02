@@ -103,7 +103,7 @@ print(cd.raw_df)
 
 Print Original Data Dictionary
 
-Notice that we have not specified `CODINGS` for the date variables `date_1` and `date_3`. CleanData, nevertheless, tries to match the data to common date formats and perform the conversion accordingly. We have specified `CODINGS` for `date_1` and `date_4`, but have used the wrong format (`mm-dd-yyyy`) for date_4. The proper format should have been `dd-mm-yyyy`.
+Notice that we have not specified `CODINGS` for the date variables `date_1` and `date_3`. CleanData, nevertheless, tries to match the data to common date formats and perform the conversion accordingly. We have specified `CODINGS` for `date_2` and `date_4`, but have used the wrong format (`mm-dd-yyyy`) for date_4. The proper format should have been `dd-mm-yyyy`. The format for `date_2` is also wrong, but because we have used the `Date` format in MS Excel, the dates were still read correctly.
 
 ```
 print(cd.dict_df)

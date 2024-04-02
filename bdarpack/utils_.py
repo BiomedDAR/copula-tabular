@@ -415,7 +415,7 @@ def mapping_dictDateFormatConversion(str):
         str = str.replace("dd", r"%d")
     elif ("d" in str): # day number without a leading zero
         if OS_TYPE=='Windows': # use "%-d" for unix, "%#d" for windows
-            str = str.replace("d", r"%#d")
+            str = str.replace("d", r"%d")
         elif OS_TYPE=='Linux' or 'Darwin':
             str = str.replace("d", r"%-d")
 
@@ -429,7 +429,7 @@ def mapping_dictDateFormatConversion(str):
         str = str.replace("mm", r"%m")
     elif ("m" in str): # month number without a leading zero
         if OS_TYPE=='Windows': # use "%-m" for unix, "%#m" for windows
-            str = str.replace("m", r"%#m")
+            str = str.replace("m", r"%m")
         elif OS_TYPE=='Linux' or 'Darwin':
             str = str.replace("m", r"%-m")
     

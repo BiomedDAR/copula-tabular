@@ -1,6 +1,7 @@
 from bdarpack import utils_ as ut_
 from copy import deepcopy
 import pandas as pd
+import numpy as np
 
 class Constraints:
     """
@@ -35,13 +36,16 @@ class Constraints:
             print('No logger is defined.')
 
 
-    def multiparent_conditions(self, df, var_array, dict_conditions_values):
+    def multiparent_conditions(self, df, var_array, dict_conditions_values, options={}):
         """Function for replacement of values in a dataframe based on multiple conditions evaluated from multiple columns.
         
         Parameters:
             df (dataframe): The dataframe to be updated.
             var_array (list): A list of strings of column names to be updated.
-            dict_condiions_values (dict): A dictionary of conditions and values. The conditions are evaluated from multiple columns and the corresponding value is then inserted into the specified columns.
+            dict_conditions_values (dict): A dictionary of conditions and values. The conditions are evaluated from multiple columns and the corresponding value is then inserted into the specified columns.
+            options (dict): Options varying usage.
+                - "duplicate_output" (bool): Default is `False`. If `True`, the columns in `var_array` will not be replaced with new values. Instead, a duplicated `var_array` will be created and updated based on given `dict_conditions_values`.
+                - "duplicate_output_suffix" (str): Default is '_dup'.
         
         Returns:
             df (dataframe): The updated dataframe
@@ -59,10 +63,28 @@ class Constraints:
             This example updates the dataframe with the values 0 and 1 in "column1" and "column2" columns, according to the conditions given. In particular, the value 0 is inserted when "parent1_column" is greater than 5 AND "parent2_column" is less than 10. The value 1 is inserted when "parent3_column" is equal to "Yes".
         """
 
+        # (MZ): 03-22-2024: add duplicate option
+        if "duplicate_output" in options:
+            dup_output_bool = options['duplicate_output']
+        else:
+            dup_output_bool = False
+        if "duplicate_output_suffix" in options:
+            dup_output_suffix = options['duplicate_output_suffix']
+        else:
+            dup_output_suffix = '_dup'
+
+        # Duplicate columns in var_array
+        suffix = dup_output_suffix
+        var_array_use = [vari + suffix for vari in var_array]
+        for i in range(len(var_array)):
+            df[var_array_use[i]] = df[var_array[i]]
+
         # Initialise log
-        for var in var_array:
-            self.init_log(var)
-            df[var] = df[var].convert_dtypes()
+        # for var in var_array:
+        for i in range(len(var_array)):
+            self.init_log(var_array[i])
+            df[var_array[i]] = df[var_array[i]].convert_dtypes()
+            df[var_array_use[i]] = df[var_array_use[i]].convert_dtypes()
         
         # Iterate through conditions and values
         for key, dict_condition_value in dict_conditions_values.items():
@@ -77,16 +99,31 @@ class Constraints:
                 else:
                     cond_ = cond_ & (df[parent].map(condition))
 
-            df.loc[cond_,var_array] = dict_condition_value['value']
+            df.loc[cond_,var_array_use] = dict_condition_value['value']
 
         # Convert dataframe to best possible dtype
-        for var in var_array:
+        for var in var_array_use:
             df[var] = df[var].convert_dtypes()
+
+        # Generate mismatch list
+        mismatch_dict = {}
+        for i in range(len(var_array)):
+            mismatch_dict[var_array[i]] = self.find_mismatch(df, var_array[i], var_array_use[i])
+
+        # Replace if dup_output_bool=False
+        if (not dup_output_bool):
+            for i in range(len(var_array)):
+                df[var_array[i]] = df[var_array_use[i]]
+            df = df.drop(var_array_use, axis=1)
 
         # Create log
         for var in var_array:
+            mismatch_str = ','.join(mismatch_dict[var])
             msg = f"Replaced {var} using conditions and values given in dict_conditions_values."
-            self.log[var]['evaluate_df_column'] = msg
+            self.log[var]['multiparent_conditions'] = {
+                "msg": msg,
+                "replaced": mismatch_str
+            }
 
             if self.debug:
                 print(f"For variable: {var}: {msg}")
@@ -96,7 +133,7 @@ class Constraints:
         return df
 
 
-    def evaluate_df_column(self, df, column_names, dict_conditions_values=None, func=None, output_column_name=None):
+    def evaluate_df_column(self, df, column_names, dict_conditions_values=None, func=None, output_column_name=None, options={}):
         """This function takes a dataframe and column name(s) and evaluates the column based on the given conditions and values, creating a new column in the dataframe with the evaluated values. Optionally, a function can be passed in to evaluate the column.
 
         Parameters:
@@ -111,6 +148,9 @@ class Constraints:
                 }
             func (function): Optional. A function to be applied on the columns
             output_column_name (str): Optional. A string containing the name of the output column. If not provided, the default is the name of the column plus '_evaluated'.
+            options (dict): Optional, options varying usage.
+                - "duplicate_output" (bool): Default is `False`. If `True`, the columns in `output_column name` will not be replaced with new values. Instead, a duplicated `output_column_name` will be created and updated based on given `dict_conditions_values`. This is functionality applies only when `output_column_name`is an existing column in the dataframe.
+                - "duplicate_output_suffix" (str): Default is '_dup'.
 
         Returns:
             df (dataframe): the dataframe with the evaluated values in the new column
@@ -126,20 +166,53 @@ class Constraints:
                 output_column_name='item_type'
             )
         """
+
+        # (MZ): 03-26-2024: add duplicate option
+        if "duplicate_output" in options:
+            dup_output_bool = options['duplicate_output']
+        else:
+            dup_output_bool = False
+        if "duplicate_output_suffix" in options:
+            dup_output_suffix = options['duplicate_output_suffix']
+        else:
+            dup_output_suffix = '_dup'
         
+        column_exist = False
         # Create a new column with the new values
         if isinstance(column_names, str):
             if output_column_name is None:
                 output_column_name = column_name + '_evaluated'
-            df[output_column_name] = df[column_names].copy()
+            
+            if output_column_name in df.columns: # column is to be replaced
+                column_exist = True
+                original_column_name = deepcopy(output_column_name)
+                output_column_name = output_column_name + dup_output_suffix #output in duplicate column
+
+            if column_exist:
+                df[output_column_name] = df[original_column_name].copy()
+            else:
+                df[output_column_name] = df[column_names].copy()
         else:
             column_name = column_names[0]
             if output_column_name is None:
                 output_column_name = ''.join(column_names) + '_evaluated'
-            df[output_column_name] = df[column_name].copy()
 
+            if output_column_name in df.columns: # column is to be replaced
+                column_exist = True
+                original_column_name = deepcopy(output_column_name)
+                output_column_name = output_column_name + dup_output_suffix #output in duplicate column
+
+            if column_exist:
+                df[output_column_name] = df[original_column_name].copy()
+            else:
+                df[output_column_name] = df[column_name].copy()
+
+        
         # initialise log
-        self.init_log(output_column_name) 
+        if column_exist:
+            self.init_log(original_column_name)
+        else:
+            self.init_log(output_column_name)
 
         if func is None:
             # Iterate through each condition and value
@@ -167,15 +240,49 @@ class Constraints:
         # Convert dataframe to best possible dtype
         df[output_column_name] = df[output_column_name].convert_dtypes()
 
+        # Generate mismatch list
+        mismatch_str = 'Secondary column not in original dataframe'
+        if column_exist: # column is to be replaced
+            # mismatch_dict = {}
+            mismatch_list = self.find_mismatch(df, original_column_name, output_column_name)
+            if len(mismatch_list)==0:
+                mismatch_str = 'No mismatches'
+            else:
+                # mismatch_str = ','.join(mismatch_list)
+                mismatch_str = ','.join(str(item) for item in mismatch_list)
+        
+        # Replace if dup_output_false = False
+        if column_exist:
+            if (not dup_output_bool):
+                df[original_column_name] = df[output_column_name]
+                df = df.drop([output_column_name], axis=1)
+
         # Create log
-        msg = f"Replaced {output_column_name} using conditions and values given in dict_conditions_values."
-        self.log[output_column_name]['evaluate_df_column'] = msg
+        if column_exist:
+            if (not dup_output_bool):
+                msg = f"Replaced {original_column_name} using conditions and values given in dict_conditions_values."
+                self.log[original_column_name]['evaluate_df_column'] = {
+                    "msg": msg,
+                    "replaced": mismatch_str
+                }
+            else:
+                msg = f"Created secondary {output_column_name} using conditions and values given in dict_conditions_values."
+                self.log[original_column_name]['evaluate_df_column'] = {
+                    "msg": msg,
+                    "mismatch": mismatch_str
+                }
+        else:
+            msg = f"Created secondary {output_column_name} using conditions and values given in dict_conditions_values."
+            self.log[output_column_name]['evaluate_df_column'] = {
+                "msg": msg,
+                "replaced": mismatch_str
+            }
 
         if self.debug:
             print(f"For variable: {output_column_name}: {msg}")
         if self.logging:
             self.logger.info(f"For variable: {output_column_name}: {msg}")
-
+            
         return df
 
 
@@ -225,10 +332,12 @@ class Constraints:
                 replace_value = value
 
             # return the number of missing values converted
-            number_of_missing_values_converted = df[v].isnull().sum()
+            # number_of_missing_values_converted = df[v].isnull().sum() #(MZ): 20240322
+            number_of_missing_values_converted = df[v].isnull().sum() + (df[v] == "").sum()
 
             # Convert missing values in a dataframe column to value
             df[v].fillna(replace_value, inplace=True)
+            df[v].loc[df[v] == ""] = replace_value #(MZ): 20240322
 
             # Convert dataframe to best possible dtype
             df[v] = df[v].convert_dtypes()
@@ -298,3 +407,44 @@ class Constraints:
             self.logger.debug(f"For variable: {A}: {msg}")
 
         return df
+    
+    def find_mismatch(self, df, col1, col2):
+        mismatched_list = []
+
+        if self.debug:
+            print(f"Checking column: {col1} against {col2}")
+        if self.logging:
+            self.logger.debug(f"Checking column: {col1} against {col2}")
+
+        a = df[col1] != df[col2]
+        a_bool = a.fillna(True)
+
+        # Get rows where both columns have <NA> values
+        na_rows = (df[col1].isna()) & (df[col2].isna())
+        # Update a_bool values only for these rows
+        a_bool.loc[na_rows] = False
+
+        if a_bool.any():
+            # get index of rows where values are not equal
+            mismatched_index = np.where(a_bool)[0]
+            mismatched_row = df.iloc[mismatched_index]
+            mismatched_list = mismatched_row.index.tolist()
+            if self.debug:
+                if (len(mismatched_list)<20):
+                    print("Mismatched rows index:", ','.join(str(item) for item in mismatched_list))
+                else:
+                    print("Mismatched rows index:", "Too many to show.")
+            if self.logging:
+                if (len(mismatched_list)<20):
+                    # mismatched_str = ', '.join(mismatched_list)
+                    mismatched_str = ','.join(str(item) for item in mismatched_list)
+                    self.logger.debug(f"Mismatched rows index: {mismatched_str}")
+                else:
+                    self.logger.debug("Mismatched rows index: Too many to show.")
+        else:
+            if self.debug:
+                print("Columns are identical.")
+            else:
+                self.logger.debug("Columns are identical.")
+
+        return mismatched_list

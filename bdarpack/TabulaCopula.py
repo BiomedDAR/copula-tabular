@@ -182,17 +182,21 @@ class TabulaCopula:
         self._update_defaults(var_to_update="privacy_batch_n", new_value="PRIVACY_BATCH_N", definitions=definitions)
 
         self.prefix_path = definitions.PREFIX_PATH
+        self.prefix_path = self.prefix_path.replace("\\","/")
 
         self.trainxlsx = definitions.TRAINXLSX
         self.traindictxlsx = definitions.TRAINDICTXLSX
 
         self.train_data_path = self.prefix_path + self.folder_trainData + "\\"
+        self.train_data_path = self.train_data_path.replace("\\","/")
         self.train_data_filename = self.train_data_path + definitions.TRAINXLSX
         self.train_data_dict_filename = self.train_data_path + definitions.TRAINDICTXLSX
 
         self.syn_data_path = self.prefix_path + self.folder_synData + "\\"
-        self.privacyMetrics_path = self.prefix_path + self.folder_privacyMetrics + "\\"
+        self.syn_data_path = self.syn_data_path.replace("\\","/")
 
+        self.privacyMetrics_path = self.prefix_path + self.folder_privacyMetrics + "\\"
+        self.privacyMetrics_path = self.privacyMetrics_path.replace("\\","/")
 
         self.train_df = None #initialise training data (dataframe)
         self.dict_df = None #initialise data dictionary (dataframe)
@@ -277,7 +281,6 @@ class TabulaCopula:
         # Convert columns to "string" type based on data dictionary settings
         var_names = [row[self.dict_var_varname] for index, row in self.dict_df.iterrows() if row[self.dict_var_vartype] == 'string']
         self.train_df[var_names] = self.train_df[var_names].astype("str")
-
 
         if (self.debug):
             print(f"Input data loaded.")
