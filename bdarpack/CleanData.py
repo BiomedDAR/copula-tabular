@@ -526,7 +526,7 @@ class CleanData:
         string_type_list = ["string", "String"]
         for i in string_type_list:
             report_df.loc[(report_df['data_type_in_dict'] == i) & 
-              (report_df['data_type'].isin(['category', 'object'])),'data_type_mismatch'] = 'Matched'
+              (report_df['data_type'].isin(['category', 'object', 'string'])),'data_type_mismatch'] = 'Matched'
         
         date_type_list = ["Date", "date"]
         for i in date_type_list:
