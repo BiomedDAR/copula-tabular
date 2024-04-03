@@ -118,7 +118,8 @@ class Constraints:
 
         # Create log
         for var in var_array:
-            mismatch_str = ','.join(mismatch_dict[var])
+            # mismatch_str = ','.join(mismatch_dict[var])
+            mismatch_str = ','.join(str(item) for item in mismatch_dict[var])
             msg = f"Replaced {var} using conditions and values given in dict_conditions_values."
             self.log[var]['multiparent_conditions'] = {
                 "msg": msg,
