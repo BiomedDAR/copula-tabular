@@ -12,6 +12,7 @@ build/
 develop-eggs/
 dist/
 dist_test/
+dist_old/
 downloads/
 eggs/
 .eggs/

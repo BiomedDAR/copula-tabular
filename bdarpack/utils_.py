@@ -340,6 +340,7 @@ def strip_string_spaces(dataframe, col=None):
         dataframe[col] = dataframe[col].str.strip()
 
     return dataframe
+    
 
 def convert_datatypes(df):
     """Convert from nullable datatypes to non-nullable, for backwards compatibility (if required)"""
@@ -567,3 +568,21 @@ def makePD(corr):
 
         return new_corr
     
+def sort_subset(A, B):
+    """
+    Sorts a subset of a list according to the arrangement of elements in another list.
+
+    Parameters:
+        A (list): The subset of the list to be sorted.
+        B (list): The original list.
+
+    Returns:
+        A_sorted (list): The subset A sorted based on its arrangement in B.
+    """
+    # Determine the position of each element in A in B using index method
+    position = [B.index(i) for i in A]
+
+    # Sort A using the position list
+    A_sorted = [x for _,x in sorted(zip(position,A))]
+    
+    return A_sorted
