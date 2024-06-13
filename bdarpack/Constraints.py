@@ -192,7 +192,8 @@ class Constraints:
             if column_exist:
                 df[output_column_name] = df[original_column_name].copy()
             else:
-                df[output_column_name] = df[column_names].copy()
+                # df[output_column_name] = df[column_names].copy()
+                df[output_column_name] = None #(MZ): 20240424
         else:
             column_name = column_names[0]
             if output_column_name is None:
@@ -206,7 +207,8 @@ class Constraints:
             if column_exist:
                 df[output_column_name] = df[original_column_name].copy()
             else:
-                df[output_column_name] = df[column_name].copy()
+                # df[output_column_name] = df[column_name].copy()
+                df[output_column_name] = None #(MZ): 20240424
 
         
         # initialise log
@@ -294,7 +296,7 @@ class Constraints:
         Parameters:
             df (dataframe): the dataframe containing the variable.
             var_array (list): an array of variable names that need to be processed.
-            value (string): the replacement value to be given for missing values. If None, 'UNK' is used as default.
+            value (string, int, float): the replacement value to be given for missing values. If None, 'UNK' is used as default.
 
         Returns:
             df (dataframe): the updated dataframe.
@@ -331,6 +333,13 @@ class Constraints:
                     replace_value = "UNK"
             else:
                 replace_value = value
+
+                if var_dtype!="string" and isinstance(value, str):
+                    df[v] = df[v].astype(str)
+                    if self.debug:
+                        print(f"Converting variable: {v}: to string type from {var_dtype}")
+                    if self.logging:
+                        self.logger.debug(f"Converting variable: {v}: to string type from {var_dtype}")
 
             # return the number of missing values converted
             # number_of_missing_values_converted = df[v].isnull().sum() #(MZ): 20240322

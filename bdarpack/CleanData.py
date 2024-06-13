@@ -46,12 +46,17 @@ class CleanData:
 
         self.dict_var_varname = "NAME" # column in data dictionary containing variable names in input data
         self.dict_var_varcategory = "CATEGORY" # column in data dictionary setting the category of the variable name
+        self.dict_var_varsecondary = "SECONDARY" # column in data dictionary setting if the variable is a secondary variable  #(MZ): 12-04-2024
+        self.dict_var_varfrequency = "FREQUENCY" # column in data dictionary setting the frequency of the variable (for longitudinal datasets). #(MZ): 16-04-2024
         self.dict_var_type = "TYPE" # column in data dictionary setting the type of variable (string, numeric, date, bool)
-        self.dict_var_codings = "CODINGS" # column in data dictionary setting the codigns of variable (dataformat, categories)
+        self.dict_var_codings = "CODINGS" # column in data dictionary setting the codings of variable (dataformat, categories)
         self.var_name_stripemptyspaces = False #If True, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary.
         self.longitudinal_variableMarker = None #column header which contains the list of categories stipulating a list of longitudinal markers
+        self.longitudinal = False # boolean indicating if the data is longitudinal   #(MZ): 16-04-2024
+        self.longitudinal_freq_set_dict = {} # list of variables for each frequency #(MZ): 16-04-2024
 
-                   
+        # LOADING DEFAULTS FOR SECONDARY VARIABLE REMOVAL
+        self.options_secondary_removal_exclude_list = [] # secondary variables to exclude from removal process  #(MZ): 16-04-2024
 
         # LOADING DEFAULTS FOR DUPLICATED ROWS
         self.dropped_duplicated_rows_filename = "rowsRemoved.xlsx"
@@ -74,6 +79,10 @@ class CleanData:
 
         # LOADING DEFAULTS FOR CONSTRAINTS
         self.suffix_constraints = "CON"
+
+        # LOADING DEFAULTS FOR REMOVING SECONDARY VARIABLES
+        self.suffix_remove_secondary = "NOSEC"
+        self.output_removed_secondary_filename = "removed_secondary_variables.xlsx"
 
         # LOAD DEFINITIONS
         self.definitions = definitions
@@ -152,9 +161,12 @@ class CleanData:
         self._update_defaults(var_to_update="folder_trainData", new_value="TRAIN_PATH")
         self._update_defaults(var_to_update="read_na", new_value="READ_NA") #(MZ): 28-02-2024
         self._update_defaults(var_to_update="dict_var_varname", new_value="DICT_VAR_VARNAME")
-        self._update_defaults(var_to_update="dict_var_varcategory", new_value="DICT_VAR_VARCATEGORY")
+        self._update_defaults(var_to_update="dict_var_varcategory", new_value="DICT_VAR_VARCATEGORY") #(MZ): 12-04-2024
+        self._update_defaults(var_to_update="dict_var_varsecondary", new_value="DICT_VAR_VARSECONDARY")
+        self._update_defaults(var_to_update="dict_var_varfrequency", new_value="DICT_VAR_VARFREQUENCY")
         self._update_defaults(var_to_update="dict_var_type", new_value="DICT_VAR_TYPE")
         self._update_defaults(var_to_update="dict_var_codings", new_value="DICT_VAR_CODINGS")
+        
 
         self._update_defaults(var_to_update="create_unique_index", new_value="CREATE_UNIQUE_INDEX")
         self._update_defaults(var_to_update="unique_index_composition_list", new_value="UNIQUE_INDEX_COMPOSITION_LIST")
@@ -168,6 +180,9 @@ class CleanData:
 
         # Updating defaults for REPORTS
         self._update_defaults(var_to_update="initial_report_filename", new_value="INITIAL_REPORT_FILENAME")
+
+        # Updating defaults for SECONDARY VARIABLES REMOVAL
+        self._update_defaults(var_to_update="options_secondary_removal_exclude_list", new_value="OPTIONS_SECONDARY_REMOVAL_EXCLUDE_LIST")  #(MZ): 16-04-2024
 
         # Updating defaults for DROP DUPLICATES
         self._update_defaults(var_to_update="dropped_duplicated_rows_filename", new_value="OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME")
@@ -189,6 +204,10 @@ class CleanData:
         self._update_defaults(var_to_update="options_convert_ascii_exclusion_list", new_value="OPTIONS_CONVERT_ASCII_EXCLUSION_LIST")
 
         self._update_defaults(var_to_update="suffix_constraints", new_value="SUFFIX_CONSTRAINTS")
+
+        # Updating defaults for REMOVING SECONDARY VARIABLES
+        self._update_defaults(var_to_update="suffix_remove_secondary", new_value="SUFFIX_REMOVE_SECONDARY")
+        self._update_defaults(var_to_update="output_removed_secondary_filename", new_value="OUTPUT_REMOVED_SECONDARY_FILENAME")
 
 
         self.prefix_path = self.definitions.PREFIX_PATH
@@ -236,6 +255,10 @@ class CleanData:
         self.dict_latest_filename = self.train_data_path + self.definitions.RAWDICTXLSX
         self.dict_latest_filename = ut_.change_extension(self.dict_latest_filename, self.output_type_dict)
 
+        # Initialise latest filename for split-datasets
+        self.latest_filename_split_dict = {} # (MZ): 16-04-2024: 
+        self.latest_filename_split_merged = None #filename for merged split-dataframe into big dataframe based on crossgroupindex
+
         # Initialise settings for longitudinal data
         self._update_defaults(var_to_update="longitudinal_variableMarker", new_value="LONG_VAR_MARKER")
 
@@ -245,9 +268,11 @@ class CleanData:
         self.dict_df = None #initialise data dictionary (dataframe)
         self.clean_df = None #initialise cleaned data (dataframe)
         self.clean_dict_df = None #initialise cleaned data dictionary (dataframe)
+        self.clean_split_df = {} #initialise cleaned data, split into groups (dataframe)
         self.var_list = None #list of all variables (column headers) found in input data
         self.var_diff_list = None #list of discrepancies between data dictionary and input data
         self.cat_var_dict = None #dictionary with {cat: [list of variables]}
+        self.var_secondary_list = None #list of secondary variables
         self.type_var_dict = None #dictionary with {type: [list of variables]}
         self.report_df = None #initialise the report (dataframe) prior to optional cleaning steps
 
@@ -282,6 +307,8 @@ class CleanData:
 
         if self.longitudinal_variableMarker is not None:
             self.longitudinal_marker_list = list(self.raw_df[self.longitudinal_variableMarker].unique())
+            self.longitudinal_marker_list.sort() #(MZ): 16-04-2024 add sort
+            self.longitudinal = True    #(MZ): 16-04-2024
         else:
             self.longitudinal_marker_list = ["0"]
         
@@ -289,6 +316,35 @@ class CleanData:
             print(f"Extracting list of longitudinal markers: {self.longitudinal_marker_list}")
         if (self.logging):
             self.logger.info(f"Extracting list of longitudinal markers: {self.longitudinal_marker_list}")
+
+    def _get_longitudinal_freq_set(self):
+        """
+        Get a dictionary of frequencies, and its corresponding set of variables
+        """
+
+        #(MZ): 16-04-2024
+
+        if self.longitudinal_marker_list is None:
+            self._get_longitudinal_marker_list()
+
+        if self.longitudinal:
+            for freq in self.longitudinal_marker_list:
+                self.longitudinal_freq_set_dict[freq] = []
+        
+        if self.clean_dict_df is not None:
+            A = self.dict_var_varname
+            B = self.dict_var_varfrequency
+            freq_df = self.clean_dict_df[[A,B]]
+
+            for freq in self.longitudinal_marker_list:
+                names = []
+
+                for index, row in freq_df.iterrows():
+                    if freq in row[B]:
+                        names.append(row[A])
+                
+                self.longitudinal_freq_set_dict[freq] = names
+
     
     def read_inputData(self, sheetname=None):
         """Reads raw data from input definitions and outputs it as a dataframe.
@@ -858,11 +914,33 @@ class CleanData:
             raise ValueError(f"Not able to save data to file.")
 
         
+    def _get_list_of_secondaryVariables_from_dict(self):
+        """
+        Extracts a list of variables from the data dictionary, which are indicated as secondary variables.
+
+        Parameters
+        ----------
+        self : object, instance of the dataframe   
+
+        Returns
+        -------
+        var_secondary_list : list
+            list of secondary variables
+        
+        #(MZ): 12-04-2024
+        """
+
+        A = self.dict_var_varname
+        B = self.dict_var_varsecondary
+        sec_df = self.clean_dict_df[[A,B]]
+
+        self.var_secondary_list = list(sec_df[A][sec_df[B] == "Y"])
+
+        return self.var_secondary_list
+
     def _get_field_category_from_dict(self):
         """
-        Extracts dataframe columns with variable name and variable category and 
-        creates a dictionary with the categories as keys and the respective variables 
-        as values.
+        Extracts dataframe columns with variable name and variable category and creates a dictionary with the categories as keys and the respective variables as values.
         
         Parameters
         ----------
@@ -1119,6 +1197,251 @@ class CleanData:
         # Update new filename and new input data
         self.update_data(new_df=output_df, filename_suffix=self.suffix_convert_ascii)
 
+    # SPLIT DATASETS INTO LONGITUDINAL POINTS
+    def _split_longitudinal_on_visits(self, options={}):
+        """
+        Split datasets based on longitudinal visits.
+        This function assumes that each row of the dataframe comprises variables associated with a specific visit of a single subject. Each subject can have multiple visits, i.e. multiple rows, and the dataframe contains rows originating from multiple subjects.
+
+        Not all variables are relevant for all visits, and this information is recorded in the data dictionary, under self.dict_var_varfrequency column. The function uses self._get_longitudinal_freq_set to get a dictionary of frequencies (visits) and its corresponding set of variables.
+
+        The original dataframe is split into separate dataframes, each corresponding to a specific visit. Then, irrelevant variables for that specific visit are removed. New filenames are created and stored in self.latest_filename_split_dict. Dataframes are then saved to file.
+
+        if `merge` is `True`: merge the splitted dataframes into one big dataframe, based on `crossgroupindex`, such as the `subject_id`. Rename the variables with suffix `_<frequency>`, and merge the dataframes, with `baseline` on left. Save dataframe to file using suffix `-MERGED`.
+
+        Parameters
+        ----------
+        options: dict, optional. Dictionary of options that can change the behavior of this method. Defaults to an empty dictionary.
+            crossgroupindex (str, optional): The column to use for merging longitudinal visits. Defaults to None.
+            baseline (str, optional): The baseline group for merging. Defaults to None.
+            merge (bool, optional): Whether or not to merge the split dataframes. Defaults to False.
+
+        Returns
+        -------
+        No value returned, updates the dataFile given.
+
+        #(MZ): 12-04-2024
+        """
+
+        crossgroupindex = None
+        baseline_group = None
+        merge = False
+        if "crossgroupindex" in options:
+            crossgroupindex = options['crossgroupindex']
+        if "baseline" in options:
+            baseline_group = options['baseline']
+        if "merge" in options:
+            merge = options['merge']
+
+        if (self.debug):
+            print(f"Splitting dataset into longitudinal groupings...")
+
+        if (self.logging):
+            self.logger.info(f"Splitting dataset into longitudinal groupings...")
+
+        # Get a working copy of the latest data dataframe
+        df = deepcopy(self.clean_df)
+
+        # create a new dataframe containing rows where "longvarmarker" equals the current value
+        longvarmarker = self.longitudinal_variableMarker
+        split_df_dict = {}
+        self.latest_filename_split_dict[longvarmarker] = {}
+
+        # Get set of variables for each frequency
+        self._get_longitudinal_freq_set()
+        freq_set_dict = self.longitudinal_freq_set_dict
+
+        if (self.debug):
+            print(f"Longitudinal variable: {longvarmarker}")
+
+        if (self.logging):
+            self.logger.info(f"Longitudinal variable: {longvarmarker}")
+
+        for value in self.longitudinal_marker_list:
+            # split into new dataframe
+            split_df_dict[value] = df[df[longvarmarker] == value]
+
+            # filter out variables based on freq_set_dict
+            freq_set_list = freq_set_dict[value]
+            full_var_list = list(split_df_dict[value].columns)
+            common_var_list = list(set(freq_set_list).intersection(set(full_var_list)))
+
+            common_var_list = ut_.sort_subset(common_var_list, self.var_list)
+
+            split_df_dict[value] = split_df_dict[value][common_var_list]
+            
+            # initialise new filename
+            self.latest_filename_split_dict[longvarmarker][value] = ut_.update_filename_with_suffix(filename=self.data_latest_filename, suffix=value)
+
+            if (self.debug):
+                print(f"Saving group: {value} to filename: {self.latest_filename_split_dict[longvarmarker][value]}")
+
+            if (self.logging):
+                self.logger.info(f"Saving group: {value} to filename: {self.latest_filename_split_dict[longvarmarker][value]}")
+
+            # save to file
+            self._save_df_to_file(
+                df = split_df_dict[value],
+                filename = self.latest_filename_split_dict[longvarmarker][value],
+                sheetname = 'Sheet1',
+                index=True
+            )
+
+            # save to class
+            self.clean_split_df = deepcopy(split_df_dict)
+            
+        # Merge split-dataframe into big dataframe based on crossgroupindex
+        if crossgroupindex is not None:
+            for value in split_df_dict.keys():
+
+                # assign first group as baseline if none
+                if baseline_group is None:
+                    baseline_group = value
+
+                df_A = deepcopy(split_df_dict[value])
+                value_strip_str = value.replace(" ", "_")
+                # rename columns in dataframe by appending suffix
+                for col in df_A.columns:
+                    if col != crossgroupindex:
+                        df_A = df_A.rename(columns={col: col + f"_{value_strip_str}"})
+
+                split_df_dict[value] = deepcopy(df_A)
+
+        if merge:
+            # initialise new filename
+            newfilename = ut_.update_filename_with_suffix(filename=self.data_latest_filename, suffix=f"{longvarmarker}-MERGED")
+            if baseline_group is not None:
+                merged_df = deepcopy(split_df_dict[baseline_group])
+
+                for value in split_df_dict.keys():
+                    if (value != baseline_group):
+                        df_right = deepcopy(split_df_dict[value])
+
+                        merged_df = pd.merge(merged_df, df_right, on=crossgroupindex, how='left')
+
+            # save to file
+            self._save_df_to_file(
+                df = merged_df,
+                filename = newfilename,
+                sheetname = 'Sheet1',
+                index=True
+            )
+            self.latest_filename_split_merged = newfilename
+
+    def _split_longitudinal_on_visits_reverse(self, df, output_filename=None, options={}):
+        """
+
+        #(MZ): 06-05-2024
+        """
+        
+        crossgroupindex = None
+        baseline_group = None
+        mandatory_var = None
+        if "crossgroupindex" in options:
+            crossgroupindex = options['crossgroupindex']
+        if "baseline" in options:
+            baseline_group = options['baseline']
+        if "mandatory_var" in options:
+            mandatory_var = options['mandatory_var']
+
+        # Get working df
+        split_merged_df = deepcopy(df)
+
+        # Get set of variables for each frequency (freq_set_dict)
+        merged_col_list = split_merged_df.columns.tolist() #full list of columns, with freq. as suffix
+        freq_set_dict = {} #initialise dictionary
+        for visit in self.longitudinal_marker_list:
+            freq_set_dict[visit] = [crossgroupindex]
+            for var in merged_col_list: #loop through full set of col. names with suffix
+                value_strip_str = visit.replace(" ", "_")
+                if value_strip_str in var: #put under proper key in freq_set_dict
+                    freq_set_dict[visit].append(var)
+
+        # Split working df into individual freq. df(s), store in dict `split_df_dict`
+        split_df_dict = {} #initialise dictionary
+        for key in freq_set_dict:
+            temp_df = split_merged_df[freq_set_dict[key]] #build ind. df based on freq.
+            value_strip_str = key.replace(" ", "_")
+            for column in temp_df.columns: #replace column names
+                new_column_name = column.replace(f'_{value_strip_str}', '')
+                temp_df = temp_df.rename(columns={column: new_column_name})
+            split_df_dict[key] = temp_df
+
+        # Build final output df, final_df, by concatenating ind. df(s)
+        for key in freq_set_dict:
+            if key==baseline_group:
+                final_df = split_df_dict[key]
+            else:
+                final_df = pd.concat([final_df, split_df_dict[key]])
+
+        # Clean empty rows
+        # Check if mandatory_var is empty. If empty, delete row
+        if mandatory_var in final_df.columns:
+            final_df = final_df[final_df[mandatory_var] != '']
+            final_df = final_df.reset_index(drop=True) #reset dataframe index
+
+        # Save to file
+        if output_filename is not None:
+            self._save_df_to_file(
+                df = final_df,
+                filename = output_filename,
+                sheetname = 'Sheet1',
+                index = True
+            )
+        
+        return final_df
+        
+
+    # REMOVE SECONDARY VARIABLES
+    def remove_secondary_variables(self):
+        """
+        Removes the secondary variable from the data
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        No value returned, updates the dataFile given.
+
+        #(MZ): 12-04-2024
+        """
+
+        if (self.debug):
+            print(f"Removing secondary variables from input data...")
+        if (self.logging):
+            self.logger.info(f"Removing secondary variables from input data...")
+
+        # Get list of secondary variables
+        if (self.var_secondary_list is None):
+            self._get_list_of_secondaryVariables_from_dict()
+
+        # Get exclusion list
+        exclusion_list = deepcopy(self.options_secondary_removal_exclude_list)
+
+        if (self.debug):
+            print(f"Removing exclusion list {exclusion_list} from list of secondary variables...")
+        if (self.logging):
+            self.logger.info(f"Removing exclusion list {exclusion_list} from list of secondary variables...")
+
+        if (len(exclusion_list)>0): # remove excluded variables
+            self.var_secondary_list = list(set(self.var_secondary_list) - set(exclusion_list))
+
+        # Get a working copy of the latest data dataframe
+        df = deepcopy(self.clean_df)
+
+        # Drop secondary variables
+        dropped_df = df[self.var_secondary_list]
+        output_df = df.drop(self.var_secondary_list, axis=1)
+
+        # Save dropped variables as excel file
+        ut_.save_df_as_excel(dropped_df,
+            excel_file_name = self.train_data_path + self.output_removed_secondary_filename,
+            sheet_name = "Sheet1",
+            index=True)
+        
+        # Update new filename and new input data
+        self.update_data(new_df = output_df, filename_suffix = self.suffix_remove_secondary)
     
     # STANDARDISE DATES
     def standardise_date(self, def_date_format=None, faileddate_conversions_filename=None):
@@ -1172,7 +1495,6 @@ class CleanData:
 
         #
         for dateVar in dateVar_list:
-            
             dateColFieldFormat = deepcopy(def_date_format_convert) # the date format to convert to
 
             # the date format to convert from
@@ -1204,9 +1526,17 @@ class CleanData:
 
             # save failed conversions to dataframe
             if chosen_index is not None:
-                failedIndices_df[dateVar] = output_df[output_df[dateVar].isna()][chosen_index]
+                temp_df = output_df[output_df[dateVar].isna()][chosen_index]
+                # failedIndices_df[dateVar] = output_df[output_df[dateVar].isna()][chosen_index]
             else: # if chosen_index is not available, use df index
-                failedIndices_df[dateVar] = output_df[output_df[dateVar].isna()].index
+                temp_df = output_df[output_df[dateVar].isna()].index
+                # failedIndices_df[dateVar] = output_df[output_df[dateVar].isna()].index
+
+            temp_df.name = dateVar
+            if failedIndices_df.empty:
+                failedIndices_df[dateVar] = temp_df
+            else:
+                failedIndices_df = failedIndices_df.merge(temp_df, left_index=True, right_index=True, how='outer')
 
             if (self.output_type_data == 'csv'): #workaround to prevent automatic date conversion of csv by ms-excel
                 output_df[dateVar] = ' ' + output_df[dateVar].astype(str) 

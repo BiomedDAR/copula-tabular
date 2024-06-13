@@ -23,7 +23,7 @@ def load_TC(defi):
 
     # read file
     if (defi.OUTPUT_TYPE_DATA=='csv'):
-        CLOF_df = pd.read_csv(CLOF_filename)
+        CLOF_df = pd.read_csv(CLOF_filename, na_values=None, keep_default_na=False)  #(MZ): 19042024: switch to preserve user defined 'na'
     elif (defi.OUTPUT_TYPE_DATA=='xlsx'):
         CLOF_df = pd.read_excel(CLOF_filename, sheet_name="SHEET1")
 
@@ -273,7 +273,7 @@ class TabulaCopula:
                 )
             elif file_type=="csv":
                 # Read file and output as dataframe
-                self.train_df = pd.read_csv(self.train_data_filename)
+                self.train_df = pd.read_csv(self.train_data_filename, na_values=None, keep_default_na=False) #(MZ): 19042024: switch to preserve user defined 'na'
 
         except ValueError as e:
             raise ValueError('Could not read sheet in excel file: ' + str(e)) from None
@@ -338,10 +338,11 @@ class TabulaCopula:
 
         return self.dict_df
 
-    def transform(self, metaData=None, var_list=None):
+    def transform(self, metaData=None, var_list=None, default_transformer_type_4_string='One-Hot', default_datetime_format=f"%Y-%m-%d %H:%M:%S"):
         """
         Change log:
             -MZ 07-09-2023: add sampling option to transformed data (form disjoint subsets for training and control)
+            -MZ 19-04-2024: add options to define default transformer types and datetime format
         """
 
         if metaData is None:
@@ -355,7 +356,9 @@ class TabulaCopula:
             metaData = metaData,
             var_list = var_list,
             removeNull = self.removeNull,
-            debug = self.debug
+            debug = self.debug,
+            default_transformer_type_4_string = default_transformer_type_4_string,
+            default_datetime_format = default_datetime_format
         )
         self.transformed_df = transformer.transform(self.train_df)
 
@@ -458,6 +461,9 @@ class TabulaCopula:
 
                     # (2) update with new null values
                     transformed_filtered = self._conditional_update_newNullValue(childVarList, transformed_filtered)
+                    # transformed_filtered.corr(method='kendall')
+
+                    # print(transformed_filtered.dtypes)
 
                     # Save filtered transformed_data (output to file)
                     self._save_data_to_file(transformed_filtered, self.output_filenames['conditional_transformed'][set_no][merged_set_index])
@@ -565,7 +571,9 @@ class TabulaCopula:
 
                     # Read Transformed-Conditional Dataset from Stored CSVs
                     transformed_filtered_conditional_filename = self.output_filenames['conditional_transformed'][set_no][merged_set_index]
+
                     transformed_filtered_conditional = pd.read_csv(transformed_filtered_conditional_filename)
+                    # transformed_filtered_conditional = pd.read_csv(transformed_filtered_conditional_filename, na_values=None, keep_default_na=False)  #(MZ): 19042024: switch to preserve user defined 'na'
 
                     if (self.debug):
                         print(transformed_filtered_conditional)

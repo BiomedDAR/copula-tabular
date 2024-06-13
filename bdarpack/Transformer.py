@@ -65,7 +65,30 @@ class Transformer:
 
     def convert_2_dtypes(self, data):
         """Convert data (df) into best possible dtypes"""
-        return data.convert_dtypes()
+
+        output_df = deepcopy(data)
+
+        # (MZ): 19-04-2024 use datetime_format as reference to convert variables to datetime64 type
+        if self.metaData is not None:
+            for column in self.metaData.keys():
+                # print(column)
+                if 'dtype' in self.metaData[column]:
+                    if self.metaData[column]['dtype'] == "date":
+                        if 'datetime_format' in self.metaData[column]:
+                            datetime_format = self.metaData[column]['datetime_format']
+                            output_df[column] = pd.to_datetime(output_df[column], format=datetime_format, errors='coerce')
+                        else:
+                            output_df[column] = pd.to_datetime(output_df[column], infer_datetime_format=True)
+                    elif self.metaData[column]['dtype'] == 'float':
+                        output_df[column].loc[output_df[column]==""] = np.nan
+                        output_df[column].loc[output_df[column]=="NA"] = np.nan
+                        output_df[column] = output_df[column].astype(float)
+                    elif self.metaData[column]['dtype'] == 'string':
+                        output_df[column] = output_df[column].astype(str)
+
+        output_df = output_df.convert_dtypes()
+
+        return output_df
     
     def _get_null_value_from_metaData(self, column, default_value, data_df):
         """Compute the set_null_value from options specified in metaData for the field: column
@@ -373,7 +396,7 @@ class Transformer:
                 transformer_meta_dict[col]['output_fields'][null_output_field_name] = {
                     'dtype': numeric_df[null_output_field_name].dtype  # update transformer_meta_dict with output pd dtype of field
                 }
-
+                
                 if (col_dtype_str=='boolean'):
                     set_null_value = self._get_null_value_from_metaData(
                         column = col,
@@ -494,9 +517,12 @@ class Transformer:
 
         # cast back to original dtype
         for field, field_meta in self.transformer_meta_dict.items():
-            revert_df.astype({field: field_meta['original_dtype']})
+            
             if 'datetime' in field_meta['original_dtype']:
-                revert_df[field] = pd.to_datetime(revert_df[field])
+                datetime_format = self._get_datetime_format_from_metaData(column=field)
+                revert_df[field] = pd.to_datetime(revert_df[field], format=datetime_format)
+            else:
+                revert_df.astype({field: field_meta['original_dtype']})
 
         return revert_df
         # return self.convert_2_dtypes(revert_df)
