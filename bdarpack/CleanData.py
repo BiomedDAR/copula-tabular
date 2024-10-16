@@ -556,10 +556,11 @@ class CleanData:
         return self.clean_df
 
     
-    def gen_data_report(self, data, dict):
+    def gen_data_report(self, data, dict, report_filename=None):
         # (MZ): 23-02-2024: added fix to strip trailing spaces in data_type_in_dict column
         # (MZ): 23-02-2024: added fix to check if col exists in `data` in Populate data list for objects
         # (MZ): 23-02-2024: updated function to allow varying data_types in dictionary
+        # (MZ): 11-09-2024: added optional parameter: `report_filename`, default is `None`. Use relative path, such as 'report.xlsx'. The report will be saved in the self.train_data_path folder. If not specified, will use self.initial_report_filename as default filename.
 
         report_cols = ['data_type','data_type_in_dict','data_type_mismatch', 'count_missing_values', 'percentage_missing_values']
         report_df = pd.DataFrame(columns=report_cols, index=data.columns) #initialise dataframe B (not efficient)
@@ -737,12 +738,17 @@ class CleanData:
         self.report_df = report_df
 
         # Save to file
+        # (MZ): 11-09-2024
+        if report_filename is None:
+            report_filename = self.initial_report_filename
+        else:
+            report_filename = self.train_data_path + report_filename
         try:
-            self._save_df_to_file(report_df, self.initial_report_filename,sheetname='by Variable')
+            self._save_df_to_file(report_df, report_filename,sheetname='by Variable')
             if (self.debug):
-                print(f"Initial Report Generated: filename: {self.initial_report_filename}")
+                print(f"Initial Report Generated: filename: {report_filename}")
             if (self.logging):
-                self.logger.info(f"Initial Report Generated: filename: {self.initial_report_filename}")
+                self.logger.info(f"Initial Report Generated: filename: {report_filename}")
         except:
             if (self.debug):
                 print(f"Initial Report Generation FAILED.")
@@ -976,6 +982,7 @@ class CleanData:
             dictionary with the variable type as keys and the respective variables as values.
         """
         # (MZ): 27022024: update to clean up varying categories
+        # (MZ): 05092024: update to catch error where data dictionary has missing variable types
 
         # Extract dataframe columns with variable name and variable category
         A = self.dict_var_varname
@@ -997,7 +1004,14 @@ class CleanData:
         date_type = []
         bool_type = []
         for key, value in temp_dict.items():
-            key_str = key.strip()
+                            
+            try: #(MZ): 05092024
+                key_str = key.strip()
+            except AttributeError as e:
+                if self.logging:
+                    self.logger.error(f'Some of the variables having missing/non-str variable types: {str(key)}. Please amend the data dictionary before proceeding' + str(e))
+                raise Exception(f'Some of the variables have missing/non-str variable types: {str(key)}. Please amend the data dictionary before proceeding.' + str(e)) from None
+            
             if key_str in numerical_type_list:
                 numeric = numeric + value
             elif key_str in string_type_list:
@@ -1198,7 +1212,7 @@ class CleanData:
         self.update_data(new_df=output_df, filename_suffix=self.suffix_convert_ascii)
 
     # SPLIT DATASETS INTO LONGITUDINAL POINTS
-    def _split_longitudinal_on_visits(self, options={}):
+    def split_longitudinal_by_group(self, options=[]):
         """
         Split datasets based on longitudinal visits.
         This function assumes that each row of the dataframe comprises variables associated with a specific visit of a single subject. Each subject can have multiple visits, i.e. multiple rows, and the dataframe contains rows originating from multiple subjects.
@@ -1211,7 +1225,235 @@ class CleanData:
 
         Parameters
         ----------
-        options: dict, optional. Dictionary of options that can change the behavior of this method. Defaults to an empty dictionary.
+        options: (dict, optional). Dictionary of options that can change the behaviour of this method. Defaults to an empty dictionary.
+            crossgroupindex (str, optional): The column to use for merging longitudinal visits. Defaults to None.
+            baseline (str, optional): The baseline group for merging. Defaults to None.
+            merge (bool, optional): Whether or not to merge the split dataframes. Defaults to False.
+            var_sort_list (list, optional): Sorted list of variables. For sorting final_df according to given sequence. Variables not in `var_sort_list` will be dropped.
+
+        Returns
+        -------
+        No value returned, updates the dataFile given.
+
+        #(MZ): 16-10-2024
+        """
+
+        crossgroupindex = None
+        baseline_group = None
+        merge = False
+        var_sort_list = None
+        if "crossgroupindex" in options:
+            crossgroupindex = options['crossgroupindex']
+        if "baseline" in options:
+            baseline_group = options['baseline']
+        if "merge" in options:
+            merge = options['merge']
+        if "var_sort_list" in options:
+            var_sort_list = options['var_sort_list']
+        else:
+            var_sort_list = self.var_list
+
+        if (self.debug):
+            print(f"Splitting dataset into longitudinal groupings...")
+
+        if (self.logging):
+            self.logger.info(f"Splitting dataset into longitudinal groupings...")
+
+        # Get working copy of latest dataframe
+        df = deepcopy(self.clean_df)
+
+        # Create a new dataframe containing rows where "longvarmarker" equals the current value
+        longvarmarker = self.longitudinal_variableMarker
+        # Get set of variables for each frequency
+        self._get_longitudinal_freq_set()
+        freq_set_dict = self.longitudinal_freq_set_dict
+
+        if (self.debug):
+            print(f"Longitudinal variable: {longvarmarker}")
+
+        if (self.logging):
+            self.logger.info(f"Longitudinal variable: {longvarmarker}")
+        
+        if merge:
+            split_df_dict, merged_df = ut_.split_longitudinal_by_group(
+                df = df, 
+                longvarmarker = longvarmarker, 
+                longitudinal_marker_list = self.longitudinal_marker_list, 
+                freq_set_dict = freq_set_dict, 
+                options={
+                    'merge':True,
+                    'crossgroupindex': crossgroupindex,
+                    'baseline_group': baseline_group,
+                    'var_sort_list': var_sort_list
+                }
+            )
+
+            # Save to file
+            newfilename = ut_.update_filename_with_suffix(filename=self.data_latest_filename, suffix=f"{longvarmarker}-MERGED")
+            self._save_df_to_file(
+                df = merged_df,
+                filename = newfilename,
+                sheetname = 'Sheet1',
+                index = False
+            )
+            self.latest_filename_split_merged = newfilename
+        else:
+            split_df_dict = ut_.split_longitudinal_by_group(
+                df = df, 
+                longvarmarker = longvarmarker, 
+                longitudinal_marker_list = self.longitudinal_marker_list, 
+                freq_set_dict = freq_set_dict, 
+                options={
+                    'merge':False,
+                    'crossgroupindex': crossgroupindex,
+                    'baseline_group': baseline_group,
+                    'var_sort_list': var_sort_list
+                }
+            )
+
+        # Save to class
+        self.clean_split_df = deepcopy(split_df_dict)
+
+        # Save to file
+        # Initialise new filename
+        self.latest_filename_split_dict[longvarmarker] = {}
+        for value in self.longitudinal_marker_list:
+            self.latest_filename_split_dict[longvarmarker][value] = ut_.update_filename_with_suffix(filename=self.data_latest_filename, suffix=value)
+
+            self._save_df_to_file(
+                df = split_df_dict[value],
+                filename = self.latest_filename_split_dict[longvarmarker][value],
+                sheetname = 'Sheet1',
+                index = False
+            )
+
+
+    def split_longitudinal_by_visits(self, options={}):
+        """
+        Split datasets based on longitudinal visits.
+        This function assumes that each row of the dataset comprises all variables associated with a single subject. All visits from a single subject are consolidated under a single row; the variables from different visits are differentiated using suffixes that can be detailed in self.longitudinal_marker_list.
+        For reference, see: utils.split_longitudinal_by_visits.
+
+        Parameters
+        ----------
+        options: (dict, optional). Dictionary of options that can change the behaviour of this method. Defaults to an empty dictionary.
+            crossgroupindex (str, optional): The column to use for merging longitudinal visits. Defaults to None.
+            merge (bool, optional): Whether or not to merge the split dataframes. Defaults to False.
+            var_sort_list (list, optional): Sorted list of variables. For sorting final_df according to given sequence. Variables not in `var_sort_list` will be dropped.
+            mandatory_variable (str, optional): Defaults to 'All'
+            file_to_split (str, optional): full path of csv file to split. Defaults to self.latest_filename_split_merged.
+
+        Returns
+        -------
+        No values returned, outputs to file.
+
+        #(MZ): 16-10-2024
+        """
+
+        crossgroupindex = None
+        merge = False
+        var_sort_list = None
+        mandatory_variable = 'All'
+        file_to_split = None #full path of csv file to split
+        if "crossgroupindex" in options:
+            crossgroupindex = options['crossgroupindex']
+        if "merge" in options:
+            merge = options['merge']
+        if "var_sort_list" in options:
+            var_sort_list = options['var_sort_list']
+        else:
+            var_sort_list = self.var_list
+        if "mandatory_variable" in options:
+            mandatory_variable = options['mandatory_variable']
+        if "file_to_split" in options:
+            file_to_split = options['file_to_split']
+
+        if (self.debug):
+            print(f"Splitting dataset into longitudinal groupings...")
+
+        if (self.logging):
+            self.logger.info(f"Splitting dataset into longitudinal groupings...")
+
+        if file_to_split is None:
+            split_merged_filename = self.latest_filename_split_merged
+        else:
+            split_merged_filename = file_to_split
+        split_merged_df = pd.read_csv(split_merged_filename, na_values=None, keep_default_na=False)
+
+        longitudinal_marker_dict = {}
+        for visit in self.longitudinal_marker_list:
+            temp = visit.replace(" ", "_")
+            longitudinal_marker_dict[visit] = f"_{temp}"
+
+        if merge:
+            split_df_dict, merged_df = ut_.split_longitudinal_by_visits(
+                df = split_merged_df,
+                longitudinal_marker_dict=longitudinal_marker_dict,
+                crossgroupindex = crossgroupindex,
+                options = {
+                    'merge': True,
+                    'mandatory_variable': mandatory_variable,
+                    'var_sort_list': var_sort_list
+                }
+            )
+
+            #  Save to file
+            newfilename = ut_.update_filename_with_suffix(filename=split_merged_filename, suffix='MERGEDREV')
+            self._save_df_to_file(
+                df = merged_df,
+                filename = newfilename,
+                sheetname = 'Sheet1',
+                index = False
+            )
+            self.latest_filename_split_merged = newfilename
+
+        else:
+            split_df_dict = ut_.split_longitudinal_by_visits(
+                df = split_merged_df,
+                longitudinal_marker_dict=longitudinal_marker_dict,
+                crossgroupindex = crossgroupindex,
+                options = {
+                    'merge': False,
+                    'mandatory_variable': mandatory_variable,
+                    'var_sort_list': var_sort_list
+                }
+            )
+
+        # Save to class
+        self.clean_split_df = deepcopy(split_df_dict)
+
+        # Save to file
+        # Initialise new filename
+        longvarmarker = self.longitudinal_variableMarker
+        self.latest_filename_split_dict[longvarmarker] = {}
+        for value in self.longitudinal_marker_list:
+            cvalue = f"MERGEDREV-{value}"
+            self.latest_filename_split_dict[longvarmarker][cvalue] = ut_.update_filename_with_suffix(filename=self.data_latest_filename, suffix=cvalue)
+
+            self._save_df_to_file(
+                df = split_df_dict[value],
+                filename = self.latest_filename_split_dict[longvarmarker][cvalue],
+                sheetname = 'Sheet1',
+                index = False
+            )
+    
+
+
+    def _split_longitudinal_on_visits(self, options={}):
+        """
+        Deprecated. Use split_longitudinal_by_group instead.
+        Split datasets based on longitudinal visits.
+        This function assumes that each row of the dataframe comprises variables associated with a specific visit of a single subject. Each subject can have multiple visits, i.e. multiple rows, and the dataframe contains rows originating from multiple subjects.
+
+        Not all variables are relevant for all visits, and this information is recorded in the data dictionary, under self.dict_var_varfrequency column. The function uses self._get_longitudinal_freq_set to get a dictionary of frequencies (visits) and its corresponding set of variables.
+
+        The original dataframe is split into separate dataframes, each corresponding to a specific visit. Then, irrelevant variables for that specific visit are removed. New filenames are created and stored in self.latest_filename_split_dict. Dataframes are then saved to file.
+
+        if `merge` is `True`: merge the splitted dataframes into one big dataframe, based on `crossgroupindex`, such as the `subject_id`. Rename the variables with suffix `_<frequency>`, and merge the dataframes, with `baseline` on left. Save dataframe to file using suffix `-MERGED`.
+
+        Parameters
+        ----------
+        options: (dict, optional). Dictionary of options that can change the behaviour of this method. Defaults to an empty dictionary.
             crossgroupindex (str, optional): The column to use for merging longitudinal visits. Defaults to None.
             baseline (str, optional): The baseline group for merging. Defaults to None.
             merge (bool, optional): Whether or not to merge the split dataframes. Defaults to False.
@@ -1328,9 +1570,10 @@ class CleanData:
             )
             self.latest_filename_split_merged = newfilename
 
+
     def _split_longitudinal_on_visits_reverse(self, df, output_filename=None, options={}):
         """
-
+        # Deprecated, in favour of ut_.split_longitudinal_on_group
         #(MZ): 06-05-2024
         """
         

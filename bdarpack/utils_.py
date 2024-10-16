@@ -327,6 +327,21 @@ def save_df_as_excel(df, excel_file_name, sheet_name='Sheet1', index=True):
     except Exception as e:
         print(f"Error writing to Excel File: {e}")
 
+def save_df_to_file(df, filename, sheetname='Sheet1', index=True):
+
+    file_ext = get_extension(filename)
+
+    if (file_ext=='csv'):
+        save_df_as_csv(df, filename, index=index)
+    elif (file_ext=='xlsx'):
+        save_df_as_excel(df, 
+            excel_file_name=filename, 
+            sheet_name=sheetname, 
+            index=index
+        )
+    else:
+        raise ValueError(f"Not able to save data to file for extension type: {file_ext}")
+
 def strip_empty_spaces(dataframe):
     dataframe.columns = dataframe.columns.str.strip()
     return dataframe
@@ -391,7 +406,7 @@ def update_dataframe_rows(df, refCol, listRows, col, val):
 
     Example:
 
-    Assuming a dataframe with columns 'A' and 'B', and columns A consists of values 1,2,3,4
+    Assuming a dataframe with columns 'A' and 'B', and column A consists of values 1,2,3,4
 
     update_dataframe_rows(df, 'A', [2,4], 'B', 5)
 
@@ -441,6 +456,367 @@ def mapping_dictDateFormatConversion(str):
         str = str.replace("yy", r"%y")
 
     return str
+
+def split_longitudinal_by_group(df, longvarmarker, longitudinal_marker_list, freq_set_dict, options={}):
+
+    """
+    Split longitudinal datasets based on visits.
+    This function assumes that each row of the dataframe comprises variables associated with a specific visit of a single subject. Each subject can have multiple visits, i.e. multiple rows, and the dataframe contains rows originating from multiple subjects.
+
+    Not all variables are relevant for all visits, and this information is recorded in the data dictionary, under the cd.dict_var_varfrequency column. To determine the correct variables to include for each visit, the function requires a `freq_set_dict` which is a dictionary of frequencies (visits) and its corresponding set of variables.
+
+    The original dataframe is split into separate dataframes, each corresponding to a specific visit. Then, irrelevant variables for that specific visit are removed. 
+    If output_filename is provided, new filenames are created and dataframes are then saved to file.
+
+    if `merge` is `True`: merge the splitted dataframes into one big dataframe, based on `crossgroupindex`, such as the `subject_id`. Rename the variables with suffix `_<frequency>`, and merge the dataframes, with `baseline` on left. If output_filename is provided, the merged dataframe is saved to file.
+
+    Parameters
+    ----------
+    options: (dict, optional). Dictionary of options that can change the behaviour of this method. Defaults to an empty dictionary.
+        crossgroupindex (str, optional): The column to use for merging longitudinal visits. Defaults to None.
+
+        baseline_group (str, optional): The baseline group for merging. Defaults to None.
+
+        merge (bool, optional): Whether or not to merge the split dataframes. Defaults to False.
+
+        var_sort_list (list, optional): sorted list of variables. For sorting final_df according to given sequence. Variables not in `var_sort_list` will be dropped.
+
+        output_filename (str, optional): Full path of the output filename of the merged dataframe. Defaults to None.
+
+    Returns
+    -------
+    No value returned, updates the dataFile given.
+    """
+
+    crossgroupindex = None
+    baseline_group = None
+    merge = False
+    var_sort_list = None
+    output_filename = None
+    if "crossgroupindex" in options:
+        crossgroupindex = options['crossgroupindex']
+    if "baseline_group" in options:
+        baseline_group = options['baseline_group']
+    if "merge" in options:
+        merge = options['merge']
+    if "var_sort_list" in options:
+        var_sort_list = options['var_sort_list']
+    if "output_filename" in options:
+        output_filename = options['output_filename']
+
+    # Get a working copy of input dataframe
+    w_df = copy.deepcopy(df)
+
+    split_df_dict = {}
+    
+    for value in longitudinal_marker_list:
+        # split into new dataframe
+        split_df_dict[value] = w_df[w_df[longvarmarker]==value]
+
+        # filter out variables based on freq_set_dict
+        freq_set_list = freq_set_dict[value]
+        full_var_list = list(split_df_dict[value].columns)
+        common_var_list = list(set(freq_set_list).intersection(set(full_var_list)))
+
+        if var_sort_list is not None:
+            common_var_list = sort_subset(common_var_list, var_sort_list)
+
+        split_df_dict[value] = split_df_dict[value][common_var_list]
+
+    if output_filename is not None:
+        split_df_filename_dict = {}
+        for value in longitudinal_marker_list:
+            split_df_filename_dict[value] = update_filename_with_suffix(filename=output_filename, suffix=value)
+        
+            save_df_to_file(
+                df = split_df_dict[value],
+                filename = split_df_filename_dict[value],
+                sheetname = 'Sheet1',
+                index = False
+            )
+
+    if merge:
+
+        if crossgroupindex is None:
+            raise ValueError(f"crossgroupindex not specified.")
+        
+        merged_df = merge_longitudinal_on_subject(
+            split_df_dict=copy.deepcopy(split_df_dict), 
+            crossgroupindex=crossgroupindex, 
+            baseline_group=baseline_group,
+            options = {
+                'output_filename': output_filename
+            }
+        )
+
+        return split_df_dict, merged_df
+
+    else:
+        return split_df_dict
+    
+
+def merge_longitudinal_on_subject(split_df_dict, crossgroupindex, baseline_group=None, options={}):
+
+    """
+    This function merges the split dataframes in `split_df_dict` into one big horizontal dataframe, based on a common `crossgroupindex`, such as the `subject_id`. Renames the variables with suffix `_<frequency>`, and merge the dataframes, with `baseline` on left. Option to save dataframe to file using optional input: `output_filename`.
+
+    Parameters
+    ----------
+
+    split_df_dict (dict, required): Dictionary of split dataframes
+
+    crossgroupindex (str, required): The column to use for merging longitudinal visits.
+
+    baseline_group (str, required): The baseline group for merging. Defaults to None. If `None`, first group will be used.
+
+    options: (dict, optional). Dictionary of options that can change the behaviour of this method. Defaults to an empty dictionary.
+        
+        output_filename (str, optional): Full path of the output filename of the merged dataframe. Defaults to None.
+
+    Returns
+    -------
+    merged_df (dataframe): The merged dataset
+    """
+
+    output_filename = None
+    if output_filename in options:
+        output_filename = options['output_filename']
+
+    for value in split_df_dict.keys():
+        # assign first group as baseline if none
+        if baseline_group is None:
+            baseline_group = value
+        
+        df_A = copy.deepcopy(split_df_dict[value])
+        value_strip_str = value.replace(" ","_")
+        # rename columns in dataframe by appending suffix
+        for col in df_A.columns:
+            if col != crossgroupindex:
+                df_A = df_A.rename(columns={col: col + f"_{value_strip_str}"})
+
+        split_df_dict[value] = copy.deepcopy(df_A)
+
+    if baseline_group is not None:
+        merged_df = copy.deepcopy(split_df_dict[baseline_group])
+        for value in split_df_dict.keys():
+            if (value != baseline_group):
+                df_right = copy.deepcopy(split_df_dict[value])
+
+                merged_df = pd.merge(merged_df, df_right, on=crossgroupindex, how='left')
+    
+    if output_filename is not None:
+        save_df_to_file(
+            df = merged_df,
+            filename = output_filename,
+            sheetname = 'Sheet1',
+            index = False
+        )
+
+    return merged_df
+
+
+def split_longitudinal_by_visits(df, longitudinal_marker_dict, crossgroupindex='subject_id', options={}):
+
+    """
+    Split longitudinal datasets based on visits.
+    This function assumes that each row of the dataset comprises all variables associated with a single subject. All visits from a single subject are consolidated under a single row; the variables from different visits are differentiated using suffixes that can be detailed in the input `longitudinal_marker_dict`.
+
+    Parameters
+    ----------
+    df: (dataframe, required). Dataframe of data where each row corresponds to one subject
+    
+    longitudinal_marker_dict: (dict, required), dict of frequencies and appended suffix to differentiate variables, i.e. 
+    {
+        'Visit 1 (Baseline)': '_Visit_1_(Baseline)',
+        'Visit 2: '_Visit_2'
+    }
+
+    crossgroupindex: (string, required), common variable across all groups, i.e. 'subject_id' (default)
+
+    options: (dict, optional). Dictionary of options that can change the behaviour of this method. Defaults to an empty dictionary.
+        merge (bool, optional): Whether or not to merge the split dataframes, such that every row of the merged dataframe pertains to one visit. Defaults to False.
+
+        output_filename (string, optional): filename of merged output. Defaults to `None`.
+
+        mandatory_variable (list, str, 'All', optional): list of mandatory variables, if all of the variables are empty, remove whole row. It is an indirect way to get rid of subjects which has no data for a specific visit. It is best to use the frequency (or visit) variable. If 'All' option is used, row is removed if all variables are empty.
+
+        var_sort_list (list, optional): sorted list of variables. For sorting final_df according to given sequence. Variables not in `var_sort_list` will be dropped.
+
+    Returns
+    -------
+    split_df_dict: (dict): a dictionary containing the dataframes split by visits, i.e. each key-object pair contains one dataframe, pertaining to one timepoint.
+
+    final_df: (dataframe, only if `merge==TRUE`): a dataframe containing the merged subjects and visits, such that each row corresponds to one visit. Subjects with multiple visits will have multiple rows.
+    
+    # (MZ): 13-06-2024
+    """
+
+    merge = False
+    output_filename = None
+    mandatory_variable = None
+    var_sort_list = None
+    if "merge" in options:
+        merge = options['merge']
+    if "output_filename" in options:
+        output_filename = options['output_filename']
+    if "mandatory_variable" in options:
+        mandatory_variable = options['mandatory_variable']
+    if "var_sort_list" in options:
+        var_sort_list = options['var_sort_list']
+
+    # Get working DF
+    split_merged_df = copy.deepcopy(df)
+
+    # Get full set of variables from original df
+    # assume variable name has freq as suffix, i.e. age_Visit_2
+    merged_col_list = split_merged_df.columns.tolist()
+
+    # GET SET OF VARIABLES FOR EACH FREQUENCY (freq_set_dict)
+    freq_set_dict = {} #initialise dictionary of variables, i.e. 'Visit_1': [list of variables], 'Visit_2': [list of variables]
+    for visit in longitudinal_marker_dict.keys():
+        visit_suffix = longitudinal_marker_dict[visit]
+        freq_set_dict[visit] = [crossgroupindex]
+        for var in merged_col_list: #loop through full set of col.names with suffix
+            if visit_suffix in var: #put under proper key in freq_set_dict
+                freq_set_dict[visit].append(var)
+    
+    # SPLIT WORKING DF INTO INDIVIDUAL FREQ.df(s), store in dict `split_df_dict`
+    split_df_dict = {}
+    freq_set_dict_2 = {} # dictionary of variables without suffix
+    for visit in freq_set_dict:
+        visit_suffix = longitudinal_marker_dict[visit]
+        temp_df = split_merged_df[freq_set_dict[visit]]
+        freq_set_dict_2[visit] = []
+        for column in temp_df.columns: #replace column names
+            new_column_name = column.replace(visit_suffix,'')
+            freq_set_dict_2[visit].append(new_column_name)
+            temp_df = temp_df.rename(columns={column: new_column_name})
+        split_df_dict[visit] = temp_df
+
+    # CLEAN EMPTY ROWS
+    # option 1: if mandatory_variable is list or string, check if mandatory_variable is empty. If empty, delete row.
+    # option 2: if mandatory_variable is 'All', check all variables except `crossgroupindex`.
+    removeEmpty = False
+    mandatory_variable_list_dict = {}
+    if mandatory_variable is not None:
+        removeEmpty = True
+        if isinstance(mandatory_variable, list):
+            for visit in freq_set_dict:
+                mandatory_variable_list_dict[visit] = mandatory_variable
+        elif isinstance(mandatory_variable, str):
+            if mandatory_variable=='All':
+                for visit in freq_set_dict:
+                    temp_list = copy.deepcopy(freq_set_dict_2[visit])
+                    temp_list.remove(crossgroupindex)
+                    mandatory_variable_list_dict[visit] = temp_list
+            else:
+                for visit in freq_set_dict:
+                    mandatory_variable_list_dict[visit] = [mandatory_variable]
+    
+    if removeEmpty:
+        mandatory_variable_dict = {}
+        for visit in freq_set_dict:
+            temp_df = copy.deepcopy(split_df_dict[visit])
+            mandatory_variable_list = mandatory_variable_list_dict[visit]
+
+            for var in mandatory_variable_list:
+                mandatory_variable_dict[var] = ['']
+
+            #Create a list of indices to remove
+            indices_to_remove = []
+            idx = temp_df[mandatory_variable_list].isin(mandatory_variable_dict)
+            idx = idx.all(axis=1)
+            indices_to_remove.extend(idx[idx == True].index.tolist())
+            indices_to_remove = list(set(indices_to_remove))
+            temp_df.drop(indices_to_remove, inplace=True)
+
+            temp_df = temp_df.reset_index(drop=True)
+            split_df_dict[visit] = temp_df
+
+    if merge: #Build final output df, final_df, by concatenating ind. df(s) such that each row corresponds to one visit = 
+        final_col_list = merge_lists_unique(freq_set_dict_2)
+        final_df = merge_longitudinal_on_visits(
+            split_df_dict=split_df_dict,
+            final_col_list=final_col_list,
+            options={
+                'output_filename': output_filename,
+                'var_sort_list': var_sort_list
+            }
+        )
+        # final_df = pd.DataFrame(columns=final_col_list)
+        # for visit in freq_set_dict:
+        #     final_df = pd.concat([final_df, split_df_dict[visit]])
+        
+        # final_df = final_df.reset_index(drop=True)
+
+        # if var_sort_list is not None: #sorting based on given list. Variables not in `var_sort_list` will be dropped.
+        #     sort_list = sort_subset(final_df.columns.tolist(), var_sort_list)
+        #     final_df = final_df[sort_list]
+
+        # # SAVE TO FILE
+        # if output_filename is not None:
+        #     save_df_to_file(
+        #         df = final_df,
+        #         filename = output_filename,
+        #         sheetname = 'Sheet1',
+        #         index = True
+        #     )
+        
+        return split_df_dict, final_df
+
+    else:
+        return split_df_dict
+
+def merge_longitudinal_on_visits(split_df_dict, final_col_list, options={}):
+
+    """
+    This function merges the split dataframes in `split_df_dict` into one big vertical dataframe. Option to save dataframe to file using optional input: `output_filename`.
+
+    Parameters
+    ----------
+    split_df_dict (dict, required): Dictionary of split dataframes
+
+    final_col_list (list, required): Final list of columns for final_df
+
+    options: (dict, optional).  Dictionary of options that can change the behaviour of this method. Defaults to an empty dictionary.
+        
+        output_filename (str, optional): Full path of the output filename of the merged dataframe. Defaults to None.
+
+        var_sort_list (list, optional): sorted list of variables. For sorting final_df according to given sequence. Variables not in `var_sort_list` will be dropped.
+
+    Returns
+    -------
+    final_df (dataframe); The merged dataset
+    """
+
+    output_filename = None
+    var_sort_list = None
+    if "output_filename" in options:
+        output_filename = options['output_filename']
+    if "var_sort_list" in options:
+        var_sort_list = options['var_sort_list']
+
+    # BUild final output df, final_df, by concatenating ind. df(s) such that each row corresponds to one visit
+    final_df = pd.DataFrame(columns=final_col_list)
+    for visit in split_df_dict:
+        final_df = pd.concat([final_df, split_df_dict[visit]])
+
+    if var_sort_list is not None: # sorting based on given list. Variables not in `var_sort_list` will be dropped.
+        sort_list = sort_subset(final_df.columns.tolist(), var_sort_list)
+        final_df = final_df[sort_list]
+
+    # SAVE TO FILE
+    if output_filename is not None:
+        save_df_to_file(
+            df = final_df,
+            filename = output_filename,
+            sheetname = 'Sheet1',
+            index = False
+        )
+
+    return final_df
+
+
 
 # TIME
 def date_format_search(data):
@@ -586,3 +962,21 @@ def sort_subset(A, B):
     A_sorted = [x for _,x in sorted(zip(position,A))]
     
     return A_sorted
+
+def merge_lists_unique(dict):
+    """
+    Given a dictionary of lists, merge all objects into a single list, where each entry only appear once
+
+    Parameters:
+        dict (dict, required): dictionary of lists to merge
+    
+    Returns:
+        merged_list (list, required): merged list of unique items
+    """
+
+    merged_list = []
+    for key in dict:
+        merged_list.extend(dict[key])
+    merged_list = list(set(merged_list))
+
+    return merged_list
