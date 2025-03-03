@@ -31,7 +31,7 @@ For installation instructions, getting started guides and tutorials, background 
 <!-- ## How to cite -->
 
 ## Contributing
-Thank you for considering contributing to Synthia. Please follow this [link](https://biomeddar.github.io/copula-tabular/help/contri.html) for more details.
+Thank you for considering contributing to copula-tabular. Please follow this [link](https://biomeddar.github.io/copula-tabular/help/contri.html) for more details.
 
 ## Development notes
 Please visit the [website](https://biomeddar.github.io/copula-tabular/help/developmentNotes.html) for more details.
