@@ -153,7 +153,9 @@ class TabulaCopula:
 
         # CREATE OUTPUT FILENAMES AND STORAGE LOCATIONS
         self.build_filenames()
+        self.build_conditional_filenames()
         self.build_storage()
+        self.build_conditional_storage()
 
     def _update_defaults(self, var_to_update, new_value, definitions):
         if hasattr(definitions, new_value):
@@ -584,6 +586,8 @@ class TabulaCopula:
 
                     if ( not gaussian_copula_conditional.fitted):
                         print(f"Building conditional-copulae for {set_no}-{merged_set_index} Failed!")
+                    else:
+                        print(f"Building conditional-copulae for {set_no}-{merged_set_index} Completed!")
 
                     # Save learned Gaussian Copula
                     self.storage['cond_copula'][set_no][merged_set_index] = gaussian_copula_conditional
@@ -1004,6 +1008,7 @@ class TabulaCopula:
         self.storage['transformer'] = None
         self.storage['copula'] = None
 
+    def build_conditional_storage(self):
         # Conditional Storage
         self.storage['cond_transformer'] = {}
         self.storage['cond_copula'] = {}
@@ -1107,6 +1112,7 @@ class TabulaCopula:
         self.output_filenames["inference_samples"] = inference_filename
         
 
+    def build_conditional_filenames(self):
         # Conditional Stuff
         self.set_index_permutations_dict = {}
         self.output_filenames["conditional_transformed"] = {}
@@ -1124,6 +1130,7 @@ class TabulaCopula:
                         for merged_set_index in full_list_set_index: # e.g. "1-1-1", "1-2-1"
 
                             # Transformed Data
+                            transformed_filename_suffix = "TRANSFORMED"
                             clean_str_suffix = ut_.clean_filename_str(str(set_no) + "-" + str(merged_set_index))
                             transformed_filename = ut_.update_filename_with_suffix(self.output_filename_withprefix, clean_str_suffix)
                             transformed_filename = ut_.update_filename_with_suffix(transformed_filename, transformed_filename_suffix)

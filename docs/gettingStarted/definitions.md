@@ -25,11 +25,14 @@ nav_order: 5
 | LONG_VAR_MARKER   | Defines the variable name that indicates which longitudinal group that row belongs to. If not specified, default is `None`. | Longitudinal data |
 | DICT_VAR_VARNAME  | Column in data dictionary containing variable names in input data. If not specified, set as "`NAME`". | Data Dictionary settings |
 | DICT_VAR_VARCATEGORY | Column in data dictionary setting the category of the variable name. If not specified, set as "`CATEGORY`" | Data Dictionary settings |
+| DICT_VAR_VARSECONDARY | Column in data dictionary setting if the variable is a secondary variable. If not specified, set as "`SECONDARY`" | Data Dictionary settings |
+| DICT_VAR_VARFREQUENCY | Column in data dictionary setting frequency of the variable (for longitudinal datasets). If not specified, set as "`FREQUENCY`". | Data Dictionary settings |
 | DICT_VAR_TYPE | Column in data dictionary setting the type of variable (string, numeric, date). If not specified, set as "`TYPE`" | Data Dictionary settings |
 | DICT_VAR_CODINGS | Column in data dictionary setting the codings of variable (dateformat, categories). If not specified, set as "`CODINGS`" | Data Dictionary settings |
 | VAR_NAME_STRIPEMPTYSPACES | Boolean option. If `True`, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary. If not specified, default is `False`. | Data cleaning settings |
 | OUTPUT_TYPE_DATA | The output file type for the clean data files. Available options: '`csv`', '`xlsx`'. If not specified, default is '`csv`' | Data cleaning settings |
 | OUTPUT_TYPE_DICT | The output file type fot the amended dictionary. Available options: '`csv`', '`xlsx`'. If not specified, default is '`xlsx`' | Data cleaning settings |
+| INITIAL_REPORT_FILENAME | The output filename to store the initial report prior to optional cleaning steps. If not specified, default is '`initial_report.xlsx`' | Report generation settings |
 | SUFFIX_DROPPED_DUPLICATED_ROWS | The filename suffix to use for intermediate outputs of cleaned data. If not specified, default is `DD`. | Drop Duplicates settings |
 | OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME | The output filename to store the duplicated rows which have been dropped. Default is `rowsRemoved.xlsx` | Drop Duplicates settings |
 | SUFFIX_CONSTRAINTS | The filename suffix to use for intermediate outputs of cleaned data. If not specified, default is `CON`. | Constraints settings |
@@ -42,3 +45,6 @@ nav_order: 5
 | OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME | The filename for storing list of failed date conversions (only csv). Default is `failed_date_conversions.csv`. | Date standardisation settings |
 | SUFFIX_CONVERT_ASCII | The filename suffix to use for intermediate outputs of cleaned data. If not specified, default is `ASCII`. | ASCII Conversion settings |
 | OPTIONS_CONVERT_ASCII_EXCLUSION_LIST | List of characters to exclude from conversion. Eg. `['€','$','Ò']`. | ASCII Conversion settings |
+| SUFFIX_REMOVE_SECONDARY | The filename suffix to use for intermediate outputs of cleaned data. If not specified, default is `NOSEC`. | Remove secondary variable settings |
+| OUTPUT_REMOVED_SECONDARY_FILENAME | The output filename to store removed variables. If not specified, default is `removed_secondary_variables.xlsx`. | Remove secondary variable settings |
+| OPTIONS_SECONDARY_REMOVAL_EXCLUDE_LIST | Secondary variables to exclude from removal process If not specified, default is `[]`. | Remove secondary variable settings |

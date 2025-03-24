@@ -92,14 +92,18 @@ Please refer to the below pages for detailed examples:
 | raw_df            | (dataframe) raw data |
 | clean_df          | (dataframe) cleaned data       |
 | clean_dict_df     | (dataframe) cleaned data dictionary       |
+| clean_split_df     | (dict of dataframes) dictionary of dataframes for split-data  |
 | report_df         | (dataframe) report
 | cat_var_dict      | (dict) with categories as keys and the respective variables as values, {cat: [list of variables]}       |
 | type_var_dict     | (dict) with the variable type as keys and the respective variables as values
 | longitudinal_marker_list | (list) list of longitudinal markers
 | longitudinal_variableMarker | (str) column header which contains the list of categories stipulating a list of longitudinal markers
+| longitudinal | (bool) boolean indicating if the data is longitudinal
+| longitudinal_freq_set_dict | (dict) list of variables for each longitudinal frequency
 | dict_var_codings         | (str) column name in data dict. setting the codings of the variable e.g. `"CODINGS"`       |
 | dict_var_type         | (str) column name in data dict. setting the type of variable e.g. `"TYPE"`       |
 | dict_var_varcategory         | (str) column name in data dict. setting the category of the variable name e.g. `"CATEGORY"`       |
+| dict_var_varsecondary         | (str) column name in data dict. setting if the variable is a secondary variable e.g. `"SECONDARY"`       |
 | dict_var_varname         | (str) column name in data dict containing variable names in input data e.g. `"NAME"`       |
 | raw_data_dict_filename | (str) full path of original data dictionary |
 | raw_data_dict_sheetname | (str) sheet name of original data dictionary |
@@ -111,13 +115,16 @@ Please refer to the below pages for detailed examples:
 | folder_trainData         | (str) folder storing training data (outputs of cleaning modules), e.g. `"trainData"`       |
 | data_latest_filename     | (str) latest filename for cleaned data       |
 | dict_latest_filename     | (str) latest filename for cleaned data dictionary       |
+| latest_filename_split_dict     | (dict) dictionary of filenames for split-datasets
 | dropped_duplicated_rows_filename     | (str) filename for storing dropped duplicate rows    |
+| output_removed_secondary_filename     | (str) filename for storing dropped secondary columns   |
 | initial_report_filename      | (str) filename for storing report    |
 | log_filename      | (str) filename for storing logs    |
 | log_filepath      | (str) full path of `log_filename`    |
 | logger            | (obj) logger to pass on for logging |
 | logging           | (boolean) whether to do logging or not |
 | options_convert_ascii_exclusion_list | (list) list of symbols to exclude from ASCII conversion |
+| options_secondary_removal_exclude_list | (list) list of secondary variables to exclude from removal process |
 | options_faileddate_conversions_filename | (str) filename for storing list of failed date conversions |
 | options_standardise_date_format | (str) date standardisation format e.g. `"yyyy-mm-dd"` |
 | options_standardise_text_case_type | (str) option for standardising case format, e.g. `"uppercase"`|
@@ -131,8 +138,10 @@ Please refer to the below pages for detailed examples:
 | suffix_dropped_duplicated_rows | (str) suffix to append to `data_latest_filename` after dropping duplicate rows |
 | suffix_standardise_date | (str) suffix to append to `data_latest_filename` after standardising dates |
 | suffix_standardise_text | (str) suffix to append to `data_latest_filename` after standardising text case |
+| suffix_remove_secondary | (str) suffix to append to `data_latest_filename` after removing secondary variables |
 | var_diff_list | (list) list of mismatched variable names between input data and data dictionary | 
 | var_list | (list) list of all variables (column headers) found in input data
+| var_secondary_list | (list) list of all secondary variables (column headers) found in input data
 | var_name_stripemptyspaces | (boolean) if `True`, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary. |
 
 
@@ -141,10 +150,10 @@ Please refer to the below pages for detailed examples:
 | Method         | Description | 
 | ---:              |    :----   |
 | convert_2_dtypes(data) | Convert data (df) into best possible dtypes. |
-| [gen_data_report(data, dict)](gen_data_report) | Generates a report of `data` |
+| [gen_data_report(data, dict, [report_filename])](gen_data_report) | Generates a report of `data` |
 | [drop_duplicate_rows()](drop_duplicate_rows) | Use to drop duplicate rows from the input dataframe. |
 | standardise_text_case_conversion(data, case_type) | Takes dataframe (cols) and one case type parameter as input and returns the text data converted as per the case type specified. |
 | [standardise_text()](standardise_text) | Standardises text case in input data. |
 | [converting_ascii([ascii_exclusion_list, ])](converting_ascii) | Converts all characters in input data to ASCII-compatible format. |
 | [standardise_date([def_date_format, faileddate_conversions_filename])](standardise_date) | Standardises the date/time in input data. |
-
+| remove_secondary_variables() | Remove variables tagged as secondary variables from data. |

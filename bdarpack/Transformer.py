@@ -71,7 +71,6 @@ class Transformer:
         # (MZ): 19-04-2024 use datetime_format as reference to convert variables to datetime64 type
         if self.metaData is not None:
             for column in self.metaData.keys():
-                # print(column)
                 if 'dtype' in self.metaData[column]:
                     if self.metaData[column]['dtype'] == "date":
                         if 'datetime_format' in self.metaData[column]:
@@ -421,7 +420,8 @@ class Transformer:
                         numeric_df.loc[data_curated_df[col].isna(), output_field_name] = round(set_null_value)
                 elif (col_dtype_str=='datetime64[ns]'):
                     set_null_value = self._get_null_value_from_metaData(
-                        column = f"{col}.value",
+                        # column = f"{col}.value",
+                        column = col,
                         default_value = numeric_df[f"{col}.value"].mean(), #default fill value for datetime is set to mean
                         data_df = numeric_df
                     )
@@ -470,7 +470,7 @@ class Transformer:
                 elif (field_meta['original_dtype']=='datetime64[ns]'):
                     if output_field_name == (f"{field}.value"):
                         revert_df_col = data[output_field_name] * field_meta['common_divider']
-                        revert_df_col = pd.to_datetime(revert_df_col, unit="ns")
+                        revert_df_col = pd.to_datetime(revert_df_col, unit="ns", errors = 'coerce')
                         revert_df[field] = revert_df_col.dt.strftime(field_meta['datetime_format'])
                 elif (field_meta['original_dtype']=='datetime64[s]'):
                     if output_field_name == (f"{field}.value"):

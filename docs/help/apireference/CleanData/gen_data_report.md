@@ -8,7 +8,7 @@ nav_order: 2
 
 # CleanData.gen_data_report
 
-**CleanData.gen_data_report(*data*, *dict*)**
+**CleanData.gen_data_report(*data*, *dict*, [*report_filename* ])**
 
 Generates a report of `data`. Report include details such as
 *   data_type
@@ -24,6 +24,8 @@ Generates a report of `data`. Report include details such as
   - data for which the report is to be generated
 - *dict*: (dataframe)
   - dictionary for corresponding data
+- *report_filename*: (string, optional)
+  - optional `filename.xlsx` for storing report; provides an alternative to default option: `CleanData.initial_report_filename`. Output will be stored in the `CleanData.train_data_path` folder.
 
 **Returns**
 - *INT*

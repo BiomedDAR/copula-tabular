@@ -6,6 +6,7 @@ import platform
 import contextlib
 import copy
 import math
+import re
 
 
 EPSILON = np.finfo(np.float32).eps
@@ -181,6 +182,123 @@ def gen_interpolation(x1, x2, x1new, type="linear", options={}):
     return x2new
 
 # BUILD DATA DICTIONARY
+def build_basic_dict_from_df(df):
+
+    data_dict = {}
+    df = df.convert_dtypes()
+
+    def determine_specific_data_type(column):
+        non_na_values = column.dropna()
+        unique_count = non_na_values.nunique()
+        total_count = len(non_na_values)
+        if total_count > 0:
+            unique_ratio = unique_count / total_count
+            if unique_ratio >= 0.7:
+                return 'free text'
+            else:
+                unique_values = non_na_values.value_counts(normalize=True)
+                if any(unique_values > 0.01):
+                    return 'categorical'
+                else:
+                    return 'free text'
+        else:
+            return 'free text'
+
+    for column in df.columns:
+        basic_dict = {
+            "NAME": column,
+            "DESCRIPTION": "No description available",
+            "TYPE": "",
+            "SPECIFIC DATA TYPE": "",
+            "CODINGS": "",
+            "FREQUENCY": "",
+            "CATEGORY": "",
+            "COLUMN_NUMBER": 0,
+            "SECONDARY": "",
+            "CONSTRAINTS": "",
+            "REMARKS": ""
+        }
+
+        # Update TYPE
+        # update segment to parse 'date' type strings to record as data type.
+        dtype = df[column].dtype
+        if pd.api.types.is_numeric_dtype(dtype):
+
+            basic_dict["TYPE"] = 'numeric'
+
+            if pd.api.types.is_float_dtype(dtype):
+                basic_dict["SPECIFIC DATA TYPE"] = 'float'
+            elif pd.api.types.is_integer_dtype(dtype):
+                basic_dict["SPECIFIC DATA TYPE"] = 'int'
+            elif pd.api.types.is_bool_dtype(dtype):
+                basic_dict["SPECIFIC DATA TYPE"] = 'boolean'
+            else:
+                basic_dict["SPECIFIC DATA TYPE"] = ''
+
+        elif pd.api.types.is_string_dtype(dtype):
+
+            basic_dict["TYPE"] = 'string'
+            if is_column_date_format(df[column]):
+                basic_dict["TYPE"] = 'date'
+                basic_dict["SPECIFIC DATA TYPE"] = 'date'
+            else:
+                basic_dict["SPECIFIC DATA TYPE"] = determine_specific_data_type(df[column])
+
+        elif pd.api.types.is_datetime64_any_dtype(dtype):
+
+            basic_dict["TYPE"] = 'date'
+            basic_dict["SPECIFIC DATA TYPE"] = 'date'
+            basic_dict["CODINGS"] = 'yyyy-mm-dd' # 假设默认格式为 yyyy-mm-dd，可根据实际情况调整
+
+        else:
+            basic_dict["TYPE"] = 'string'
+            basic_dict["SPECIFIC DATA TYPE"] = determine_specific_data_type(df[column])
+
+        data_dict[column] = basic_dict
+
+    # 单独的 for 循环来检查 TYPE 是否为 date 并更新 CODINGS
+    for column, basic_dict in data_dict.items():
+        if basic_dict["CODINGS"]:
+            continue
+        if basic_dict["TYPE"] == 'date':
+            date_column_data = df[column].dropna()
+            data_column_format = date_format_search(date_column_data)
+            excel_format = convert_python_to_excel_date_format(data_column_format)
+            basic_dict["CODINGS"] = excel_format
+        elif basic_dict["SPECIFIC DATA TYPE"] in ['categorical', 'boolean', 'ordinal']:
+            unique_values = df[column].dropna().unique()
+            basic_dict["CODINGS"] = '; '.join(map(str, unique_values))
+        elif basic_dict["TYPE"] == 'numeric':
+            numeric_column = df[column].dropna()
+            if not numeric_column.empty:
+                min_val = numeric_column.min()
+                max_val = numeric_column.max()
+                basic_dict["CODINGS"] = f"[{min_val}, {max_val}]"
+            else:
+                basic_dict["CODINGS"] = ""
+    
+    # update CATEGORY
+    for column, basic_dict in data_dict.items():
+        for column, basic_dict in data_dict.items():
+            column_data = df[column]
+            if column_data.notna().all() and column_data.nunique() == len(column_data):
+                basic_dict["CATEGORY"] = 'Index' # if a column has no empty values AND every value is unique, then basic_dict["CATEGORY"]='Index'
+            else:
+                basic_dict["CATEGORY"] = ''
+        
+
+    # Create dataframe from dict
+    names = list(data_dict.keys())
+    values = list(data_dict.values())
+    df = pd.DataFrame().from_records(values, columns=list(data_dict[names[0]].keys()))
+
+    # Update "COLUMN_NUMBER"
+    for index, row in df.iterrows():
+        # Set the value of the 'COLUMN_NUMBER' column to be one higher than the row's index
+        df.loc[index, 'COLUMN_NUMBER'] = index + 1
+
+    return df
+
 def build_basic_data_dictionary(varList, descr="No description available", type="numeric", specific_data_type="float", codings=None, frequency=None, category=None, secondary=None, constraints=None, remarks=None):
 
     if codings is None: codings = ""
@@ -419,43 +537,6 @@ def update_dataframe_rows(df, refCol, listRows, col, val):
     return df
 
 
-def mapping_dictDateFormatConversion(str):
-
-    if ("dddd" in str): # day of the week, full form (Monday):
-        str = str.replace("dddd", r"%A")
-
-    if ("ddd" in str): # day of the week, short form (Mon):
-        str = str.replace("ddd", r"%a")
-
-    if ("dd" in str): # day number with a leading zero
-        str = str.replace("dd", r"%d")
-    elif ("d" in str): # day number without a leading zero
-        if OS_TYPE=='Windows': # use "%-d" for unix, "%#d" for windows
-            str = str.replace("d", r"%d")
-        elif OS_TYPE=='Linux' or 'Darwin':
-            str = str.replace("d", r"%-d")
-
-    if ("mmmm" in str): # month name, full form, (January):
-        str = str.replace("mmmm", r"%B")
-
-    if ("mmm" in str): # month name, short form, (Jan):
-        str = str.replace("mmm", r"%b")
-
-    if ("mm" in str): # month number with a leading zero
-        str = str.replace("mm", r"%m")
-    elif ("m" in str): # month number without a leading zero
-        if OS_TYPE=='Windows': # use "%-m" for unix, "%#m" for windows
-            str = str.replace("m", r"%m")
-        elif OS_TYPE=='Linux' or 'Darwin':
-            str = str.replace("m", r"%-m")
-    
-    if ("yyyy" in str): # year four digits
-        str = str.replace("yyyy", r"%Y")
-
-    if ("yy" in str): # year last 2 digits
-        str = str.replace("yy", r"%y")
-
-    return str
 
 def split_longitudinal_by_group(df, longvarmarker, longitudinal_marker_list, freq_set_dict, options={}):
 
@@ -819,6 +900,103 @@ def merge_longitudinal_on_visits(split_df_dict, final_col_list, options={}):
 
 
 # TIME
+
+def mapping_dictDateFormatConversion(str):
+    # convert from excel format to python format
+
+    if ("dddd" in str): # day of the week, full form (Monday):
+        str = str.replace("dddd", r"%A")
+
+    if ("ddd" in str): # day of the week, short form (Mon):
+        str = str.replace("ddd", r"%a")
+
+    if ("dd" in str): # day number with a leading zero
+        str = str.replace("dd", r"%d")
+    elif ("d" in str): # day number without a leading zero
+        if OS_TYPE=='Windows': # use "%-d" for unix, "%#d" for windows
+            str = str.replace("d", r"%d")
+        elif OS_TYPE=='Linux' or 'Darwin':
+            str = str.replace("d", r"%-d")
+
+    if ("mmmm" in str): # month name, full form, (January):
+        str = str.replace("mmmm", r"%B")
+
+    if ("mmm" in str): # month name, short form, (Jan):
+        str = str.replace("mmm", r"%b")
+
+    if ("mm" in str): # month number with a leading zero
+        str = str.replace("mm", r"%m")
+    elif ("m" in str): # month number without a leading zero
+        if OS_TYPE=='Windows': # use "%-m" for unix, "%#m" for windows
+            str = str.replace("m", r"%m")
+        elif OS_TYPE=='Linux' or 'Darwin':
+            str = str.replace("m", r"%-m")
+    
+    if ("yyyy" in str): # year four digits
+        str = str.replace("yyyy", r"%Y")
+
+    if ("yy" in str): # year last 2 digits
+        str = str.replace("yy", r"%y")
+
+    return str
+
+# 提取的 Python 日期格式转 Excel 日期格式的函数
+def convert_python_to_excel_date_format(python_format):
+    # returns '' if match not found
+    python_to_excel = {
+        "%Y-%m-%d": "yyyy-mm-dd",
+        "%d-%m-%Y": "dd-mm-yyyy",
+        "%m-%d-%Y": "mm-dd-yyyy",
+        "%m/%d/%Y": "mm/dd/yyyy",
+        "%d/%m/%Y": "dd/mm/yyyy",
+        "%d.%m.%Y": "dd.mm.yyyy",
+        "%d %B %Y": "dd mmmm yyyy",
+        "%b %d, %Y": "mmm dd, yyyy",
+        "%y-%m-%d": "yy-mm-dd",
+        "%d-%m-%y": "dd-mm-yy",
+        "%m-%d-%y": "mm-dd-yy",
+        "%m/%d/%y": "mm/dd/yy",
+        "%d/%m/%y": "dd/mm/yy",
+        "%d.%m.%y": "dd.mm.yy",
+        "%d %B %y": "dd mmmm yy",
+        "%b %d, %y": "mmm dd, yy"
+    }
+    return python_to_excel.get(python_format, '')
+
+def is_column_date_format(column, options={}):
+
+    # load options
+    perc = 0.9
+    if "perc" in options:
+        perc = options['perc']
+
+    date_patterns = [
+        r'^\d{1,2}/\d{1,2}/\d{4}$',  # d/m/yyyy 或 dd/mm/yyyy
+        r'^\d{1,2}-\d{1,2}-\d{4}$',  # d-m-yyyy 或 dd-mm-yyyy
+        r'^\d{4}/\d{1,2}/\d{1,2}$',  # yyyy/m/d 或 yyyy/mm/dd
+        r'^\d{4}-\d{1,2}-\d{1,2}$',  # yyyy-m-d 或 yyyy-mm-dd
+        r'^\d{1,2}/\d{4}/\d{1,2}$',  # d/yyyy/m 或 dd/yyyy/mm
+        r'^\d{1,2}-\d{4}-\d{1,2}$',  # d-yyyy-m 或 dd-yyyy-mm
+        r'^\d{1,2} \w{3} \d{4}$',    # d MMM yyyy 或 dd MMM yyyy
+        r'^\w{3} \d{1,2}, \d{4}$',   # MMM d, yyyy 或 MMM dd, yyyy
+        r'^\d{1,2}/\d{1,2}/\d{2}$',  # d/m/yy 或 dd/mm/yy
+        r'^\d{1,2}-\d{1,2}-\d{2}$'   # d-m-yy 或 dd-mm-yy
+    ]
+
+    non_na_values = column.dropna()
+    total_count = len(non_na_values)
+    if total_count == 0:
+        return False
+    match_count = 0
+    for value in non_na_values:
+        value_str = str(value).strip()
+        for pattern in date_patterns:
+            if re.match(pattern, value_str):
+                match_count = match_count + 1
+                break
+
+    return (match_count / total_count) >= perc
+
 def date_format_search(data):
     list_of_formats = ["%Y-%m-%d", "%d-%m-%Y", "%m-%d-%Y", "%m/%d/%Y", "%d/%m/%Y", "%d.%m.%Y", "%d %B %Y", "%b %d, %Y", "%y-%m-%d", "%d-%m-%y", "%m-%d-%y", "%m/%d/%y", "%d/%m/%y", "%d.%m.%y", "%d %B %y", "%b %d, %y"]
 
@@ -902,14 +1080,17 @@ def convert_to_ascii(data):
 def gcd(x):
     """Find the Greatest Common Divisor of a dataframe column"""
     x = x.dropna().reset_index(drop=True)
-    a = x[0] #initialize a with the first element of the list
-    for i in range(1, len(x)): 
-        b = x[i] #initialize b with the next element of the list
-        while b != 0: 
-            c = b 
-            b = a % b 
-            a = c 
-    return a 
+    if (len(x)==0): #to fix condition where column is empty
+        return 1
+    else:
+        a = x[0] #initialize a with the first element of the list
+        for i in range(1, len(x)): 
+            b = x[i] #initialize b with the next element of the list
+            while b != 0: 
+                c = b 
+                b = a % b 
+                a = c 
+        return a 
 
 def remove_items(listA, listB):
   """Removes the items in list A from list B."""

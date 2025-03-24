@@ -132,6 +132,7 @@ class GaussianCopula:
             fit_success = univariate.fit(data=var, candidates=candidates)
             if (not fit_success):
                 self.fitted = False
+                raise Error(f'Univariate model fitting failed for {var_name}.')
 
             # Update array
             var_names.append(var_name)

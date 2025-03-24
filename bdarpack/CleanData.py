@@ -634,7 +634,8 @@ class CleanData:
         report_df["codings_in_dict"] = [dict[dict["NAME"] == name][self.dict_var_codings].values[0] if dict[dict["NAME"] == name][self.dict_var_codings].values else "" for name in report_df.index]
         
         #check for CODINGS format type: [number,number] and (number,number)
-        pattern = r"\(|\[([\d]+),\s*([\d]+)\)|\(|\[([\d]+),\s*([\d]+)\]|\(|\[([\d]+),\s*([\d]+)\]"
+        # pattern = r"\(|\[([\d]+),\s*([\d]+)\)|\(|\[([\d]+),\s*([\d]+)\]|\(|\[([\d]+),\s*([\d]+)\]"
+        pattern = r"[\(\[](-?\d*\.?\d+),\s*(-?\d*\.?\d+)[\)\]]" # new regex accepts decimal places
         fn_numeric_range_check_bool = lambda row: "check_true" if (re.match(pattern, str(row['codings_in_dict']))) else "check_false"
         report_df['numeric_range_check_bool'] = report_df.apply(fn_numeric_range_check_bool, axis=1)
 
@@ -672,13 +673,15 @@ class CleanData:
                         if type(x) == float:
                             x_temp = float(x)
                             if math.isnan(x_temp): #if nan, return ouput within range so that it is not flagged out as out-of-range.
-                                ouput = str(int(split_temp_col_coding[0]) + 1)
+                                # ouput = str(int(split_temp_col_coding[0]) + 1) #fix for floats #(MZ): 20-03-2025
+                                ouput = str((float(split_temp_col_coding[0]) + float(split_temp_col_coding[1])) / 2)
                     elif isinstance(x, str):
                         try:
                             x_float = float(x)
                             ouput = str(x_float)
                         except:
-                            ouput = str(int(split_temp_col_coding[0]) + 1)
+                            # ouput = str(int(split_temp_col_coding[0]) + 1) #fix for floats #(MZ): 20-03-2025
+                            ouput = str((float(split_temp_col_coding[0]) + float(split_temp_col_coding[1])) / 2)
                     else:
                         ouput = str(int(split_temp_col_coding[1]) + 1)
                     return ouput

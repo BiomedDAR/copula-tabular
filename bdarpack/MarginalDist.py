@@ -81,9 +81,14 @@ class MarginalDist:
         Inputs: candidates (list)
 
         Change Log: (MZ) 13-07-2023: Added degenerate distribution
+        Change Log: (MZ) 07-11-2024: Added fix to remove null values before checking for degeneracy
         """
 
-        if len(np.unique(data)) == 1: # Check if data contains only one type of value
+        no_null_data = data[~np.isnan(data)] #(MZ): 07-11-2024
+        if (len(no_null_data)==0): #fully null
+            no_null_data = data
+            
+        if len(np.unique(no_null_data)) == 1: # Check if data contains only one type of value
             # self.params['constant_value'] = np.unique(data)[0]
             # self.marginal_dist = 'degenerate'
             # self.fitted_marginal_dist = 'degenerate'
@@ -92,7 +97,7 @@ class MarginalDist:
                 print(f"Fitting data with degenerate distribution...")
 
             uni = MarginalDist()
-            uni.degenerate_dist(operation='fit', data=data)
+            uni.degenerate_dist(operation='fit', data=no_null_data)
             self.fitted = True
         else:
             opt_ks, opt_univariate, uni = self.select_univariate(data=data, candidates=candidates)
@@ -164,7 +169,6 @@ class MarginalDist:
                     print(f"Fitting data with {uni_dist}:: kstat: {ks_statistic}:: pvalue: {ks_pvalue}")
 
                 if ks_statistic< opt_ks:
-                    # if ks_pvalue > 0.05:
                     opt_ks = ks_statistic
                     opt_univariate = uni_dist
                     opt_uni = deepcopy(uni)
