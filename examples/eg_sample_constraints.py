@@ -36,6 +36,28 @@ def con_age(df, con=con):
 
   return df, con
 
+# FIX AgeMonths (numerical)
+def con_ageMonths(df, con=con):
+
+  # Generate AgeMonths variable from Date of Birth variable
+  # Subtract birth year from current year and convert to months
+  # Subtract birth month from current month
+  # Sum up the total number of months
+  def compute_ageMonths(df_row):
+    dob_str = df_row['Date of Birth']
+    if (pd.isnull(dob_str)):
+      ageMonths = np.nan
+    else:
+      dob = datetime.strptime(dob_str,"%a, %d %B %y")
+      today = datetime.today()
+      ageMonths = (today.year - dob.year) * 12 + today.month - dob.month
+      return ageMonths
+
+  df = con.evaluate_df_column(df, ['Date of Birth'], func=compute_ageMonths, output_column_name="AgeMonths")
+
+  return df, con
+  
+
 # FIX BMI (numerical), BMICatUnder20yrs, BMI_WHO variables
 def con_BMI(df, con=con, bmiChartPerc_filename=None):
 

@@ -46,7 +46,7 @@ OUTPUT_TYPE_DICT = 'xlsx' # the output file type fot the amended dictionary. Ava
 INITIAL_REPORT_FILENAME = 'initial_report_sample.xlsx' #output file name to store the initial report prior to optional cleaning steps
 
 # SETTINGS FOR DROP DUPLICATES
-OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME = 'rowsRemoved.xlsx' # output file name to store the duplicated rows which have been dropped
+OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME = 'rowsRemoved_sample.xlsx' # output file name to store the duplicated rows which have been dropped
 SUFFIX_DROPPED_DUPLICATED_ROWS = "DD" # suffix to append to the end of the output filename of the input data.
 
 # SETTINGS FOR CONSTRAINTS
@@ -55,7 +55,7 @@ SUFFIX_CONSTRAINTS = "CON"
 # SETTINGS FOR STANDARDISE TEXT
 SUFFIX_STANDARDISE_TEXT = "ST"
 OPTIONS_STANDARDISE_TEXT_CASE_TYPE = "uppercase" # default case type to convert strings into: "uppercase", "lowercase", "capitalise"
-OPTIONS_STANDARDISE_TEXT_EXCLUDE_LIST = ["Name"] # variables to exclude from the conversion.
+OPTIONS_STANDARDISE_TEXT_EXCLUDE_LIST = ["Name", "BMI_WHO"] # variables to exclude from the conversion.
 OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT = {"Gender": "lowercase"} # dictionary to customise case_type for specific variables, overwriting default
 
 # SETTINGS FOR ASCII CONVERSION
@@ -67,4 +67,4 @@ OPTIONS_CONVERT_ASCII_EXCLUSION_LIST = ['€','$','Ò'] # list of characters to 
 # note that if the data is in excel format, and the date column is specified as some date format, CODINGS specification is ignored.
 SUFFIX_STANDARDISE_DATE = "DATE"
 OPTIONS_STANDARDISE_DATE_FORMAT = 'ddd, dd mmmm yy' # the standard date format to use for all dates (if not specified, default is 'yyyy-mm-dd') [follows format used in ms-excel, see ref. https://www.ablebits.com/office-addins-blog/change-date-format-excel/]
-OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME = 'failed_date_conversions.csv' # file location for storing list of failed date conversions (only csv)
+OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME = 'failed_date_conversions_sample.csv' # file location for storing list of failed date conversions (only csv)

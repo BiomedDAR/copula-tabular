@@ -15,8 +15,8 @@ from bdarpack.CleanData import CleanData
 # Refer to the sample definitions.py provided for detailed guidance on individual attributes.
 # In addition to definitions.py, the CleanData class also requires a proper data dictionary that includes meta information on the variables one expects to see in the input data file.
 # In this example, the folder name for all raw data files is specified as RAW_PATH="rawData". Users can refer to the provided sample files:
-    # -- input data: nhanes_raw.xlsx
-    # -- input data dictionary: nhanes_dict_2-1.xlsx
+    # -- input data: sample_dataset.xlsx
+    # -- input data dictionary: sample_dataset_dict.xlsx
 # for a better idea of what a data dictionary comprises.
 
 import definitions_sample as defi
@@ -32,12 +32,14 @@ import definitions_sample as defi
 
 cd = CleanData(definitions=defi)
 
+print(cd.raw_df)
+
 # CLEAN THE DATA BY DROPPING DUPLICATE ROWS
 # In this example, we perform an additional adhoc operation to drop any duplicate rows found in the input data.
 # To do this, we specify the following global variables in the definitions.py:
 #  -- OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME = 'rowsRemoved.xlsx' # output file name to store the duplicated rows which have been dropped
 #  -- SUFFIX_DROPPED_DUPLICATED_ROWS = "DD" # suffix to append to the end of the output filename of the input data.
-# If there are unique 'index' variables in the input data, we may wish to tell the function to ignore these variables when checking duplication. 'Index' variables are unique for every row (not subject), and will confound the duplication checking process. We denote these variables using the 'CATEGORY' column of the data dictionary, and by setting its corresponding value to 'Index'. In this example (see nhanes_dict_2-1.xlsx), the variable 'ID' has the value 'Index' for its column 'CATEGORY'.
+# If there are unique 'index' variables in the input data, we may wish to tell the function to ignore these variables when checking duplication. 'Index' variables are unique for every row (not subject), and will confound the duplication checking process. We denote these variables using the 'CATEGORY' column of the data dictionary, and by setting its corresponding value to 'Index'. In this example (see sample_dataset_dict.xlsx), the variable 'ID' has the value 'Index' for its column 'CATEGORY'.
 # The cleaned input data is stored under a filename *-<SUFFIX_DROPPED_DUPLICATED_ROWS>.xlsx.
 cd.drop_duplicate_rows()
 
@@ -62,7 +64,7 @@ cd.converting_ascii()
 
 # CLEAN THE DATA BY STANDARDISING DATES
 # In this example, we perform an additional adhoc operation to standardise the date formats for all 'date' columns found in the input data.
-# To perform this operation, we need to indicate which are the columns that contain data that have been formatted as dates. We will do this using the data dictionary, which contains the metadata of the dataset. In our sample data dictionary, the variables 'date_1', 'date_2', and 'date_3' are all dates. Therefore, under the "TYPE" column of the data dictionary, the data types of the three variables are indicated as 'date', instead of 'numeric' or 'string'.
+# To perform this operation, we need to indicate which are the columns that contain data that have been formatted as dates. We will do this using the data dictionary, which contains the metadata of the dataset. In our sample data dictionary, the variables 'Date of Birth', 'Date of First Visit', 'Date of Diagnosis' and 'Date of Treatment' are all dates. Therefore, under the "TYPE" column of the data dictionary, the data types of the four variables are indicated as 'date', instead of 'numeric' or 'string'.
 # Additional, under the "CODINGS" column, we may further specify the type of date format that variable has been coded in. For instance, 'date_2' has been coded in the 'mm/dd/yyyy' format.
 # Remember that we want to clean the data by standardising the date formats. To do that, we specify the following global variables in the definitions_date.py.
 #  -- SUFFIX_STANDARDISE_DATE = 'DATE'
@@ -87,6 +89,7 @@ con = Constraints(
 
 # The following are examples of constraints used on the variables of the sample dataset.
 df, con = n_con.con_age(df, con)
+df, con = n_con.con_ageMonths(df, con)
 df, con = n_con.con_BMI(df, con, bmiChartPerc_filename=f"{cd.raw_data_path}bmiagerev.xls")
 
 # Check details of the constrained dataset
