@@ -182,7 +182,15 @@ def gen_interpolation(x1, x2, x1new, type="linear", options={}):
     return x2new
 
 # BUILD DATA DICTIONARY
-def build_basic_dict_from_df(df):
+def build_basic_dict_from_df(df, options={}):
+
+    # Load options
+    unique_ratio_value = 0.7 # if unique_count/total_count > unique_ratio_value, set column as 'free text'
+    unique_values_perc = 0.01 # else if any of the unique values appear more than 1% of the time, set as categorical
+    if 'unique_ratio_value' in options:
+        unique_ratio_value = options['unique_ratio_value']
+    if 'unique_values_perc' in options:
+        unique_values_perc = options['unique_values_perc']
 
     data_dict = {}
     df = df.convert_dtypes()
@@ -193,11 +201,11 @@ def build_basic_dict_from_df(df):
         total_count = len(non_na_values)
         if total_count > 0:
             unique_ratio = unique_count / total_count
-            if unique_ratio >= 0.7:
+            if unique_ratio >= unique_ratio_value:
                 return 'free text'
             else:
                 unique_values = non_na_values.value_counts(normalize=True)
-                if any(unique_values > 0.01):
+                if any(unique_values > unique_values_perc):
                     return 'categorical'
                 else:
                     return 'free text'
