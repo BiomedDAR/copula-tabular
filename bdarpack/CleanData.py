@@ -624,9 +624,8 @@ class CleanData:
             else:
                 return 'N.A.'
             
-        for i in string_type_list:
-            f3 = lambda row: f2(row.name) if (row['data_type_in_dict'] == i) else "N.A."
-            report_df['unique_categories'] = report_df.apply(f3, axis=1)
+        f3 = lambda row: f2(row.name) if (row['data_type_in_dict'] in string_type_list) else "N.A."
+        report_df['unique_categories'] = report_df.apply(f3, axis=1)
 
         # Inspect data range (MZ): 27-02-2024
         # create "codings_in_dict" column in report_df
