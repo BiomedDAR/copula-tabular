@@ -1,0 +1,24 @@
+2025-05-08 16:06:53,971 - __name__ - DEBUG - CleanData-Constraints initialising...
+2025-05-08 16:06:53,977 - __name__ - DEBUG - Checking column: Age against Age_dup
+2025-05-08 16:06:53,979 - __name__ - DEBUG - Mismatched rows index: 12_11,26_25
+2025-05-08 16:06:53,980 - __name__ - INFO - For variable: Age_dup: Replaced Age using conditions and values given in dict_conditions_values.
+2025-05-08 16:06:53,981 - __name__ - DEBUG - CleanData-Constraints initialising...
+2025-05-08 16:06:53,987 - __name__ - DEBUG - Checking column: AgeMonths against AgeMonths_dup
+2025-05-08 16:06:53,988 - __name__ - DEBUG - Mismatched rows index: Too many to show.
+2025-05-08 16:06:53,998 - __name__ - INFO - For variable: AgeMonths_dup: Replaced AgeMonths using conditions and values given in dict_conditions_values.
+2025-05-08 16:06:53,999 - __name__ - DEBUG - CleanData-Constraints initialising...
+2025-05-08 16:06:54,005 - __name__ - DEBUG - Checking column: BMI against BMI_dup
+2025-05-08 16:06:54,006 - __name__ - INFO - For variable: BMI_dup: Replaced BMI using conditions and values given in dict_conditions_values.
+2025-05-08 16:06:54,020 - __name__ - DEBUG - CleanData-Constraints initialising...
+2025-05-08 16:06:54,049 - __name__ - DEBUG - Checking column: BMICatUnder20yrs against BMICatUnder20yrs_dup
+2025-05-08 16:06:54,051 - __name__ - DEBUG - Mismatched rows index: Too many to show.
+2025-05-08 16:06:54,051 - __name__ - INFO - For variable: BMICatUnder20yrs_dup: Replaced BMICatUnder20yrs using conditions and values given in dict_conditions_values.
+2025-05-08 16:06:54,052 - __name__ - DEBUG - CleanData-Constraints initialising...
+2025-05-08 16:06:54,057 - __name__ - DEBUG - Checking column: BMI_WHO against BMI_WHO_dup
+2025-05-08 16:06:54,058 - __name__ - DEBUG - Mismatched rows index: 8_7,16_15,19_18,25_24,26_25,27_26,29_28
+2025-05-08 16:06:54,059 - __name__ - INFO - For variable: BMI_WHO_dup: Replaced BMI_WHO using conditions and values given in dict_conditions_values.
+2025-05-08 16:06:54,062 - __name__ - INFO - variable:Age: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced Age using conditions and values given in dict_conditions_values.', 'replaced': '12_11,26_25'}}
+2025-05-08 16:06:54,062 - __name__ - INFO - variable:AgeMonths: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced AgeMonths using conditions and values given in dict_conditions_values.', 'replaced': '1_0,2_1,4_3,5_4,7_6,8_7,9_8,12_11,13_12,14_13,15_14,16_15,19_18,20_19,22_21,23_22,25_24,26_25,27_26,29_28'}}
+2025-05-08 16:06:54,062 - __name__ - INFO - variable:BMI: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced BMI using conditions and values given in dict_conditions_values.', 'replaced': 'No mismatches'}}
+2025-05-08 16:06:54,062 - __name__ - INFO - variable:BMICatUnder20yrs: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced BMICatUnder20yrs using conditions and values given in dict_conditions_values.', 'replaced': '1_0,2_1,4_3,5_4,7_6,8_7,9_8,12_11,13_12,14_13,15_14,16_15,19_18,20_19,22_21,23_22,25_24,26_25,27_26,29_28'}}
+2025-05-08 16:06:54,062 - __name__ - INFO - variable:BMI_WHO: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced BMI_WHO using conditions and values given in dict_conditions_values.', 'replaced': '8_7,16_15,19_18,25_24,26_25,27_26,29_28'}}

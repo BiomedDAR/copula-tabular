@@ -1,11 +1,11 @@
-,Date of Birth,Date of First Visit,Date of Diagnosis,Date of Treatment
-0,,,,1
-1,,,,2
-2,,,,4
-4,,,,7
-10,,,,15
-11,,,,16
-13,,,,20
-14,,,,22
-15,,,,23
-17,,,,26
+new_index,Date of Birth,Date of First Visit,Date of Diagnosis,Date of Treatment
+David Johnson_0,,,,1
+Anna Müller_1,,,,2
+Òscar Smith_3,,,,4
+Peter Phillips_6,,,,7
+James Marie_14,,,,15
+Charlotte Carter_15,,,,16
+Élisabeth Louise_19,,,,20
+Tom Davis_21,,,,22
+Émile Noël_22,,,,23
+Amelia Grant_25,,,,26

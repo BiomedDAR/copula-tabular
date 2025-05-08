@@ -107,5 +107,5 @@ con.output_log_to_file()
 cd.update_data(new_df = df, filename_suffix = cd.suffix_constraints)
 
 # PRINT REPORT
-cd.gen_data_report(cd.clean_df, dict=cd.clean_dict_df)
+cd.gen_data_report(cd.clean_df, dict=cd.clean_dict_df,report_filename="final_report_sample.xlsx")
 print(cd.report_df)

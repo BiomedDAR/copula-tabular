@@ -38,6 +38,8 @@ DICT_VAR_VARCATEGORY = "CATEGORY" # column in data dictionary setting the catego
 
 # SETTINGS FOR DATA CLEANING
 VAR_NAME_STRIPEMPTYSPACES = True # option. If True, empty spaces will be stripped from variable names in input data, and from variables names listed in data dictionary. If not specified, default is False.
+CREATE_UNIQUE_INDEX = True
+UNIQUE_INDEX_COMPOSITION_LIST = ["Name"]
 
 OUTPUT_TYPE_DATA = 'xlsx' # the output file type for the clean data files. Available options: 'csv', 'xlsx'. If not specified, default is 'csv'
 OUTPUT_TYPE_DICT = 'xlsx' # the output file type fot the amended dictionary. Available options: 'csv', 'xlsx'. If not specified, default is 'xlsx'

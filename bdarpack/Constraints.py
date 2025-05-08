@@ -23,9 +23,21 @@ class Constraints:
 
         if self.logging:
             if self.logger is None:
-                import logging
-                logging.basicConfig(filename='contraints_logfile.txt', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-                self.logger = logging.getLogger(__name__)
+                import logging, os, sys
+                self.logger = logging.getLogger('__name__')
+                self.logger.setLevel(logging.DEBUG)
+
+                script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+                log_file_path = os.path.join(script_dir, 'constraints_logfile.txt')
+                file_handler = logging.FileHandler(log_file_path)
+                file_handler.setLevel(logging.DEBUG)
+
+                formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                file_handler.setFormatter(formatter)
+
+                self.logger.addHandler(file_handler)
+                # self.logger.propagate=False // commented out so that the main logger file in cleanData is also updated together with the newly created log
+
             self.logger.debug('CleanData-Constraints initialising...')
 
     def output_log_to_file(self):
