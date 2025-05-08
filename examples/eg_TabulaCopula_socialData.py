@@ -142,6 +142,9 @@ if visual_bool:
         ref = 'autopermute'
 
     if visual_scatter_ref_single or visual_scatter_ref_permute:
+
+        ax_scatter_single, fig_scatter_single = vp.scatterPlot_multiple(data_df, n_plot_cols=3, ref=ref )
+
         ax_scatter, fig_scatter = vp.scatterPlot_multiple_compare(data_df, syn_samples_df, n_plot_cols=3, ref=ref, options=scatterplot_options)
         
         if cond_bool:
