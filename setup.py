@@ -10,9 +10,12 @@ from setuptools import setup, find_packages
 # python -m twine upload -u __token__ -p pypi-**(insert password here) dist/*
 # username = __token__, password = <token>
 
+# python -m pip install -U pkginfo twine // run this line when throws error that involves versioning
+
+
 setup(
     name='bdarpack',
-    version='0.1.6',    
+    version='0.1.7',    
     description='A Python package for tabular synthetic data',
     url='https://biomeddar.github.io/copula-tabular/',
     author='MZ Tan',
