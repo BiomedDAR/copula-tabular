@@ -32,6 +32,11 @@ import definitions_sample as defi
 
 cd = CleanData(definitions=defi)
 
+# PRINT INITIAL REPORT
+# After the CleanData class is initialized, you may print an initial report.
+# The initial report identifies pre-cleaned data rows that may contain errors.
+print(cd.report_df)
+
 # PRINT THE INITIAL DATAFRAME
 # After the CleanData class is initialized, you may print the initial data to check that it is loaded properly
 print(cd.raw_df)
@@ -106,6 +111,7 @@ con.output_log_to_file()
 
 cd.update_data(new_df = df, filename_suffix = cd.suffix_constraints)
 
-# PRINT REPORT
+# PRINT FINAL REPORT
+# The final report identifies post-cleaned data rows that may contain errors.
 cd.gen_data_report(cd.clean_df, dict=cd.clean_dict_df,report_filename="final_report_sample.xlsx")
 print(cd.report_df)

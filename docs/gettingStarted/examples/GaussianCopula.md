@@ -3,7 +3,7 @@ layout: default
 title: Example for Multivariate Synthetic Data (Linear)
 parent: Examples
 grand_parent: Getting Started
-nav_order: 7
+nav_order: 8
 ---
 
 ## Example of GaussianCopula Class

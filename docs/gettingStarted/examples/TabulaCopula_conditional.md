@@ -3,7 +3,7 @@ layout: default
 title: Example for Multivariate Synthetic Data (multi-Linear)
 parent: Examples
 grand_parent: Getting Started
-nav_order: 8
+nav_order: 9
 ---
 
 ### Example of TabulaCopula Class

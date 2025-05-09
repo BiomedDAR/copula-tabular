@@ -3,7 +3,7 @@ layout: default
 title: Example for Multivariate Synthetic Data (multi-Linear, Privacy Leakage Assessment)
 parent: Examples
 grand_parent: Getting Started
-nav_order: 10
+nav_order: 11
 ---
 
 ### Example of TabulaCopula Class
