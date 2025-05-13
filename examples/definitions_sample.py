@@ -70,3 +70,15 @@ OPTIONS_CONVERT_ASCII_EXCLUSION_LIST = ['€','$','Ò'] # list of characters to 
 SUFFIX_STANDARDISE_DATE = "DATE"
 OPTIONS_STANDARDISE_DATE_FORMAT = 'ddd, dd mmmm yy' # the standard date format to use for all dates (if not specified, default is 'yyyy-mm-dd') [follows format used in ms-excel, see ref. https://www.ablebits.com/office-addins-blog/change-date-format-excel/]
 OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME = 'failed_date_conversions_sample.csv' # file location for storing list of failed date conversions (only csv)
+
+# STEPS TO EXECUTE IN A SPECIFIC ORDER
+# Set the steps in a dictionary in the order you want them to run
+# Use number keys to specify the execution order (1, 2, etc.).
+# Each value is an object that must include an "op" key that specifies the operation to perform
+# List of "op" keys:
+# "DD" - Drop Duplicates
+# "ST" - Standardise Text
+# "SD" - Standardise Date
+# "ASCII" - ASCII Conversion
+# "CON" - Constraints
+EXECUTE_STEPS = {1: {"op":"DD"},2:{"op":"ST"},3:{"op":"ASCII"},4:{"op":"SD"},5:{"op":"CON"}} # Set the steps in the desired execution order

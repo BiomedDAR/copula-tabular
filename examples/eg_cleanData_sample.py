@@ -43,7 +43,8 @@ print(cd.raw_df)
 #  -- SUFFIX_DROPPED_DUPLICATED_ROWS = "DD" # suffix to append to the end of the output filename of the input data.
 # If there are unique 'index' variables in the input data, we may wish to tell the function to ignore these variables when checking duplication. 'Index' variables are unique for every row (not subject), and will confound the duplication checking process. We denote these variables using the 'CATEGORY' column of the data dictionary, and by setting its corresponding value to 'Index'. In this example (see sample_dataset_dict.xlsx), the variable 'ID' has the value 'Index' for its column 'CATEGORY'.
 # The cleaned input data is stored under a filename *-<SUFFIX_DROPPED_DUPLICATED_ROWS>.xlsx.
-cd.drop_duplicate_rows()
+def clean_dd():
+    cd.drop_duplicate_rows()
 
 # CLEAN THE DATA BY STANDARDISING TEXT VARIABLES (CAPITAL/SMALL LETTERS)
 # In this example, we perform yet another adhoc operation to convert text/string variables into a standardise case (capital/small letters) format.
@@ -53,15 +54,17 @@ cd.drop_duplicate_rows()
 #  -- OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT = {"Race1": "capitalise"} # dictionary to customise case_type for specific variables, overwriting default
 # Note that 'index' variables are automatically excluded from this standardisation/conversion. Missing "string" type values will be converted to <NA>.
 # The cleaned input data is stored under a filename *-<SUFFIX_STANDARDISE_TEXT>.xlsx.
-cd.standardise_text()
+def clean_st():
+    cd.standardise_text()
 
 
 # CONVERSION OF CHARACTERS
 # In this example, we perform an additional adhoc operation to convert characters to ASCII-compatible characters.
-# To do that, we specify the following global variables in the definitions_date.py.
+# To do that, we specify the following global variables in the definitions_sample.py.
 #  -- SUFFIX_CONVERT_ASCII = 'ASCII'
 #  -- OPTIONS_CONVERT_ASCII_EXCLUSION_LIST = ['€','$','Ò'] # list of characters to exclude from conversion
-cd.converting_ascii()
+def clean_ascii():
+    cd.converting_ascii()
 
 
 # CLEAN THE DATA BY STANDARDISING DATES
@@ -72,8 +75,8 @@ cd.converting_ascii()
 #  -- SUFFIX_STANDARDISE_DATE = 'DATE'
 #  -- OPTIONS_STANDARDISE_DATE_FORMAT = 'ddd, dd mmmm yy' # the standard date format to use for all dates (if not specified, default is 'yyyy-mm-dd') [follows format used in ms-excel, see ref. https://www.ablebits.com/office-addins-blog/change-date-format-excel/]
 #  -- OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME = 'failed_date_conversions.csv' # file location for storing list of failed date conversions (only csv)
-
-cd.standardise_date()
+def clean_sd():
+    cd.standardise_date()
 
 # LOAD DEPENDENCIES
 from bdarpack.Constraints import Constraints
@@ -82,29 +85,50 @@ from bdarpack.Constraints import Constraints
 import eg_sample_constraints as n_con
 
 # USE CONSTRAINTS
-df = cd.clean_df
-con = Constraints(
-    debug=True,
-    logging=True, #whether to perform logging for constraints
-    logger=cd.logger #use same logfile as cleanData. If None, new logfile will be created in root
-)
+def clean_con():
+    df = cd.clean_df
+    con = Constraints(
+        debug=True,
+        logging=True,  # whether to perform logging for constraints
+        logger=cd.logger    # use same logfile as cleanData. If None, new logfile will be created in root
+    )
 
-# The following are examples of constraints used on the variables of the sample dataset.
-df, con = n_con.con_age(df, con)
-df, con = n_con.con_ageMonths(df, con)
-df, con = n_con.con_BMI(df, con, bmiChartPerc_filename=f"{cd.raw_data_path}bmiagerev.xls")
+    # The following are examples of constraints used on the variables of the sample dataset.
+    df, con = n_con.con_age(df, con)
+    df, con = n_con.con_ageMonths(df, con)
+    df, con = n_con.con_BMI(
+        df, con, bmiChartPerc_filename=f"{cd.raw_data_path}bmiagerev.xls")
 
-# Check details of the constrained dataset
-pprint.pprint(con.log)
+    # Check details of the constrained dataset
+    pprint.pprint(con.log)
 
-# Output log variable to file
-con.output_log_to_file()
+    # Output log variable to file
+    con.output_log_to_file()
 
-# UPDATE CLEANDATA CLASS
-# Update the CleanData class with constrained data
-# The cleaned input data is stored under a filename *-<SUFFIX_CONSTRAINTS>.xlsx.
+    # UPDATE CLEANDATA CLASS
+    # Update the CleanData class with constrained data
+    # The cleaned input data is stored under a filename *-<SUFFIX_CONSTRAINTS>.xlsx.
 
-cd.update_data(new_df = df, filename_suffix = cd.suffix_constraints)
+    cd.update_data(new_df=df, filename_suffix=cd.suffix_constraints)
+
+# EXECUTE THE SELECTED CLEANING OPERATIONS BY CALLING THE RESPECTIVE FUNCTIONS
+# We specify the variable EXECUTE_STEPS in the definitions_sample.py:
+#  -- EXECUTE_STEPS = {1: {"op":"DD"},2:{"op":"ST"}}
+# We sort and iterate through EXECUTE_STEPS in order, and call the corresponding function for each operation.
+for step_num in sorted(defi.EXECUTE_STEPS):
+    step = defi.EXECUTE_STEPS[step_num]
+    op = step["op"]
+    
+    if op == "DD":
+        clean_dd()
+    elif op == "ST":
+        clean_st()
+    elif op == "SD":
+        clean_sd()
+    elif op == "ASCII":
+        clean_ascii()
+    elif op == "CON":
+        clean_con()
 
 # PRINT REPORT
 cd.gen_data_report(cd.clean_df, dict=cd.clean_dict_df,report_filename="final_report_sample.xlsx")
