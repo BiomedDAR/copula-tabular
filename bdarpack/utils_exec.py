@@ -8,11 +8,18 @@ def exec_cleanData(cd, exec_steps = {}):
       step = exec_steps[step_num]
       op = step["op"]
       
-      if op == "DD":
+      try:
+        if op == "DD":
           cd.drop_duplicate_rows()
-      elif op == "ST":
+        elif op == "ST":
           cd.standardise_text()
-      elif op == "SD":
+        elif op == "SD":
           cd.standardise_date()
-      elif op == "ASCII":
-          cd.converting_ascii()
+        elif op == "ASCII":
+           cd.converting_ascii()
+        else:
+           print(f"Unknown operation: {op}")
+           continue
+      except Exception as e:
+        print(f"Error during [Step {step_num}] {op}: {e}")
+        raise
