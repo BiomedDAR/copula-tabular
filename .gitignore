@@ -138,3 +138,6 @@ dmypy.json
 
 # others
 /docs/assets/issues
+
+# OS generated files
+.DS_Store

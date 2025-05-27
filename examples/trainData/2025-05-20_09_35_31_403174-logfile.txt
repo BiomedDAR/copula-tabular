@@ -1,0 +1,56 @@
+2025-05-20 09:35:31,403 - DEBUG - CleanData initialising...
+2025-05-20 09:35:31,403 - INFO - Reading raw data from filename: /Users/johnlee/Documents/Github/copula-tabular/examples/rawData/sample_dataset.xlsx
+2025-05-20 09:35:31,403 - INFO - File extension: xlsx
+2025-05-20 09:35:31,544 - INFO - Sheetname is preassigned as Sheet1.
+2025-05-20 09:35:31,554 - INFO - Input data loaded.
+2025-05-20 09:35:31,555 - INFO - Reading data dictionary from filename: /Users/johnlee/Documents/Github/copula-tabular/examples/rawData/sample_dataset_dict.xlsx
+2025-05-20 09:35:31,555 - INFO - File extension: xlsx
+2025-05-20 09:35:31,557 - INFO - Sheetname is preassigned as Sheet1.
+2025-05-20 09:35:31,561 - INFO - Data dictionary loaded.
+2025-05-20 09:35:31,562 - INFO - No variable name mismatches found. Proceeding with next step of initialisation...
+2025-05-20 09:35:31,562 - INFO - Extracting list of longitudinal markers: ['0']
+2025-05-20 09:35:31,616 - INFO - Initial Report Generated: filename: /Users/johnlee/Documents/Github/copula-tabular/examples/trainData/initial_report_sample.xlsx
+2025-05-20 09:35:31,624 - INFO - Dropping duplicate rows in input data...
+2025-05-20 09:35:31,626 - INFO - No. of dropped rows: 10
+2025-05-20 09:35:31,635 - INFO - Replacing the input data...
+2025-05-20 09:35:31,642 - INFO - Replacing the input data complete. new filename: /Users/johnlee/Documents/Github/copula-tabular/examples/trainData/sample_dataset-DD.xlsx
+2025-05-20 09:35:31,642 - INFO - Standardising text in input data...
+2025-05-20 09:35:31,644 - INFO - Replacing the input data...
+2025-05-20 09:35:31,652 - INFO - Replacing the input data complete. new filename: /Users/johnlee/Documents/Github/copula-tabular/examples/trainData/sample_dataset-DD-ST.xlsx
+2025-05-20 09:35:31,652 - INFO - Converting all characters to ASCII-compatible in input data...
+2025-05-20 09:35:31,652 - INFO - List of Exclusions: 
+['€', '$', 'Ò']
+2025-05-20 09:35:31,656 - INFO - Replacing the input data...
+2025-05-20 09:35:31,664 - INFO - Replacing the input data complete. new filename: /Users/johnlee/Documents/Github/copula-tabular/examples/trainData/sample_dataset-DD-ST-ASCII.xlsx
+2025-05-20 09:35:31,664 - INFO - Standardising date/time in input data...
+2025-05-20 09:35:31,668 - INFO - Standardise date: raw_dateCOlFieldFormat for variable Date of Diagnosis is not valid.
+2025-05-20 09:35:31,674 - INFO - Using %d/%m/%Y as date format.
+2025-05-20 09:35:31,676 - INFO - Replacing the input data...
+2025-05-20 09:35:31,683 - INFO - Replacing the input data complete. new filename: /Users/johnlee/Documents/Github/copula-tabular/examples/trainData/sample_dataset-DD-ST-ASCII-DATE.xlsx
+2025-05-20 09:35:31,690 - DEBUG - CleanData-Constraints initialising...
+2025-05-20 09:35:31,693 - DEBUG - Checking column: Age against Age_dup
+2025-05-20 09:35:31,694 - DEBUG - Mismatched rows index: 7,17
+2025-05-20 09:35:31,694 - INFO - For variable: Age_dup: Replaced Age using conditions and values given in dict_conditions_values.
+2025-05-20 09:35:31,694 - DEBUG - CleanData-Constraints initialising...
+2025-05-20 09:35:31,697 - DEBUG - Checking column: AgeMonths against AgeMonths_dup
+2025-05-20 09:35:31,697 - DEBUG - Mismatched rows index: Too many to show.
+2025-05-20 09:35:31,698 - INFO - For variable: AgeMonths_dup: Replaced AgeMonths using conditions and values given in dict_conditions_values.
+2025-05-20 09:35:31,698 - DEBUG - CleanData-Constraints initialising...
+2025-05-20 09:35:31,700 - DEBUG - Checking column: BMI against BMI_dup
+2025-05-20 09:35:31,701 - INFO - For variable: BMI_dup: Replaced BMI using conditions and values given in dict_conditions_values.
+2025-05-20 09:35:31,710 - DEBUG - CleanData-Constraints initialising...
+2025-05-20 09:35:31,722 - DEBUG - Checking column: BMICatUnder20yrs against BMICatUnder20yrs_dup
+2025-05-20 09:35:31,722 - DEBUG - Mismatched rows index: Too many to show.
+2025-05-20 09:35:31,722 - INFO - For variable: BMICatUnder20yrs_dup: Replaced BMICatUnder20yrs using conditions and values given in dict_conditions_values.
+2025-05-20 09:35:31,723 - DEBUG - CleanData-Constraints initialising...
+2025-05-20 09:35:31,725 - DEBUG - Checking column: BMI_WHO against BMI_WHO_dup
+2025-05-20 09:35:31,725 - DEBUG - Mismatched rows index: 5,11,12,16,17,18,19
+2025-05-20 09:35:31,725 - INFO - For variable: BMI_WHO_dup: Replaced BMI_WHO using conditions and values given in dict_conditions_values.
+2025-05-20 09:35:31,726 - INFO - variable:Age: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced Age using conditions and values given in dict_conditions_values.', 'replaced': '7,17'}}
+2025-05-20 09:35:31,726 - INFO - variable:AgeMonths: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced AgeMonths using conditions and values given in dict_conditions_values.', 'replaced': '0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19'}}
+2025-05-20 09:35:31,726 - INFO - variable:BMI: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced BMI using conditions and values given in dict_conditions_values.', 'replaced': 'No mismatches'}}
+2025-05-20 09:35:31,726 - INFO - variable:BMICatUnder20yrs: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced BMICatUnder20yrs using conditions and values given in dict_conditions_values.', 'replaced': '0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19'}}
+2025-05-20 09:35:31,726 - INFO - variable:BMI_WHO: constraints exerted: {'evaluate_df_column': {'msg': 'Replaced BMI_WHO using conditions and values given in dict_conditions_values.', 'replaced': '5,11,12,16,17,18,19'}}
+2025-05-20 09:35:31,726 - INFO - Replacing the input data...
+2025-05-20 09:35:31,756 - INFO - Replacing the input data complete. new filename: /Users/johnlee/Documents/Github/copula-tabular/examples/trainData/sample_dataset-DD-ST-ASCII-DATE-CON.xlsx
+2025-05-20 09:35:31,778 - INFO - Initial Report Generated: filename: /Users/johnlee/Documents/Github/copula-tabular/examples/trainData/initial_report_sample.xlsx
