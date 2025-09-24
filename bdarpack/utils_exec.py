@@ -80,7 +80,11 @@ def run_clean_pipeline(definitions_path: str):
         exec_cleanData(cd, definitions.EXECUTE_STEPS)
 
         # Step 4: Generate report and preview
-        cd.gen_data_report(cd.clean_df, dict=cd.clean_dict_df, report_filename="final_report_sample.xlsx")
+        final_report_filename = "final_report_sample.xlsx"
+        if definitions.FINAL_REPORT_FILENAME:
+            final_report_filename = definitions.FINAL_REPORT_FILENAME
+
+        cd.gen_data_report(cd.clean_df, dict=cd.clean_dict_df, report_filename=final_report_filename)
         report_df_head = cd.report_df.head(5)
         report_preview = report_df_head.where(pd.notnull(report_df_head), None).to_dict()
 
