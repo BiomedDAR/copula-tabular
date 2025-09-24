@@ -19,11 +19,11 @@ This example demonstrates all cleaning operations from the CleanData class using
 
 Users can refer to the provided sample files used in this demo:
 
-- definitions: [examples\definitions_sample.py](../../../examples/definitions_sample.py)
-- input dataset: [examples\rawData\sample_dataset.xlsx](../../../examples/rawData/sample_dataset.xlsx)
-- input data dictionary: [examples\rawData\sample_dataset_dict.xlsx](../../../examples/rawData/sample_dataset_dict.xlsx)
-- main script: [examples\eg_cleanData_sample.py](../../../examples/eg_cleanData_sample.py)
-- constraints script: [examples\eg_sample_constraints.py](../../../examples/eg_sample_constraints.py)
+- definitions: [examples\definitions_sample.py](https://github.com/BiomedDAR/copula-tabular/blob/main/examples/definitions_sample.py)
+- input dataset: [examples\rawData\sample_dataset.xlsx](https://github.com/BiomedDAR/copula-tabular/blob/main/examples/rawData/sample_dataset.xlsx)
+- input data dictionary: [examples\rawData\sample_dataset_dict.xlsx](https://github.com/BiomedDAR/copula-tabular/blob/main/examples/rawData/sample_dataset_dict.xlsx)
+- main script: [examples\eg_cleanData_sample.py](https://github.com/BiomedDAR/copula-tabular/blob/main/examples/eg_cleanData_sample.py)
+- constraints script: [examples\eg_sample_constraints.py](https://github.com/BiomedDAR/copula-tabular/blob/main/examples/eg_sample_constraints.py)
 
 ### Import Libraries
 
@@ -43,14 +43,14 @@ from bdarpack.CleanData import CleanData
 
 The definitions\.py is where most, if not all, of the global attributes in the tabular-copula pipeline are defined.
 
-Refer to the sample definitions\.py ([examples\definitions_sample.py](../../../examples/definitions_sample.py)) provided for detailed guidance on individual attributes.
+Refer to the sample definitions\.py ([examples\definitions_sample.py](https://github.com/BiomedDAR/copula-tabular/blob/main/examples/definitions_sample.py)) provided for detailed guidance on individual attributes.
 
 In addition to definitions\.py, the CleanData class also requires a proper data dictionary that includes meta information on the variables one expects to see in the input data file.
 
 In this example, the folder name for all raw data files is specified as RAW_PATH="rawData". Users can refer to the provided sample files:
 
-- input dataset: [examples\rawData\sample_dataset.xlsx](../../../examples/rawData/sample_dataset.xlsx)
-- input data dictionary: [examples\rawData\sample_dataset_dict.xlsx](../../../examples/rawData/sample_dataset_dict.xlsx)
+- input dataset: [examples\rawData\sample_dataset.xlsx](https://github.com/BiomedDAR/copula-tabular/blob/main/examples/rawData/sample_dataset.xlsx)
+- input data dictionary: [examples\rawData\sample_dataset_dict.xlsx](https://github.com/BiomedDAR/copula-tabular/blob/main/examples/rawData/sample_dataset_dict.xlsx)
 
 for a better idea of what a data dictionary comprises.
 
