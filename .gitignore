@@ -141,3 +141,6 @@ dmypy.json
 
 # OS generated files
 .DS_Store
+
+# logs
+*-logfile.txt
