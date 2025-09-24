@@ -48,3 +48,6 @@ nav_order: 5
 | SUFFIX_REMOVE_SECONDARY | The filename suffix to use for intermediate outputs of cleaned data. If not specified, default is `NOSEC`. | Remove secondary variable settings |
 | OUTPUT_REMOVED_SECONDARY_FILENAME | The output filename to store removed variables. If not specified, default is `removed_secondary_variables.xlsx`. | Remove secondary variable settings |
 | OPTIONS_SECONDARY_REMOVAL_EXCLUDE_LIST | Secondary variables to exclude from removal process If not specified, default is `[]`. | Remove secondary variable settings |
+
+## Non-Canonical Definitions (Used by `utils_exec.py`)
+<!-- add stuff here -->
