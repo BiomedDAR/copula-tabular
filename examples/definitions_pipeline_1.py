@@ -4,40 +4,46 @@
 
 import os
 from datetime import datetime
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 PREFIX_PATH = f"{dir_path}/"
 
 # === HEADER END ===
 
-RAW_PATH = 'rawData'
-TRAIN_PATH = 'trainData'
+RAW_PATH = "rawData"
+TRAIN_PATH = "trainData"
 READ_NA = False
-RAWXLSX = 'sample_dataset.xlsx'
-RAWXLSX_SHEETNAME = 'Sheet1'
-RAWDICTXLSX = 'sample_dataset_dict.xlsx'
-RAWDICTXLSX_SHEETNAME = 'Sheet1'
+RAWXLSX = "sample_dataset.xlsx"
+RAWXLSX_SHEETNAME = "Sheet1"
+RAWDICTXLSX = "sample_dataset_dict.xlsx"
+RAWDICTXLSX_SHEETNAME = "Sheet1"
 LOGGING = True
-LOG_FILENAME = 'logfile.txt'
+LOG_FILENAME = "logfile.txt"
 LONG_VAR_MARKER = None
-DICT_VAR_VARNAME = 'NAME'
-DICT_VAR_VARCATEGORY = 'CATEGORY'
+DICT_VAR_VARNAME = "NAME"
+DICT_VAR_VARCATEGORY = "CATEGORY"
 VAR_NAME_STRIPEMPTYSPACES = True
-OUTPUT_TYPE_DATA = 'xlsx'
-OUTPUT_TYPE_DICT = 'xlsx'
-INITIAL_REPORT_FILENAME = 'initial_report_sample.xlsx'
-OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME = 'rowsRemoved_sample.xlsx'
-SUFFIX_DROPPED_DUPLICATED_ROWS = 'DD'
-SUFFIX_CONSTRAINTS = 'CON'
-SUFFIX_STANDARDISE_TEXT = 'ST'
-OPTIONS_STANDARDISE_TEXT_CASE_TYPE = 'uppercase'
+OUTPUT_TYPE_DATA = "xlsx"
+OUTPUT_TYPE_DICT = "xlsx"
+INITIAL_REPORT_FILENAME = "initial_report_sample.xlsx"
+OUTPUT_DROPPED_DUPLICATED_ROWS_FILENAME = "rowsRemoved_sample.xlsx"
+SUFFIX_DROPPED_DUPLICATED_ROWS = "DD"
+SUFFIX_CONSTRAINTS = "CON"
+SUFFIX_STANDARDISE_TEXT = "ST"
+OPTIONS_STANDARDISE_TEXT_CASE_TYPE = "uppercase"
 OPTIONS_STANDARDISE_TEXT_EXCLUDE_LIST = ["Name", "BMI_WHO"]
 OPTIONS_STANDARDISE_TEXT_CASE_TYPE_DICT = {"Gender": "lowercase"}
-SUFFIX_CONVERT_ASCII = 'ASCII'
+SUFFIX_CONVERT_ASCII = "ASCII"
 OPTIONS_CONVERT_ASCII_EXCLUSION_LIST = ["€", "$", "Ò"]
-SUFFIX_STANDARDISE_DATE = 'DATE'
-OPTIONS_STANDARDISE_DATE_FORMAT = 'ddd, dd mmmm yy'
-OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME = 'failed_date_conversions_sample.csv'
+SUFFIX_STANDARDISE_DATE = "DATE"
+OPTIONS_STANDARDISE_DATE_FORMAT = "ddd, dd mmmm yy"
+OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME = "failed_date_conversions_sample.csv"
 
-# THis section contains non-canonical definitions used for `utils_exec`.
-EXECUTE_STEPS = {"1": {"op": "DD"}, "2": {"op": "ST"}, "3": {"op": "ASCII"}, "4": {"op": "DATE"}}
+# This section contains non-canonical definitions used for `utils_exec`.
+EXECUTE_STEPS = {
+    "1": {"op": "DD"},
+    "2": {"op": "ST"},
+    "3": {"op": "ASCII"},
+    "4": {"op": "DATE"},
+}
 FINAL_REPORT_FILENAME = "final_report_sample.xlsx"
