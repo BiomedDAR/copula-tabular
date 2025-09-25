@@ -53,5 +53,5 @@ nav_order: 5
 
 |             Attribute | Description                                                                                                                                 | Type                   |
 | --------------------: | :------------------------------------------------------------------------------------------------------------------------------------------ | :--------------------- |
-|         EXECUTE_STEPS | Variable(obj) inside definitions.py containing the steps which data cleaning operations to perform first - first step starting with 1.      | Data cleaning steps    |
-| FINAL_REPORT_FILENAME | Variable(str) in `definitions.py` which determines the final report filename, if not specified, it will default to final_report_sample.xlsx | Data cleaning settings |
+|         EXECUTE_STEPS | Variable(obj) containing the steps which data cleaning operations to perform first - first step starting with 1.                            | Data cleaning steps    |
+| FINAL_REPORT_FILENAME | Variable(str) which determines the final report filename, if not specified, it will default to `final_report_sample.xlsx`                   | Data cleaning settings |

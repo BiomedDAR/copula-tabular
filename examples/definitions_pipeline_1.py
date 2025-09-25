@@ -38,7 +38,6 @@ SUFFIX_STANDARDISE_DATE = 'DATE'
 OPTIONS_STANDARDISE_DATE_FORMAT = 'ddd, dd mmmm yy'
 OPTIONS_FAILEDDATE_CONVERSIONS_FILENAME = 'failed_date_conversions_sample.csv'
 
-
-# what you added, on top of dataclean(so these non-canonical definitions are not loaded in dataclean)
+# THis section contains non-canonical definitions used for `utils_exec`.
 EXECUTE_STEPS = {"1": {"op": "DD"}, "2": {"op": "ST"}, "3": {"op": "ASCII"}, "4": {"op": "DATE"}}
 FINAL_REPORT_FILENAME = "final_report_sample.xlsx"
