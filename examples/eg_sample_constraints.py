@@ -27,7 +27,7 @@ def con_age(df, con=con):
     if (pd.isnull(dob_str)):
       age = np.nan
     else:
-      dob = datetime.strptime(dob_str,"%a, %d %B %y")
+      dob = dob_str.to_pydatetime() if hasattr(dob_str, 'to_pydatetime') else datetime.strptime(dob_str, "%a, %d %B %y")
       today = datetime.today()
       age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
       return age
@@ -48,7 +48,7 @@ def con_ageMonths(df, con=con):
     if (pd.isnull(dob_str)):
       ageMonths = np.nan
     else:
-      dob = datetime.strptime(dob_str,"%a, %d %B %y")
+      dob = dob_str.to_pydatetime() if hasattr(dob_str, 'to_pydatetime') else datetime.strptime(dob_str, "%a, %d %B %y")
       today = datetime.today()
       ageMonths = (today.year - dob.year) * 12 + today.month - dob.month
       return ageMonths

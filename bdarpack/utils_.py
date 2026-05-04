@@ -475,7 +475,7 @@ def strip_empty_spaces(dataframe):
 def strip_string_spaces(dataframe, col=None):
 
     if col is None:
-        for i in range(0, len(dataframe)):
+        for i in dataframe.index:
             dataframe[i] = dataframe[i].strip()
     else:
         dataframe[col] = dataframe[col].str.strip()

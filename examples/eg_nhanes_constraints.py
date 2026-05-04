@@ -21,6 +21,14 @@ def con_Race3(df, con=con):
     vArray = ['Race1', 'Race3']
     df = con.convertBlankstoValue(df, var_array=vArray, value='UNK')
 
+    # Convert remaining NAs to UNK
+    nan_condition = {
+        'parent': 'Race3',
+        'condition': lambda x: pd.isna(x) or x == '<NA>',
+    }
+    dict_nan_condition_values = {1: {'conditions': {1: nan_condition}, 'value': 'UNK'}}
+    df = con.multiparent_conditions(df, ['Race3'], dict_nan_condition_values)
+
     # If SurveyYr=='2009_10', Race3 = '(blanks)'
     surveyYr_2009_10 = {'parent': 'SurveyYr', 'condition': '=="2009_10"'}
     dict_conditions_values = {
